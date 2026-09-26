@@ -13,6 +13,7 @@ Scope: B's work only. A, C and D appear here only as the files B hands to them o
 | B5: signals (`trust/signals.py`) | **Done, tested** against scipy and sklearn references |
 | B6: `features.csv` builder (`trust/features.py`) | **Done, tested on mocks.** Needs one rerun on A's real files |
 | B7: sanity report | **Done.** Printed by `python -m trust.features` |
+| Trust Score (doc §9.2 / §16 nice-to-have) | **Done, tested.** Extra `trust_score` column in `features.csv`; C decides whether to train on it |
 | B8 (stretch): `corruptions.py` for live `/predict` | Only if the core is stable |
 
 ## 2. Manifest contract (frozen; tell B before changing it)
@@ -139,7 +140,7 @@ python -m trust.features --mock   # fake A outputs → data/mock/ (10,200 rows, 
 python -m trust.features          # real run: reads A's files in data/, writes data/features.csv + sanity report
 ```
 
-`features.csv` columns, in manifest row order: `sample_id, raw_confidence, entropy, margin, tta_agree, tta_pconf, tta_std, knn_dist, maha_pred, failure`. Corruption, family and severity are **not** included; C joins them from the manifest.
+`features.csv` columns, in manifest row order: `sample_id, raw_confidence, entropy, margin, tta_agree, tta_pconf, tta_std, knn_dist, maha_pred, trust_score, failure`. `trust_score` is extra: C's `load()` selects columns by name, so it is ignored until C adds it to `FEATURES`. Corruption, family and severity are **not** included; C joins them from the manifest.
 
 ### What B reads from A (the contract the mocks follow)
 
@@ -174,6 +175,7 @@ Everything is computed in float64 from the logits. `k` = the class predicted on 
 | tta_std | std of p_k over the original plus the 3 views (population std) |
 | knn_dist | 1 − cosine similarity to the 10th-nearest train embedding (all 50k train images) |
 | maha_pred | Mahalanobis distance to class `k`'s train mean, using a shared covariance (tiny ridge, `pinvh`) |
+| trust_score | Trust Score (Jiang et al. 2018): distance to the nearest train embedding of any other class ÷ distance to the nearest one of class `k`. Euclidean on unit-normalized embeddings (like `knn_dist`, so contrast/brightness scaling of activations doesn't matter); no density filtering. Higher = more trustworthy; > 1 means class `k` is the nearest class |
 | failure | 1 − correct |
 
 ### Tests
@@ -183,11 +185,13 @@ All pass.
 - **TTA stats:** checked on a hand-worked example.
 - **kNN:** checked against sklearn brute-force cosine `NearestNeighbors`, with a chunk size that doesn't divide N. A bank point's k=1 distance is 0.
 - **Mahalanobis:** checked against `scipy.spatial.distance.mahalanobis`. A rank-deficient bank still gives finite distances.
+- **Trust Score:** checked against a brute-force per-class nearest-neighbour search, with unsorted bank labels and an uneven chunk size. A query that is itself a bank point gets a huge but finite score. Predicting the nearest class always gives a score ≥ 1.
+- **C compatibility:** with the extra column, `python -m trust.run_trust data/mock` and `python -m trust.test_trust` both pass.
 - **AUROC** (in the sanity report): checked against `sklearn.roc_auc_score` with ties.
 - **End-to-end on shuffled mock files:** 40 random rows were recomputed by hand from their own parquet and `.npy` rows and match.
 - **Contract violations:** a dropped row, a short `tta_logits`, a wrong `pred_label`, a wrong `correct` and a duplicate `sample_id` are each caught.
 
-**Runtime at full scale** (412k rows × 50k bank, M-series Mac): about 2¼ min, 1.2 GB peak. Almost all of it is the kNN search.
+**Runtime at full scale** (412k rows × 50k bank, M-series Mac): about 2¼ min, 1.4 GB peak. Almost all of it is the kNN search; the Trust Score shares that pass and adds under 1%.
 
 ### About the mocks
 
