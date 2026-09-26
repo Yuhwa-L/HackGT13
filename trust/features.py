@@ -1,5 +1,6 @@
 """Owner: B. Assemble data/features.csv: sample_id, raw_confidence, entropy, margin, tta_agree, tta_pconf, tta_std,
-knn_dist, maha_pred, failure. Corruption, family and severity are for analysis only, never model inputs.
+knn_dist, maha_pred, trust_score, failure. Corruption, family and severity are for analysis only, never model inputs.
+trust_score is the optional Jiang et al. (2018) feature; C chooses whether to train on it.
 
 Reads (from A): prediction_runs.parquet (sample_id, pred_label, correct, logit_0..logit_9), tta_logits.npy (N x 3 x 10)
 and embeddings.npy (N x 512) in prediction_runs row order, train_embeddings.npy + train_labels.npy (reference bank).
@@ -21,9 +22,9 @@ from trust import signals
 DATA = Path(__file__).resolve().parents[1] / "data"
 N_CLASSES = 10
 LOGITS = [f"logit_{c}" for c in range(N_CLASSES)]
-FEATURES = ["raw_confidence", "entropy", "margin", "tta_agree", "tta_pconf", "tta_std", "knn_dist", "maha_pred"]
+FEATURES = ["raw_confidence", "entropy", "margin", "tta_agree", "tta_pconf", "tta_std", "knn_dist", "maha_pred", "trust_score"]
 COLUMNS = ["sample_id", *FEATURES, "failure"]
-SAFER_WHEN_HIGH = {"raw_confidence", "margin", "tta_agree", "tta_pconf"}  # flipped to a risk score for AUROC
+SAFER_WHEN_HIGH = {"raw_confidence", "margin", "tta_agree", "tta_pconf", "trust_score"}  # flipped to a risk score for AUROC
 
 
 def load_inputs(data_dir):
@@ -59,14 +60,15 @@ def build_features(manifest, runs, tta, emb, bank, bank_labels):
 
     t = time.time()
     tta_st = signals.tta_stats(logits, tta)
-    knn = signals.knn_dist(emb, bank)
+    bank_st = signals.bank_signals(emb, sm["pred"], bank, bank_labels)
     means, precision = signals.fit_mahalanobis(bank, bank_labels)
     maha = signals.maha_pred(emb, sm["pred"], means, precision)
     print(f"signals for {len(runs):,} rows against a {len(bank):,}-row bank: {time.time() - t:.1f} s")
 
     feats = pd.DataFrame({"sample_id": runs["sample_id"].to_numpy(),
                           **{k: sm[k] for k in ("raw_confidence", "entropy", "margin")}, **tta_st,
-                          "knn_dist": knn, "maha_pred": maha, "failure": 1 - correct})
+                          "knn_dist": bank_st["knn_dist"], "maha_pred": maha,
+                          "trust_score": bank_st["trust_score"], "failure": 1 - correct})
     feats = feats.set_index("sample_id").loc[manifest["sample_id"]].reset_index()[COLUMNS]
     assert np.isfinite(feats[FEATURES].to_numpy()).all(), "NaN or inf in features"
     return feats
@@ -87,7 +89,7 @@ def report(feats, manifest):
     df["accuracy"] = 1 - df["failure"]
     pd.set_option("display.width", 200)
     print("\naccuracy by dataset:", df.groupby("dataset")["accuracy"].mean().round(4).to_dict())
-    for col in ["accuracy", "raw_confidence", "tta_pconf", "knn_dist", "maha_pred"]:
+    for col in ["accuracy", "raw_confidence", "tta_pconf", "knn_dist", "maha_pred", "trust_score"]:
         print(f"\nmean {col} by family x severity")
         print(df.pivot_table(index="family", columns="severity", values=col).round(3).to_string())
 

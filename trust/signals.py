@@ -1,11 +1,13 @@
 """Owner: B. Signals beyond the softmax: TTA agreement (tta_agree, tta_pconf, tta_std), kNN distance
-(cosine distance to the 10th-nearest clean train embedding) and Mahalanobis distance to the predicted-class mean (shared covariance).
+(cosine distance to the 10th-nearest clean train embedding), Mahalanobis distance to the predicted-class mean (shared covariance)
+and the optional Trust Score (Jiang et al. 2018).
 
 All functions take plain arrays and compute in float64, so float32 inputs from A don't create ties (see person-c-plan §3.5).
 """
 import numpy as np
 from scipy.linalg import pinvh
 
+N_CLASSES = 10
 KNN_K = 10
 CHUNK = 2048  # rows per block for the kNN / Mahalanobis loops; a 2048 x 50000 float32 similarity block is ~400 MB
 
@@ -58,6 +60,30 @@ def knn_dist(emb, bank, k=KNN_K, chunk=CHUNK):
         sim = q[s:s + chunk] @ b.T
         out[s:s + chunk] = 1.0 - np.partition(sim, -k, axis=1)[:, -k]
     return out
+
+
+def bank_signals(emb, pred, bank, bank_labels, k=KNN_K, chunk=CHUNK):
+    """knn_dist plus trust_score from one pass over the train bank (the similarity matmul is the expensive part).
+
+    trust_score (Jiang et al. 2018, no density filtering): distance to the nearest bank embedding of any other class
+    divided by distance to the nearest one of the predicted class. Euclidean on unit-normalized embeddings, like
+    knn_dist, so it ignores activation scale. Higher = more trustworthy; above 1 means the predicted class is nearest.
+    """
+    q = _unit(emb)
+    order = np.argsort(bank_labels, kind="stable")
+    b = _unit(bank)[order]
+    starts = np.searchsorted(bank_labels[order], np.arange(N_CLASSES))
+    knn, trust = np.empty(len(q)), np.empty(len(q))
+    for s in range(0, len(q), chunk):
+        sim = q[s:s + chunk] @ b.T
+        knn[s:s + chunk] = 1.0 - np.partition(sim, -k, axis=1)[:, -k]
+        nearest = np.maximum.reduceat(sim, starts, axis=1).astype(np.float64)  # best similarity per class
+        d = np.sqrt(np.maximum(2.0 - 2.0 * nearest, 0.0))
+        rows, p = np.arange(len(d)), pred[s:s + chunk]
+        d_pred = d[rows, p].copy()
+        d[rows, p] = np.inf
+        trust[s:s + chunk] = d.min(axis=1) / np.maximum(d_pred, 1e-6)
+    return {"knn_dist": knn, "trust_score": trust}
 
 
 def fit_mahalanobis(bank, bank_labels, n_classes=10, ridge=1e-6):
