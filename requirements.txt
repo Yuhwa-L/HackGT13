@@ -12,6 +12,8 @@ pyarrow>=14            # parquet files in data/
 # --- A: inference ---
 torch>=2.1             # MPS on Apple silicon, CUDA on Colab
 timm>=0.9              # resnet18 + forward_head(pre_logits=True)
+torchvision>=0.16      # CIFAR-10 loading in inference/ (also pulled in by timm)
+pillow>=10             # image conversion in inference/
 
 # --- B: benchmark + signals ---
 # (uses numpy, pandas, pyarrow above and scipy from C's section: pinvh for Mahalanobis)
@@ -22,3 +24,4 @@ xgboost>=2.0           # macOS also needs: brew install libomp
 scipy>=1.10            # temperature scaling optimizer
 
 # --- D: demo + backend ---
+# (none: backend/main.py and the page use only the standard library; build_demo_cache uses numpy/pandas/pyarrow above)

@@ -16,9 +16,11 @@ The demo runs from precomputed files committed to git: `data/demo_cache.json`, `
 |---|---|---|---|
 | Git | any | https://git-scm.com/downloads | `git clone https://github.com/Yuhwa-L/HackGT13.git` |
 | Python | 3.11–3.13 | https://www.python.org/downloads/ | Verified on 3.13.2 |
-| _D: demo app dependencies_ | | | For example, Node.js if the frontend needs it |
+| Nothing else | | | The server uses only Python's standard library, and the page loads no fonts, libraries or CDNs, so it runs offline |
 
-**Start the demo:** _D: add the command here._
+**Start the demo:** `python -m backend.main` from the repo root. It opens http://localhost:8000 (use `--port` to change it, `--no-browser` to skip opening a tab).
+
+**Rebuild the demo data** after a new trust-layer run (needs the section 2 setup and `data/raw/`): `python -m trust.run_trust && python -m backend.build_demo_cache`.
 
 ## 2. Run the pipeline (team)
 
