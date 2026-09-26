@@ -92,7 +92,7 @@ All loaders are cached and return **read-only** arrays. Call `.copy()` before mo
 - `image_index` points at the right label in every source file, including CIFAR-10-C `labels.npy` for all corrupted rows.
 - CIFAR-10-C `image_index % 10000` matches the base image, and `// 10000 + 1` matches the severity.
 
-A separate test script also checked:
+`python -m benchmark.test_benchmark` (8 tests, about 4 s; tests whose dataset isn't downloaded are skipped) also checks:
 
 | Check | Result |
 |---|---|
@@ -180,7 +180,7 @@ Everything is computed in float64 from the logits. `k` = the class predicted on 
 
 ### Tests
 
-All pass.
+`python -m trust.test_features` runs 9 tests in about 3 s. All pass. The end-to-end ones need CIFAR-10 in `data/raw/` to build the mock manifest and are skipped otherwise. As a check that the tests have teeth, each of these deliberate bugs makes at least one test fail: `tta_std` over the views only, an inverted Trust Score, an unstratified split, and aligning rows by position instead of `sample_id`.
 - **softmax stats:** checked against `scipy.special.softmax` / `scipy.stats.entropy`, including logits of 1000 (no overflow).
 - **TTA stats:** checked on a hand-worked example.
 - **kNN:** checked against sklearn brute-force cosine `NearestNeighbors`, with a chunk size that doesn't divide N. A bank point's k=1 distance is 0.
