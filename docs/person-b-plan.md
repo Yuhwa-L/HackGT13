@@ -2,19 +2,28 @@
 
 Scope: B's work only. A, C and D appear here only as the files B hands to them or reads from them.
 
-## 1. Status (Sat 26 Sep, ~2 PM)
+## 1. Status (Sat 26 Sep, evening)
 
 | Part | Status |
 |---|---|
 | B1: loaders for CIFAR-10, CIFAR-10.1 and CIFAR-10-C | **Done, tested** |
 | B2: `load_images(manifest)` for A | **Done, tested** |
-| B3: `manifest.csv` plus the split by base image | **Done, tested.** `data/manifest.csv` is written at 2,000 base images (84,000 rows) |
+| B3: `manifest.csv` plus the split by base image | **Done, frozen at 10,000 base images** (412,000 rows, seed 0). This is what the real run used |
 | B4: mock A outputs + `features.csv` for C | **Done, tested.** `python -m trust.features --mock` writes everything to `data/mock/` |
 | B5: signals (`trust/signals.py`) | **Done, tested** against scipy and sklearn references |
-| B6: `features.csv` builder (`trust/features.py`) | **Done, tested on mocks.** Needs one rerun on A's real files |
+| B6: `features.csv` builder (`trust/features.py`) | **Done.** Ran on A's real full-size outputs in the integrated pipeline |
 | B7: sanity report | **Done.** Printed by `python -m trust.features` |
-| Trust Score (doc §9.2 / §16 nice-to-have) | **Done, tested.** Extra `trust_score` column in `features.csv`; C decides whether to train on it |
-| B8 (stretch): `corruptions.py` for live `/predict` | Only if the core is stable |
+| Trust Score (doc §9.2 / §16 nice-to-have) | **Done, tested.** Extra `trust_score` column in `features.csv`. C's final model uses the 8 core features and not this one |
+| Test suites | **Done.** `python -m benchmark.test_benchmark` (8 tests), `python -m trust.test_features` (9 tests) |
+| B8 (stretch): `corruptions.py` for live `/predict` | Not started (optional) |
+
+**Real-run check (commit `d7bb77e`).** All 84,000 scored test rows in `data/scores.parquet` match `build_manifest(10000)` with seed 0 exactly: every `sample_id`, the split (all `test`), `base_image_id`, `family` and `severity`. ResNet accuracy on those rows matches the known values:
+
+| Rows | Accuracy | Known value |
+|---|---|---|
+| CIFAR-10.1 | 88.75% | 88.75% |
+| Clean test | 95.25% | about 95% |
+| Noise (weakest family) | 49.7% | 49% |
 
 ## 2. Manifest contract (frozen; tell B before changing it)
 
@@ -118,9 +127,9 @@ All loaders are cached and return **read-only** arrays. Call `.copy()` before mo
 
 ## 5. Things the team should know
 
-1. **The 2,000 and 10,000 manifests don't share splits.** The same base image can be train in one and test in the other. Never mix results or trained models across the two sizes.
+1. **The 2,000 and 10,000 manifests don't share splits.** The same base image can be train in one and test in the other. The committed results use **10,000**, so rebuild with `--n-base 10000` before rerunning anything, and never mix outputs across sizes.
 2. **Motion blur is not strictly monotone:** severity 4 is slightly closer to clean than severity 3. I believe this is how CIFAR-10-C's motion blur is built, not a bug, since the other seven types rise every step. Expect it in C's per-severity charts too.
-3. **The 2,000-image manifest has 2,000 CIFAR-10 base images, not 4,000.** The other 2,000 base images are CIFAR-10.1.
+3. **CIFAR-10.1 adds 2,000 extra base images** (`c101_…`) on top of the CIFAR-10 ones. So `base_image_id.nunique()` is 12,000 for the 10,000-image manifest.
 4. **`manifest.csv` is gitignored** (`data/*.csv`). Share it through the team drive. Anyone with `data/raw/` can also rebuild the identical file in about a second.
 
 ## 6. Handoffs
@@ -207,9 +216,12 @@ Use the mocks for schemas, joins and plumbing only. Their signal quality is **no
 
 ## 8. Next steps
 
-1. When A's first real files land in `data/`: run `python -m trust.features`, check the sanity report (clean accuracy ≈ 94.98%, CIFAR-10.1 ≈ 88.75%, `tta_pconf` the strongest single feature on blur), then share `features.csv` with C through the team drive.
-2. Rerun it after A's final full-size inference run (10,000 base images).
-3. Stretch B8: `benchmark/corruptions.py` for live `/predict`.
+The core B work is complete. Remaining B items from the project doc's timeline:
+
+1. **Spot-check the benchmark (9–12 PM):** review a few `demo_cache.json` images against their manifest rows (corruption, severity, label).
+2. **Methods and data explanation for the pitch (2–4 AM):** the leakage-safe split, leave-one-family-out, CIFAR-10.1, and what each signal measures.
+3. **Devpost write-up (4–6 AM).**
+4. **Optional stretch B8:** `benchmark/corruptions.py` for live `/predict`.
 
 ## 9. Setup
 
