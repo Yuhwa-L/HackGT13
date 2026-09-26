@@ -9,8 +9,10 @@ Scope: B's work only. A, C and D appear here only as the files B hands to them o
 | B1: loaders for CIFAR-10, CIFAR-10.1 and CIFAR-10-C | **Done, tested** |
 | B2: `load_images(manifest)` for A | **Done, tested** |
 | B3: `manifest.csv` plus the split by base image | **Done, tested.** `data/manifest.csv` is written at 2,000 base images (84,000 rows) |
-| B4: mock `prediction_runs.parquet` and `features.csv` for C | Next |
-| B5–B7: signals, then `features.csv` and a sanity report | After A's first real prediction file |
+| B4: mock A outputs + `features.csv` for C | **Done, tested.** `python -m trust.features --mock` writes everything to `data/mock/` |
+| B5: signals (`trust/signals.py`) | **Done, tested** against scipy and sklearn references |
+| B6: `features.csv` builder (`trust/features.py`) | **Done, tested on mocks.** Needs one rerun on A's real files |
+| B7: sanity report | **Done.** Printed by `python -m trust.features` |
 | B8 (stretch): `corruptions.py` for live `/predict` | Only if the core is stable |
 
 ## 2. Manifest contract (frozen; tell B before changing it)
@@ -126,27 +128,85 @@ A separate test script also checked:
   - `train_embeddings.npy` + `train_labels.npy`: the 50k train set, needed for kNN and Mahalanobis.
   - Flat `logit_0 … logit_9` in `prediction_runs.parquet`.
   - `tta_logits.npy` (N × 3 × 10) and `embeddings.npy`, in `prediction_runs.parquet` row order. Views: hflip, +2 px, −2 px horizontal shift with reflect padding.
-- **To C:** CIFAR-10.1 rows are `family=natural, corruption=natural, split=test`. Mock files are next (§7).
+- **To C:** CIFAR-10.1 rows are `family=natural, corruption=natural, split=test`. The mock files are ready (§7).
 
-## 7. Next steps
+## 7. Signals and features.csv (B4–B7)
 
-| # | Task | File | Done when |
-|---|---|---|---|
-| B4 | Mock `prediction_runs.parquet` + `features.csv` with the exact schemas | `trust/features.py --mock` | C's C1 asserts run on them |
-| B5 | Signals, float64 from logits; `k` = original predicted class | `trust/signals.py` | Sanity checks pass |
-| B6 | Join on `sample_id`; write `sample_id, raw_confidence, entropy, margin, tta_agree, tta_pconf, tta_std, knn_dist, maha_pred, failure` | `trust/features.py` | No NaN; clean accuracy ≈ 94.98%, CIFAR-10.1 ≈ 88.75% |
-| B7 | Per-feature means by family × severity, single-feature AUROC | `trust/features.py` | Shared with C |
+### How to run
 
-The B5 signals:
+```bash
+python -m trust.features --mock   # fake A outputs → data/mock/ (10,200 rows, ~3 s), then data/mock/features.csv
+python -m trust.features          # real run: reads A's files in data/, writes data/features.csv + sanity report
+```
 
-| Signal | Definition |
+`features.csv` columns, in manifest row order: `sample_id, raw_confidence, entropy, margin, tta_agree, tta_pconf, tta_std, knn_dist, maha_pred, failure`. Corruption, family and severity are **not** included; C joins them from the manifest.
+
+### What B reads from A (the contract the mocks follow)
+
+| File | Contents |
 |---|---|
-| `tta_agree` | Share of the 3 TTA views whose argmax is `k` |
-| `tta_pconf` | Mean of p_k over the 3 views |
-| `tta_std` | Std of p_k over the original image plus the 3 views |
-| `knn_dist` | Cosine distance to the 10th-nearest train embedding |
-| `maha_pred` | Mahalanobis distance to the predicted class's mean, shared covariance |
+| `prediction_runs.parquet` | `sample_id, pred_label, correct, logit_0 … logit_9`. The mock also carries the other §8.1 fields: `base_image_id, split, true_label, raw_confidence, top2_prob, entropy, margin, corruption, severity` |
+| `tta_logits.npy` | N × 3 × 10, **in `prediction_runs.parquet` row order**. Views: hflip, +2 px, −2 px (reflect padding) |
+| `embeddings.npy` | N × 512, same row order |
+| `train_embeddings.npy`, `train_labels.npy` | The 50k CIFAR-10 train set: the kNN and Mahalanobis bank |
 
-## 8. Setup
+Rows are joined on `sample_id`, so A can write them in any order. The run **stops with a clear message** if any of these hold:
+- A manifest row is missing, or an unknown `sample_id` appears.
+- A `sample_id` is duplicated.
+- The `.npy` shapes don't match the parquet.
+- `pred_label != argmax(logits)`.
+- `correct` disagrees with the manifest's `true_label`.
+- Any feature is NaN or inf.
 
-The datasets are exactly as in [REQUIREMENTS.md](../REQUIREMENTS.md) §2.3. B1–B3 need only `numpy` and `pandas`. The CIFAR-10-C stream took about 14 minutes here (13:38 → 13:52).
+`correct` may be int or bool.
+
+### Signal definitions
+
+Everything is computed in float64 from the logits. `k` = the class predicted on the original image.
+
+| Feature | Definition |
+|---|---|
+| raw_confidence | top-1 softmax probability |
+| entropy | −Σ p log p (nats) |
+| margin | top-1 minus top-2 probability |
+| tta_agree | share of the 3 TTA views whose argmax is `k` |
+| tta_pconf | mean of p_k over the 3 TTA views |
+| tta_std | std of p_k over the original plus the 3 views (population std) |
+| knn_dist | 1 − cosine similarity to the 10th-nearest train embedding (all 50k train images) |
+| maha_pred | Mahalanobis distance to class `k`'s train mean, using a shared covariance (tiny ridge, `pinvh`) |
+| failure | 1 − correct |
+
+### Tests
+
+All pass.
+- **softmax stats:** checked against `scipy.special.softmax` / `scipy.stats.entropy`, including logits of 1000 (no overflow).
+- **TTA stats:** checked on a hand-worked example.
+- **kNN:** checked against sklearn brute-force cosine `NearestNeighbors`, with a chunk size that doesn't divide N. A bank point's k=1 distance is 0.
+- **Mahalanobis:** checked against `scipy.spatial.distance.mahalanobis`. A rank-deficient bank still gives finite distances.
+- **AUROC** (in the sanity report): checked against `sklearn.roc_auc_score` with ties.
+- **End-to-end on shuffled mock files:** 40 random rows were recomputed by hand from their own parquet and `.npy` rows and match.
+- **Contract violations:** a dropped row, a short `tta_logits`, a wrong `pred_label`, a wrong `correct` and a duplicate `sample_id` are each caught.
+
+**Runtime at full scale** (412k rows × 50k bank, M-series Mac): about 2¼ min, 1.2 GB peak. Almost all of it is the kNN search.
+
+### About the mocks
+
+`trust/mock_runs.py` is a small synthetic model, not the ResNet: embeddings are class prototypes plus noise, and logits come from a linear head on them. It is tuned so the headline shape looks real:
+
+| Rows | Mock accuracy | Real accuracy (C's smoke run) |
+|---|---|---|
+| Clean | 96% | 95% |
+| CIFAR-10.1 | 87% | 89% |
+| Blur, severity 5 | 57% at 89% raw confidence | 61% at 89% |
+
+Use the mocks for schemas, joins and plumbing only. Their signal quality is **not** realistic: `knn_dist` barely varies, and TTA ranks worse than raw confidence, the opposite of the real smoke run. The mock bank has 10k rows, not 50k. `data/mock/` is gitignored; anyone with `data/raw/` can regenerate it in a few seconds.
+
+## 8. Next steps
+
+1. When A's first real files land in `data/`: run `python -m trust.features`, check the sanity report (clean accuracy ≈ 94.98%, CIFAR-10.1 ≈ 88.75%, `tta_pconf` the strongest single feature on blur), then share `features.csv` with C through the team drive.
+2. Rerun it after A's final full-size inference run (10,000 base images).
+3. Stretch B8: `benchmark/corruptions.py` for live `/predict`.
+
+## 9. Setup
+
+The datasets are exactly as in [REQUIREMENTS.md](../REQUIREMENTS.md) §2.3. B1–B3 need only `numpy` and `pandas`. B4–B7 also need `pyarrow` and `scipy`, and `scikit-learn` for the tests only. The CIFAR-10-C stream took about 14 minutes here (13:38 → 13:52).
