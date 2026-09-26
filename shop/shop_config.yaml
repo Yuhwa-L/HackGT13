@@ -1,0 +1,38 @@
+paths: {data: data/shop, raw: data/shop/raw}
+model: {arch: resnet18, weights: IMAGENET1K_V1}
+product_classes:            # resolved against torchvision category names by shop/classes.py
+  - backpack
+  - sunglasses
+  - running shoe
+  - sandal
+  - Loafer
+  - sweatshirt
+  - jean
+  - cardigan
+  - sock
+  - wallet
+  - purse
+  - digital watch
+  - coffee mug
+  - water bottle
+  - teapot
+  - frying pan
+  - toaster
+  - espresso maker
+  - laptop
+  - computer keyboard
+  - mouse
+  - cellular telephone
+  - iPod
+  - binoculars
+  - acoustic guitar
+  - electric guitar
+  - umbrella
+  - sleeping bag
+  - lipstick
+  - perfume
+images_per_class: 50
+corruptions: from_core      # same 8 types as config.yaml benchmark.cifar10c_types
+severities: [1, 2, 3, 4, 5]
+image_size: 224
+n_curated_photos: 18        # 15-20 in shop_cache.json

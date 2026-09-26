@@ -1,0 +1,40 @@
+seed: 1337
+paths:
+  data: data
+  raw: data/raw
+  demo_images: data/demo_images
+splits:
+  unit: base_image_id
+  fractions: {train: 0.50, val: 0.15, cal: 0.15, test: 0.20}
+  stratify_by: true_label
+benchmark:
+  cifar10c_types:                # 2 per family (MVP)
+    noise:   [gaussian_noise, impulse_noise]
+    blur:    [defocus_blur, motion_blur]
+    weather: [fog, brightness]
+    digital: [contrast, jpeg_compression]
+  severities: [1, 2, 3, 4, 5]
+  n_base_images: 10000           # set to 2000 on CPU-only machines
+  headline_holdout_family: blur  # TODO(team): confirm in first hour
+model:
+  checkpoint_url: https://huggingface.co/edadaltocg/resnet18_cifar10/resolve/main/pytorch_model.bin
+  mean: [0.4914, 0.4822, 0.4465]
+  std:  [0.2023, 0.1994, 0.2010]
+  expected_clean_acc_min: 0.93
+tta:
+  views: [hflip, shift_pos2, shift_neg2]   # horizontal shifts, reflect padding
+signals:
+  knn_k: 10
+  knn_metric: cosine
+  maha_ridge: 1.0e-6
+trust:
+  clean_row_weight: 0.25
+  thresholds:
+    reject_target_error: 0.05
+    trust_target_error: 0.01
+eval:
+  ece_bins: 15
+  bootstrap_resamples: 1000
+  coverage_points: [0.2, 0.5, 0.8]
+demo:
+  n_curated_base_images: 30

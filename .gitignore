@@ -1,0 +1,27 @@
+# data
+data/raw/*
+data/shop/raw/*
+!data/raw/.gitkeep
+!data/shop/raw/.gitkeep
+*.npy
+*.parquet
+*.pth
+*.pt
+*.bin
+*.ubj
+*.joblib
+data/models/*
+!data/models/.gitkeep
+
+# env
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# frontend
+node_modules/
+frontend/dist/
+frontend/public/fallback/*.json
