@@ -14,6 +14,7 @@ torch>=2.1             # MPS on Apple silicon, CUDA on Colab
 timm>=0.9              # resnet18 + forward_head(pre_logits=True)
 
 # --- B: benchmark + signals ---
+# (uses numpy, pandas, pyarrow above and scipy from C's section: pinvh for Mahalanobis)
 
 # --- C: trust layer ---
 scikit-learn>=1.3      # logistic regression, isotonic, AUROC

@@ -30,4 +30,4 @@ Run modules from the repo root with `python -m <folder>.<file>`, for example `py
 | `scores.parquet` | C | D | yes |
 | `demo_cache.json` | D | demo | yes |
 
-Team drive for the files not in git: _add link_
+Team drive for the files not in git: [https://drive.google.com/drive/folders/1kpS_yfUTMG8SPe4nEjUM1_m-JKSkldwR?usp=sharing]
