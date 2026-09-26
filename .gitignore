@@ -1,0 +1,20 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# Frontend
+node_modules/
+
+# Downloaded datasets + checkpoint (see REQUIREMENTS.md)
+data/raw/
+
+# Large generated artifacts: share through the team drive, not git
+data/*.npy
+data/*.csv
+data/*.parquet
+!data/scores.parquet
