@@ -3,7 +3,6 @@
 This project adds a trust layer on top of a frozen CIFAR-10 ResNet-18. For each prediction it outputs one calibrated `p_correct` and a TRUST / CAUTION / REJECT decision. It is evaluated on corruption families it never trained on and on CIFAR-10.1.
 
 - Setup and downloads: [REQUIREMENTS.md](REQUIREMENTS.md)
-- Person C plan: [docs/person-c-plan.md](docs/person-c-plan.md)
 
 ## Layout
 
