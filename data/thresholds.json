@@ -1,0 +1,11 @@
+{
+ "fold": "blur",
+ "tau_reject": 0.7419753056999884,
+ "tau_trust": 0.9721192108453626,
+ "target_error": {
+  "reject": 0.05,
+  "trust": 0.01
+ },
+ "T_clean": 1.551835883230352,
+ "T_corrupted": 2.4186788445709535
+}
