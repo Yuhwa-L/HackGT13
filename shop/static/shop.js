@@ -105,6 +105,12 @@
   #shop .kv span:nth-child(odd) { color: var(--ink-2); }
   #shop .ok-line { color: var(--good-ink); font-weight: 600; font-size: 13.5px; margin: 0; }
   #shop .eval { gap: 18px; }
+  #shop .eval-toggle > summary { cursor: pointer; list-style: none; display: flex; gap: 10px; align-items: flex-start; }
+  #shop .eval-toggle > summary::-webkit-details-marker { display: none; }
+  #shop .eval-toggle > summary::before { content: "▸"; font-size: 15px; line-height: 1.5; color: var(--ink-2); transition: transform .15s; }
+  #shop .eval-toggle[open] > summary::before { transform: rotate(90deg); }
+  #shop .eval-title { display: grid; gap: 2px; }
+  #shop .eval-body { display: grid; gap: 18px; margin-top: 16px; }
   #shop .eval-block { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); }   /* wide tables scroll in .tscroll, not the page */
   #shop .eval h3 { font-size: 15px; }
   #shop .tiles { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
@@ -528,7 +534,8 @@
           el("div", {}, el("strong", { text: "With the trust layer's gate" }),
             el("p", { text: `${sm.one_tap_purchases.trust_gate} one-tap purchases, ${sm.wrong_one_tap_purchases.trust_gate} wrong. ` +
               "Everything else asked the shopper first or asked for a better photo." }))),
-        el("details", {}, el("summary", { text: `All ${rows.length} photos` }),
+        el("details", { open: S.photosOpen ? "" : null, ontoggle: e => { S.photosOpen = e.target.open; } },
+          el("summary", { text: `All ${rows.length} photos` }),
           el("div", { class: "tscroll" }, el("table", { class: "compact" },
             el("thead", {}, el("tr", {}, ["Photo", "Really is", "Model said", "Own confidence", "Trust layer's estimate", "Decision", ""].map(h => el("th", { text: h })))),
             el("tbody", {}, rows.map(r => el("tr", {},
@@ -569,8 +576,13 @@
         el("li", { text: "It's deliberately cautious: some correct answers get held back, and the shopper is asked instead." }),
         el("li", { text: "Demo scale: 95 test photos and 26 real ones. The numbers come from data/shop/evaluation.json and real_photo_eval.json." }))));
 
+    const teaser = R ? `On our own phone photos: ${R.summary.trust_correct} one-tap purchases right, ` +
+      `${R.summary.outside_catalog_trusted} unknown items trusted. Click to see the evidence.` : "Click to see the evidence.";
     return el("section", { class: "card eval", "aria-labelledby": "shop-eval-h" },
-      el("h2", { id: "shop-eval-h", text: "One-tap purchases stayed within the gate's 1% error target, on test photos and on real ones." }), ...parts);
+      el("details", { class: "eval-toggle", open: S.evalOpen ? "" : null, ontoggle: e => { S.evalOpen = e.target.open; } },
+        el("summary", {}, el("span", { class: "eval-title" }, el("h2", { id: "shop-eval-h", text: "One-tap purchases stayed within the gate's 1% error target, on test photos and on real ones." }),
+          el("span", { class: "small", text: teaser }))),
+        el("div", { class: "eval-body" }, ...parts)));
   }
 
   function renderStory() {

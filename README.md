@@ -59,7 +59,7 @@ Errors actually let through by a "5% errors" rule, set the usual way (the model'
 | Weather | 90.3% | 9.5% | 1.6% |
 | Digital | 77.5% | 22.1% | 5.0% |
 
-On all four, the trust layer is also better at spotting wrong answers (AUROC up 0.015 to 0.021, with every 95% confidence interval above zero). All the numbers are in the Research results tab and `data/evaluation.json`.
+On all four, the trust layer is also better at spotting wrong answers (AUROC up 0.014 to 0.021, with every 95% confidence interval above zero). All the numbers are in the Research results tab and `data/evaluation.json`.
 
 ## Run the demo
 
