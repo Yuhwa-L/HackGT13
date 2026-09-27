@@ -58,8 +58,8 @@ One row per evaluated image. `base_image_id` is the split unit.
 ## 3. How to use it
 
 ```bash
-python -m benchmark.make_splits                  # 2,000 base images → 84,000 rows (default)
-python -m benchmark.make_splits --n-base 10000   # full benchmark → 412,000 rows (~1.3 s)
+python -m benchmark.make_splits                  # default: 10,000 base images → 412,000 rows (~1.3 s), the frozen benchmark
+python -m benchmark.make_splits --n-base 2000    # CPU-sized → 84,000 rows (different splits: don't mix with committed results)
 python -m benchmark.make_splits --n-base 40      # 1 PM-style tiny pipeline → 1,650 rows
 ```
 
