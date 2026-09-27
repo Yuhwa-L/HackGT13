@@ -1,20 +1,22 @@
-"""Snap-to-Shop HTTP routes, mounted into backend/main.py's standard-library server behind a guarded import.
+"""Shopping-assistant HTTP routes, mounted into backend/main.py's standard-library server behind a guarded import.
 
 GET  /api/shop/samples    curated photos (with images) + the demo story
 GET  /api/shop/profiles   example (fictional) shoppers, style tags, risk levels, catalog names for "things I own"
 POST /api/shop/identify   {photo_id} -> cached prediction, trust decision, candidates, reasons
 POST /api/shop/upload     {image: "data:image/jpeg;base64,..."} -> live prediction + trust decision (a new photo_id)
 GET  /api/shop/status     {"upload": "loading" | "ready" | "error", "upload_error"?}
+GET  /api/shop/evaluation {test: data/shop/evaluation.json, real_photos: data/shop/real_photo_eval.json or null}
 POST /api/shop/assist     {photo_id, profile | profile_id, user_message?, confirmed_class?} -> assistant response
                           (profile = the shopper's own {name, budget_per_item, style_tags, risk, owned}; the default)
 POST /api/shop/quote      {photo_id, confirmed_class?, cart} -> checkout tier for this cart; places nothing
 POST /api/shop/checkout   {photo_id, profile | profile_id, confirmed_class?, cart: [{product_id, qty}], confirmations}
+                          -> a trust-trail receipt (evidence + HMAC fingerprint + mock one-time token)
+POST /api/shop/verify     {receipt} -> {"valid": bool}: was this evidence signed by this server, unchanged?
 GET  /shop.js             the tab's script
 
 The server never trusts client-sent decisions or totals: both are recomputed from the cache and the catalog.
 Mock checkout only: no payment data is ever collected.
 """
-import hashlib
 import json
 from collections import OrderedDict
 from pathlib import Path
@@ -25,6 +27,7 @@ from shop.catalog import STYLES
 from shop.config import DATA, RISK_LEVELS
 from shop.gate import effective_decision, is_allowed, shoppable_classes
 from shop.live import LiveScorer
+from shop.receipt import ReceiptSigner
 from shop.profiles import normalize_profile
 
 STATIC = Path(__file__).resolve().parent / "static"
@@ -45,6 +48,12 @@ class ShopAPI:
         self.profiles = {p["profile_id"]: p for p in json.loads((data / "profiles.json").read_text())["profiles"]}
         self.uploads = OrderedDict()   # photo_id -> live-scored item, most recent last
         self.live = LiveScorer()
+        self.thresholds = json.loads((data / "thresholds.json").read_text())
+        ev, real = data / "evaluation.json", data / "real_photo_eval.json"   # results shown on the tab's evaluation card
+        self.evaluation = {"test": json.loads(ev.read_text()) if ev.exists() else None,
+                           "real_photos": json.loads(real.read_text()) if real.exists() else None,
+                           "thresholds": self.thresholds}
+        self.signer = ReceiptSigner()
 
     @classmethod
     def load(cls):
@@ -54,7 +63,7 @@ class ShopAPI:
             api.live.warm_up()   # loads torch + the model in the background; uploads say "loading" until ready
             return api
         except (OSError, KeyError, ValueError) as e:
-            print(f"Snap-to-Shop tab disabled: {type(e).__name__}: {e}")
+            print(f"Shopping assistant tab disabled: {type(e).__name__}: {e}")
             return None
 
     # ---- routing: returns (status, content_type, bytes) or None when the path isn't a shop route ----
@@ -69,6 +78,8 @@ class ShopAPI:
             req = json.loads(body or b"{}") if method == "POST" else {}
             if not isinstance(req, dict):
                 raise ValueError("body must be a JSON object")
+            if route == ("GET", "evaluation"):
+                return self._ok(self.evaluation)
             if route == ("GET", "status"):
                 st = self.live.status()
                 return self._ok({"upload": st, **({"upload_error": self.live.error} if st == "error" else {})})
@@ -99,6 +110,8 @@ class ShopAPI:
                 return self._ok({**policy, "total": total, "effective_decision": eff})
             if route == ("POST", "checkout"):
                 return self._checkout(req)
+            if route == ("POST", "verify"):
+                return self._ok({"valid": self.signer.verify(req.get("receipt"))})
         except PermissionError as e:
             pol = e.args[0]
             if route == ("POST", "quote"):
@@ -163,8 +176,10 @@ class ShopAPI:
         if not is_allowed(eff, "checkout") or not policy["allowed"] or confirmations < policy["confirmations_required"]:
             return self._json(403, {"tier": policy["tier"], "explanation": policy["explanation"],
                                     "confirmations_required": policy["confirmations_required"], "total": total})
-        order_id = "MOCK-" + hashlib.sha256(json.dumps([req.get("photo_id"), lines]).encode()).hexdigest()[:8].upper()
-        return self._ok({"order_id": order_id, "items": lines, "total": total, "tier": policy["tier"],
+        receipt = self.signer.issue(item=self._item(req), confirmed_class=self._confirmed(req), eff=eff, policy=policy,
+                                    confirmations=confirmations, risk=profile.get("risk", "normal"), lines=lines,
+                                    total=total, thresholds=self.thresholds)
+        return self._ok({**receipt, "items": lines, "total": total, "tier": policy["tier"],
                          "confirmations_used": confirmations, "shopper": profile["name"], "explanation": policy["explanation"],
                          "note": "Mock order for the demo: nothing is charged and no payment data is collected."})
 

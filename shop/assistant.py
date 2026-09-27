@@ -118,7 +118,8 @@ def _prompt(eff, item, profile, products, user_message):
     rules = {
         "trust": "The identification is verified. Recommend the best products for this shopper; you may suggest adding to cart.",
         "trust_confirmed": "The shopper confirmed the item. Recommend products of that class; you may suggest adding to cart.",
-        "caution": "The identification is uncertain. Do NOT recommend buying. Compare the candidate classes in terms of this "
+        "caution": "The identification is uncertain. Do NOT recommend buying; if asked to buy, say you can't until the shopper "
+                   "confirms which item it is. Compare the candidate classes in terms of this "
                    "shopper's needs in 'comparison' (one or two sentences) and ask which one they meant.",
         "reject": "The photo cannot be identified reliably. Ask for a better photo; if photo_issue is given, name it "
                   "and use retake_tip. Return no products and an empty comparison.",
@@ -132,7 +133,9 @@ def _prompt(eff, item, profile, products, user_message):
             "Never state or imply more certainty than p_correct. "
             "Always respond directly to the shopper's latest message first. If they ask for something not in the allowed "
             "actions (for example buying or checking out when that isn't allowed), say plainly that you can't and why, "
-            "in one short sentence, then do what is allowed. Keep 'reply' under 60 words.")},
+            "in one short sentence, then do what is allowed. The products are shown to the shopper as cards next to "
+            "your reply: don't list them in 'reply', and end 'reply' with a full sentence, never a colon. "
+            "Keep 'reply' under 60 words.")},
         {"role": "user", "content": json.dumps({
             "p_correct": round(item["p_correct"], 3), "predicted_class": item["pred_class"],
             "photo_issue": (item.get("quality") or {}).get("label"),

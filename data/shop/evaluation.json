@@ -1,5 +1,5 @@
 {
- "note": "Snap-to-Shop, test split only; demo-scale (ImageNetV2 photos), not a benchmark claim",
+ "note": "Shopping assistant, test split only; demo-scale (ImageNetV2 photos), not a benchmark claim",
  "calibration": "5-fold cross-fit over the 380 non-test photos: isotonic and thresholds from out-of-fold scores; final model on all non-test photos",
  "classes": 30,
  "photos": {

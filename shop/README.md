@@ -1,4 +1,4 @@
-# Snap to Shop: a trust-gated shopping agent (Visa wrapper)
+# The shopping assistant: the trust layer in agentic commerce (Visa challenge)
 
 The trust layer is the product; this tab shows it in agentic commerce. A shopper picks a product photo; a frozen ImageNet
 ViT-B/16 vision transformer identifies it (restricted to 30 product classes; a different architecture from the core
@@ -20,7 +20,8 @@ charged and no payment data is collected anywhere.
 ## Run the demo
 
 ```bash
-python -m backend.main          # the core demo; the "Snap to Shop" tab appears when data/shop/ is present
+python -m backend.main          # the core demo; the "Shopping assistant" tab appears when data/shop/ is present
+# open it directly: http://localhost:8000/#shop
 ```
 
 LLM (optional; the tab works offline): put the key in a repo-root `.env` (gitignored):
@@ -31,7 +32,8 @@ LLM_BASE_URL=https://api.openai.com/v1       # default; any OpenAI-compatible en
 ```
 **Set a spending limit in the OpenAI dashboard.** Each assist call is one short request (`reasoning_effort="none"`,
 Structured Outputs, 5 s timeout). `DEMO_OFFLINE=1 python -m backend.main` forces the offline path; any LLM error or
-timeout also falls back to it, and the tab shows "Offline mode".
+timeout also falls back to it. The tab then shows "Offline: fixed replies", and the first time you type it explains
+that the replies are pre-written and won't change with what you ask. The rules (gate, checkout tiers) are identical.
 
 Demo story (buttons at the top of the tab): 1 TRUST one-tap · 2 TRUST order over the cap → confirm once ·
 3 CAUTION → pick the item → confirm · 4 REJECT → retake tip, checkout locked.
@@ -51,6 +53,35 @@ whichever runs parallel code second can segfault. So the server (XGBoost, trust 
 runs in `python -m shop.live_worker`, a torch-only child that exchanges images and outputs over stdin/stdout. The
 pipeline is split the same way (`shop.pipeline_model` runs as its own process). Live scores match the pipeline's
 cached scores exactly (checked on 65 cached versions).
+
+## The tab
+
+- **Snap a product:** upload a photo, use the webcam ("Use camera", which works on localhost with no network), or tap a sample.
+  Samples can be degraded with 8 corruptions at 3 severities to show the gate reacting.
+- **One screen, three panels:**
+  - the photo with its decision badge;
+  - the trust check: a plain-language "why", the model's own confidence next to the trust layer's `p_correct`, and on
+    CAUTION or REJECT an inline **retake tip** from a pixel-based photo-quality check, with "Try a clearer shot";
+  - the assistant chat.
+- **Below the panels:** personalized picks, and a checkout panel whose tier follows the gate and the shopper's
+  careful-checkout setting.
+- **Your own profile by default** (name, budget, style, things you own, careful checkout), saved in the browser.
+  Three fictional example shoppers stay available.
+
+## Trust-trail receipts
+
+Every mock purchase returns a receipt carrying the evidence it was made on:
+- what the model said, and its own confidence;
+- `p_correct` against the thresholds in force;
+- the decision, and what the shopper confirmed;
+- the checkout tier and the confirmations given;
+- the careful-checkout setting, the items, and the time.
+
+The evidence is fingerprinted with an HMAC-SHA256 under a per-server secret (`shop/receipt.py`).
+`POST /api/shop/verify` checks a receipt, so changing any field (say, inflating `p_correct`) makes it fail. In the tab,
+"Verify receipt" and "Tamper test" show both outcomes. Payment is a **mock one-time token** bound to that single order.
+No card or account data exists anywhere in the system: it only shows where a real network token would sit, and why an
+agent purchase should carry an auditable trust record.
 
 ## Who decides what
 
@@ -105,6 +136,27 @@ severity 5 it claims 53% and is right 55% of the time), so raw confidence is alr
 doesn't beat it on calibration. The trust layer's value here is the gate: the one-tap TRUST tier holds its 1% error
 target, and failure ranking improves slightly. Scope cuts vs `plan.md`: no leave-one-family-out, no bootstrap,
 3 severities.
+
+## Real phone photos
+
+`python -m shop.eval_real_photos <folder>` scores a folder of your own photos through the exact upload path. The
+truth comes from each filename: `<class>_<condition>.jpg`, or `external<N>.jpg` for items outside the catalog. It writes
+only aggregate results to `data/shop/real_photo_eval.json`, never the photos.
+
+On 26 iPhone photos we took (8 product types in good, busy-background, washed-out, dark and blurry conditions, plus 4
+out-of-catalog items):
+
+| | |
+|---|---|
+| Model top-1 accuracy (catalog items) | 17/22 |
+| TRUST (one-tap) purchases | 7, **all correct** |
+| CAUTION: the right item was among the offered choices | 3/3 |
+| Out-of-catalog items trusted | **0/4** |
+| One-tap buys an agent would make at raw confidence ≥ 80% | 15, **1 wrong** (a washed-out laptop bought as a keyboard, 92% sure) |
+| Correct identifications the gate still rejected | 7 (mostly busy backgrounds; the gate is conservative on real shift) |
+
+The quality check flagged 2 of the 3 washed-out photos. It called the dark photos "hazy", not "dark": low-light
+detection is its weak spot.
 
 ## Isolation
 

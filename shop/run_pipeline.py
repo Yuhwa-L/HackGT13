@@ -1,4 +1,4 @@
-"""Snap-to-Shop trust layer, end to end: photos -> corrupted versions -> ViT-B/16 (subset softmax, 3 TTA views,
+"""Shopping-assistant trust layer, end to end: photos -> corrupted versions -> ViT-B/16 (subset softmax, 3 TTA views,
 embeddings) -> B's signals -> C's temperature scaling, XGBoost + isotonic, cross-fitted thresholds, SHAP reasons.
 
 Scope cut for the hackathon: test = 20% of photos (split by photo, stratified by class), the rest cross-fitted
@@ -114,7 +114,7 @@ def main():
                       if (decision[te] == d).any() else None) for d in ("trust", "caution", "reject")}
     by_sev = [dict(severity=int(s), n=int(m.sum()), accuracy=float(correct[m].mean()), raw_confidence=float(raw[m].mean()),
                    p_correct=float(p[m].mean())) for s in sorted(set(manifest.severity)) for m in [te & (manifest.severity.to_numpy() == s)]]
-    ev = {"note": "Snap-to-Shop, test split only; demo-scale (ImageNetV2 photos), not a benchmark claim",
+    ev = {"note": "Shopping assistant, test split only; demo-scale (ImageNetV2 photos), not a benchmark claim",
           "calibration": f"{K_FOLDS}-fold cross-fit over the {int(manifest[fit].base_image_id.nunique())} non-test photos: "
                          "isotonic and thresholds from out-of-fold scores; final model on all non-test photos",
           "classes": N, "photos": {s: int((manifest.drop_duplicates("base_image_id").split == s).sum()) for s in SPLITS},

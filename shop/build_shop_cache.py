@@ -1,4 +1,4 @@
-"""data/shop/scores.parquet + the photos -> data/shop/shop_cache.json for the Snap-to-Shop tab.
+"""data/shop/scores.parquet + the photos -> data/shop/shop_cache.json for the shopping-assistant tab.
 
 Picks ~18 photos from the TEST split (the trust layer never trained on them), one per class, with all 25 versions each
 (clean + 8 corruptions x severities 1/3/5) as 224 px JPEG data URIs. The story photo is one whose clean version is
@@ -21,7 +21,9 @@ from shop.photo_quality import assess, reference
 from shop.benchmark_data import list_photos
 
 N_PHOTOS = 18
-STORY_PREF = ["backpack", "running shoe", "sunglasses", "coffee mug", "water bottle", "digital watch", "laptop"]
+# Story photo preference: a clean, cheap product (one-tap fits the $150 cap) whose CAUTION step reads naturally
+# ("water bottle or perfume?" for a glass bottle). The first class with a full TRUST/CAUTION/REJECT story wins.
+STORY_PREF = ["water bottle", "digital watch", "running shoe", "sunglasses", "coffee mug", "backpack", "laptop"]
 
 
 def jpeg_uri(img):

@@ -61,7 +61,7 @@ class LiveScorer:
             self.qref = load_reference()
         except Exception as e:  # torch missing, weights missing, stale artifacts: uploads off, demo unaffected
             self.error = f"{type(e).__name__}: {e}"
-            print(f"Snap-to-Shop live upload disabled ({self.error})")
+            print(f"Shopping assistant: live upload disabled ({self.error})")
         finally:
             self._ready.set()
 

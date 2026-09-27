@@ -56,7 +56,7 @@ class Handler(BaseHTTPRequestHandler):
     def _shop(self, method, body=b""):
         """True if the shop wrapper answered this request."""
         if self.path.split("?")[0] == "/shop.js" and self.shop is None:
-            self._send(200, b"// Snap-to-Shop not installed", "text/javascript; charset=utf-8")
+            self._send(200, b"// shopping assistant not installed", "text/javascript; charset=utf-8")
             return True
         res = self.shop.handle(method, self.path, body) if self.shop else None
         if res is not None:
