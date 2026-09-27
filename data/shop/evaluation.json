@@ -1,0 +1,75 @@
+{
+ "note": "Shopping assistant, test split only; demo-scale (ImageNetV2 photos), not a benchmark claim",
+ "calibration": "5-fold cross-fit over the 380 non-test photos: isotonic and thresholds from out-of-fold scores; final model on all non-test photos",
+ "classes": 30,
+ "photos": {
+  "train": 238,
+  "val": 71,
+  "cal": 71,
+  "test": 95
+ },
+ "bank_photos": 146,
+ "rows": 11875,
+ "test_rows": 2375,
+ "test_accuracy": 0.696,
+ "T_clean": 1.0491497393670917,
+ "T_corrupted": 0.9963892958468576,
+ "auroc": {
+  "raw_confidence": 0.8594530552190008,
+  "trust_layer": 0.863959258160685
+ },
+ "aurc": {
+  "raw_confidence": 0.09988665824742757,
+  "trust_layer": 0.0975921197103882
+ },
+ "ece": {
+  "raw_confidence": 0.044810458403249626,
+  "temp_clean": 0.056146574221385616,
+  "temp_corrupted": 0.043680699064398615,
+  "p_correct": 0.05869561697370724
+ },
+ "decisions_test": {
+  "trust": {
+   "share": 0.2732631578947368,
+   "error": 0.007704160246533087
+  },
+  "caution": {
+   "share": 0.0863157894736842,
+   "error": 0.08292682926829265
+  },
+  "reject": {
+   "share": 0.640421052631579,
+   "error": 0.460223537146614
+  }
+ },
+ "by_severity_test": [
+  {
+   "severity": 0,
+   "n": 95,
+   "accuracy": 0.8526315789473684,
+   "raw_confidence": 0.7954415904123685,
+   "p_correct": 0.755720767835958
+  },
+  {
+   "severity": 1,
+   "n": 760,
+   "accuracy": 0.7986842105263158,
+   "raw_confidence": 0.7491005275939149,
+   "p_correct": 0.7212116843588564
+  },
+  {
+   "severity": 3,
+   "n": 760,
+   "accuracy": 0.7157894736842105,
+   "raw_confidence": 0.6744858350072603,
+   "p_correct": 0.6572484218008006
+  },
+  {
+   "severity": 5,
+   "n": 760,
+   "accuracy": 0.5539473684210526,
+   "raw_confidence": 0.5315924354236826,
+   "p_correct": 0.5195772856338268
+  }
+ ]
+}

@@ -1,0 +1,1311 @@
+{
+ "real_products": true,
+ "price_note": "Approximate list price; may be out of date.",
+ "products": [
+  {
+   "product_id": "p000",
+   "class": "backpack",
+   "name": "JanSport SuperBreak Plus",
+   "brand": "JanSport",
+   "price": 45.0,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "26 L, padded laptop sleeve",
+   "search_url": "https://www.google.com/search?q=JanSport+SuperBreak+Plus",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p001",
+   "class": "backpack",
+   "name": "Osprey Daylite Plus 20",
+   "brand": "Osprey",
+   "price": 75.0,
+   "style_tags": [
+    "outdoor",
+    "minimal"
+   ],
+   "description": "20 L daypack, mesh back panel",
+   "search_url": "https://www.google.com/search?q=Osprey+Daylite+Plus+20",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p002",
+   "class": "backpack",
+   "name": "The North Face Borealis",
+   "brand": "The North Face",
+   "price": 99.0,
+   "style_tags": [
+    "outdoor",
+    "sporty"
+   ],
+   "description": "28 L, FlexVent suspension",
+   "search_url": "https://www.google.com/search?q=The+North+Face+Borealis",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p010",
+   "class": "sunglasses",
+   "name": "Knockaround Premiums",
+   "brand": "Knockaround",
+   "price": 25.0,
+   "style_tags": [
+    "sporty",
+    "budget"
+   ],
+   "description": "polarized, UV400",
+   "search_url": "https://www.google.com/search?q=Knockaround+Premiums",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p011",
+   "class": "sunglasses",
+   "name": "Oakley Holbrook",
+   "brand": "Oakley",
+   "price": 160.0,
+   "style_tags": [
+    "sporty",
+    "outdoor"
+   ],
+   "description": "O Matter frame",
+   "search_url": "https://www.google.com/search?q=Oakley+Holbrook",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p012",
+   "class": "sunglasses",
+   "name": "Ray-Ban Original Wayfarer RB2140",
+   "brand": "Ray-Ban",
+   "price": 170.0,
+   "style_tags": [
+    "classic",
+    "luxe"
+   ],
+   "description": "acetate frame, G-15 lenses",
+   "search_url": "https://www.google.com/search?q=Ray-Ban+Original+Wayfarer+RB2140",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p020",
+   "class": "running shoe",
+   "name": "Nike Pegasus 41",
+   "brand": "Nike",
+   "price": 140.0,
+   "style_tags": [
+    "sporty",
+    "classic"
+   ],
+   "description": "neutral daily trainer",
+   "search_url": "https://www.google.com/search?q=Nike+Pegasus+41",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p021",
+   "class": "running shoe",
+   "name": "Brooks Ghost 16",
+   "brand": "Brooks",
+   "price": 140.0,
+   "style_tags": [
+    "sporty",
+    "cozy"
+   ],
+   "description": "neutral, soft cushioning",
+   "search_url": "https://www.google.com/search?q=Brooks+Ghost+16",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p022",
+   "class": "running shoe",
+   "name": "HOKA Clifton 9",
+   "brand": "HOKA",
+   "price": 145.0,
+   "style_tags": [
+    "sporty",
+    "outdoor"
+   ],
+   "description": "lightweight max cushion",
+   "search_url": "https://www.google.com/search?q=HOKA+Clifton+9",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p030",
+   "class": "sandal",
+   "name": "Teva Original Universal",
+   "brand": "Teva",
+   "price": 55.0,
+   "style_tags": [
+    "outdoor",
+    "budget"
+   ],
+   "description": "adjustable straps",
+   "search_url": "https://www.google.com/search?q=Teva+Original+Universal",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p031",
+   "class": "sandal",
+   "name": "Chaco Z/1 Classic",
+   "brand": "Chaco",
+   "price": 105.0,
+   "style_tags": [
+    "outdoor",
+    "sporty"
+   ],
+   "description": "LUVSEAT footbed",
+   "search_url": "https://www.google.com/search?q=Chaco+Z%2F1+Classic",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p032",
+   "class": "sandal",
+   "name": "Birkenstock Arizona",
+   "brand": "Birkenstock",
+   "price": 110.0,
+   "style_tags": [
+    "classic",
+    "cozy"
+   ],
+   "description": "cork-latex footbed, two straps",
+   "search_url": "https://www.google.com/search?q=Birkenstock+Arizona",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p040",
+   "class": "Loafer",
+   "name": "Sam Edelman Loraine",
+   "brand": "Sam Edelman",
+   "price": 130.0,
+   "style_tags": [
+    "classic",
+    "luxe"
+   ],
+   "description": "leather bit loafer",
+   "search_url": "https://www.google.com/search?q=Sam+Edelman+Loraine",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p041",
+   "class": "Loafer",
+   "name": "G.H. Bass Larson Weejuns",
+   "brand": "G.H. Bass",
+   "price": 145.0,
+   "style_tags": [
+    "classic",
+    "minimal"
+   ],
+   "description": "leather penny loafer",
+   "search_url": "https://www.google.com/search?q=G.H.+Bass+Larson+Weejuns",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p042",
+   "class": "Loafer",
+   "name": "Dr. Martens Adrian Tassel Loafer",
+   "brand": "Dr. Martens",
+   "price": 150.0,
+   "style_tags": [
+    "classic",
+    "luxe"
+   ],
+   "description": "smooth leather, air-cushioned sole",
+   "search_url": "https://www.google.com/search?q=Dr.+Martens+Adrian+Tassel+Loafer",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p050",
+   "class": "sweatshirt",
+   "name": "Gildan Heavy Blend Crewneck",
+   "brand": "Gildan",
+   "price": 15.0,
+   "style_tags": [
+    "budget",
+    "cozy"
+   ],
+   "description": "cotton-poly fleece",
+   "search_url": "https://www.google.com/search?q=Gildan+Heavy+Blend+Crewneck",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p051",
+   "class": "sweatshirt",
+   "name": "Carhartt Loose Fit Midweight Sweatshirt",
+   "brand": "Carhartt",
+   "price": 55.0,
+   "style_tags": [
+    "outdoor",
+    "cozy"
+   ],
+   "description": "10.5 oz fleece",
+   "search_url": "https://www.google.com/search?q=Carhartt+Loose+Fit+Midweight+Sweatshirt",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p052",
+   "class": "sweatshirt",
+   "name": "Champion Reverse Weave Crew",
+   "brand": "Champion",
+   "price": 60.0,
+   "style_tags": [
+    "classic",
+    "cozy"
+   ],
+   "description": "heavyweight fleece",
+   "search_url": "https://www.google.com/search?q=Champion+Reverse+Weave+Crew",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p060",
+   "class": "jean",
+   "name": "Wrangler Cowboy Cut Original Fit",
+   "brand": "Wrangler",
+   "price": 45.0,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "rigid denim",
+   "search_url": "https://www.google.com/search?q=Wrangler+Cowboy+Cut+Original+Fit",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p061",
+   "class": "jean",
+   "name": "Lee Regular Fit",
+   "brand": "Lee",
+   "price": 50.0,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "straight leg",
+   "search_url": "https://www.google.com/search?q=Lee+Regular+Fit",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p062",
+   "class": "jean",
+   "name": "Levi's 501 Original Fit",
+   "brand": "Levi's",
+   "price": 80.0,
+   "style_tags": [
+    "classic",
+    "minimal"
+   ],
+   "description": "button fly, straight leg",
+   "search_url": "https://www.google.com/search?q=Levi%27s+501+Original+Fit",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p070",
+   "class": "cardigan",
+   "name": "Amazon Essentials V-Neck Cardigan Sweater",
+   "brand": "Amazon Essentials",
+   "price": 28.0,
+   "style_tags": [
+    "budget",
+    "minimal"
+   ],
+   "description": "lightweight knit",
+   "search_url": "https://www.google.com/search?q=Amazon+Essentials+V-Neck+Cardigan+Sweater",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p071",
+   "class": "cardigan",
+   "name": "Uniqlo Extra Fine Merino Cardigan",
+   "brand": "Uniqlo",
+   "price": 40.0,
+   "style_tags": [
+    "minimal",
+    "classic"
+   ],
+   "description": "washable merino wool",
+   "search_url": "https://www.google.com/search?q=Uniqlo+Extra+Fine+Merino+Cardigan",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p080",
+   "class": "sock",
+   "name": "Smartwool Hike Light Cushion Crew",
+   "brand": "Smartwool",
+   "price": 25.0,
+   "style_tags": [
+    "outdoor",
+    "cozy"
+   ],
+   "description": "merino wool blend",
+   "search_url": "https://www.google.com/search?q=Smartwool+Hike+Light+Cushion+Crew",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p081",
+   "class": "sock",
+   "name": "Darn Tough Hiker Micro Crew Midweight",
+   "brand": "Darn Tough",
+   "price": 27.0,
+   "style_tags": [
+    "outdoor",
+    "sporty"
+   ],
+   "description": "merino, lifetime guarantee",
+   "search_url": "https://www.google.com/search?q=Darn+Tough+Hiker+Micro+Crew+Midweight",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p082",
+   "class": "sock",
+   "name": "Bombas Ankle Sock 4-Pack",
+   "brand": "Bombas",
+   "price": 50.0,
+   "style_tags": [
+    "cozy",
+    "sporty"
+   ],
+   "description": "cushioned footbed",
+   "search_url": "https://www.google.com/search?q=Bombas+Ankle+Sock+4-Pack",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p090",
+   "class": "wallet",
+   "name": "Fossil Derrick Bifold",
+   "brand": "Fossil",
+   "price": 45.0,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "leather, RFID blocking",
+   "search_url": "https://www.google.com/search?q=Fossil+Derrick+Bifold",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p091",
+   "class": "wallet",
+   "name": "Ridge Aluminum Wallet",
+   "brand": "Ridge",
+   "price": 85.0,
+   "style_tags": [
+    "tech",
+    "minimal"
+   ],
+   "description": "holds up to 12 cards",
+   "search_url": "https://www.google.com/search?q=Ridge+Aluminum+Wallet",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p092",
+   "class": "wallet",
+   "name": "Bellroy Slim Sleeve",
+   "brand": "Bellroy",
+   "price": 89.0,
+   "style_tags": [
+    "minimal",
+    "luxe"
+   ],
+   "description": "leather card sleeve",
+   "search_url": "https://www.google.com/search?q=Bellroy+Slim+Sleeve",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p100",
+   "class": "purse",
+   "name": "Baggu Nylon Crescent Bag",
+   "brand": "Baggu",
+   "price": 62.0,
+   "style_tags": [
+    "minimal",
+    "budget"
+   ],
+   "description": "recycled nylon crossbody",
+   "search_url": "https://www.google.com/search?q=Baggu+Nylon+Crescent+Bag",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p101",
+   "class": "purse",
+   "name": "Michael Kors Jet Set Travel Crossbody",
+   "brand": "Michael Kors",
+   "price": 200.0,
+   "style_tags": [
+    "luxe",
+    "classic"
+   ],
+   "description": "saffiano leather",
+   "search_url": "https://www.google.com/search?q=Michael+Kors+Jet+Set+Travel+Crossbody",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p102",
+   "class": "purse",
+   "name": "Coach Tabby Shoulder Bag 26",
+   "brand": "Coach",
+   "price": 450.0,
+   "style_tags": [
+    "luxe",
+    "classic"
+   ],
+   "description": "refined pebble leather",
+   "search_url": "https://www.google.com/search?q=Coach+Tabby+Shoulder+Bag+26",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p110",
+   "class": "digital watch",
+   "name": "Casio F-91W",
+   "brand": "Casio",
+   "price": 20.0,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "resin strap, alarm, stopwatch",
+   "search_url": "https://www.google.com/search?q=Casio+F-91W",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p111",
+   "class": "digital watch",
+   "name": "Timex Ironman Classic 30",
+   "brand": "Timex",
+   "price": 50.0,
+   "style_tags": [
+    "sporty",
+    "budget"
+   ],
+   "description": "30-lap memory, Indiglo",
+   "search_url": "https://www.google.com/search?q=Timex+Ironman+Classic+30",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p112",
+   "class": "digital watch",
+   "name": "Casio G-Shock DW5600",
+   "brand": "Casio",
+   "price": 75.0,
+   "style_tags": [
+    "sporty",
+    "outdoor"
+   ],
+   "description": "shock resistant, 200 m water resistance",
+   "search_url": "https://www.google.com/search?q=Casio+G-Shock+DW5600",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p120",
+   "class": "coffee mug",
+   "name": "YETI Rambler 14 oz Mug",
+   "brand": "YETI",
+   "price": 30.0,
+   "style_tags": [
+    "outdoor",
+    "classic"
+   ],
+   "description": "vacuum insulated steel",
+   "search_url": "https://www.google.com/search?q=YETI+Rambler+14+oz+Mug",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p121",
+   "class": "coffee mug",
+   "name": "Le Creuset Stoneware Mug 12 oz",
+   "brand": "Le Creuset",
+   "price": 30.0,
+   "style_tags": [
+    "classic",
+    "cozy"
+   ],
+   "description": "enameled stoneware",
+   "search_url": "https://www.google.com/search?q=Le+Creuset+Stoneware+Mug+12+oz",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p122",
+   "class": "coffee mug",
+   "name": "Ember Mug 2, 10 oz",
+   "brand": "Ember",
+   "price": 130.0,
+   "style_tags": [
+    "tech",
+    "luxe"
+   ],
+   "description": "app-controlled heated mug",
+   "search_url": "https://www.google.com/search?q=Ember+Mug+2%2C+10+oz",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p130",
+   "class": "water bottle",
+   "name": "Nalgene 32 oz Wide Mouth",
+   "brand": "Nalgene",
+   "price": 15.0,
+   "style_tags": [
+    "outdoor",
+    "budget"
+   ],
+   "description": "BPA-free Tritan",
+   "search_url": "https://www.google.com/search?q=Nalgene+32+oz+Wide+Mouth",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p131",
+   "class": "water bottle",
+   "name": "Hydro Flask 32 oz Wide Mouth",
+   "brand": "Hydro Flask",
+   "price": 45.0,
+   "style_tags": [
+    "outdoor",
+    "sporty"
+   ],
+   "description": "insulated stainless steel",
+   "search_url": "https://www.google.com/search?q=Hydro+Flask+32+oz+Wide+Mouth",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p132",
+   "class": "water bottle",
+   "name": "Stanley Quencher H2.0 FlowState 40 oz",
+   "brand": "Stanley",
+   "price": 45.0,
+   "style_tags": [
+    "cozy",
+    "classic"
+   ],
+   "description": "insulated tumbler with handle",
+   "search_url": "https://www.google.com/search?q=Stanley+Quencher+H2.0+FlowState+40+oz",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p140",
+   "class": "teapot",
+   "name": "Bodum Assam Tea Press",
+   "brand": "Bodum",
+   "price": 30.0,
+   "style_tags": [
+    "minimal",
+    "classic"
+   ],
+   "description": "glass, 34 oz, press infuser",
+   "search_url": "https://www.google.com/search?q=Bodum+Assam+Tea+Press",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p141",
+   "class": "teapot",
+   "name": "ForLife Curve Teapot with Infuser",
+   "brand": "ForLife",
+   "price": 35.0,
+   "style_tags": [
+    "minimal",
+    "cozy"
+   ],
+   "description": "ceramic, 24 oz",
+   "search_url": "https://www.google.com/search?q=ForLife+Curve+Teapot+with+Infuser",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p150",
+   "class": "frying pan",
+   "name": "Lodge 10.25 in Cast Iron Skillet",
+   "brand": "Lodge",
+   "price": 25.0,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "pre-seasoned cast iron",
+   "search_url": "https://www.google.com/search?q=Lodge+10.25+in+Cast+Iron+Skillet",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p151",
+   "class": "frying pan",
+   "name": "T-fal Ultimate Hard Anodized 12 in Fry Pan",
+   "brand": "T-fal",
+   "price": 35.0,
+   "style_tags": [
+    "budget",
+    "minimal"
+   ],
+   "description": "nonstick, oven safe",
+   "search_url": "https://www.google.com/search?q=T-fal+Ultimate+Hard+Anodized+12+in+Fry+Pan",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p152",
+   "class": "frying pan",
+   "name": "All-Clad D3 Stainless 10 in Fry Pan",
+   "brand": "All-Clad",
+   "price": 110.0,
+   "style_tags": [
+    "luxe",
+    "classic"
+   ],
+   "description": "tri-ply stainless steel",
+   "search_url": "https://www.google.com/search?q=All-Clad+D3+Stainless+10+in+Fry+Pan",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p160",
+   "class": "toaster",
+   "name": "Hamilton Beach 2-Slice Toaster",
+   "brand": "Hamilton Beach",
+   "price": 25.0,
+   "style_tags": [
+    "budget",
+    "minimal"
+   ],
+   "description": "extra-wide slots",
+   "search_url": "https://www.google.com/search?q=Hamilton+Beach+2-Slice+Toaster",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p161",
+   "class": "toaster",
+   "name": "Cuisinart CPT-122 2-Slice Toaster",
+   "brand": "Cuisinart",
+   "price": 40.0,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "compact, 6 shade settings",
+   "search_url": "https://www.google.com/search?q=Cuisinart+CPT-122+2-Slice+Toaster",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p162",
+   "class": "toaster",
+   "name": "Breville Die-Cast 2-Slice Smart Toaster",
+   "brand": "Breville",
+   "price": 180.0,
+   "style_tags": [
+    "luxe",
+    "tech"
+   ],
+   "description": "motorized lift-and-look",
+   "search_url": "https://www.google.com/search?q=Breville+Die-Cast+2-Slice+Smart+Toaster",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p170",
+   "class": "espresso maker",
+   "name": "De'Longhi Stilosa EC260",
+   "brand": "De'Longhi",
+   "price": 110.0,
+   "style_tags": [
+    "budget",
+    "classic"
+   ],
+   "description": "manual pump espresso, steam wand",
+   "search_url": "https://www.google.com/search?q=De%27Longhi+Stilosa+EC260",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p171",
+   "class": "espresso maker",
+   "name": "Nespresso VertuoPlus",
+   "brand": "Nespresso",
+   "price": 170.0,
+   "style_tags": [
+    "tech",
+    "minimal"
+   ],
+   "description": "capsule coffee and espresso",
+   "search_url": "https://www.google.com/search?q=Nespresso+VertuoPlus",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p172",
+   "class": "espresso maker",
+   "name": "Breville Bambino Plus",
+   "brand": "Breville",
+   "price": 500.0,
+   "style_tags": [
+    "luxe",
+    "tech"
+   ],
+   "description": "automatic milk frothing",
+   "search_url": "https://www.google.com/search?q=Breville+Bambino+Plus",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p180",
+   "class": "laptop",
+   "name": "Acer Aspire 5",
+   "brand": "Acer",
+   "price": 550.0,
+   "style_tags": [
+    "budget",
+    "tech"
+   ],
+   "description": "15.6 in, everyday laptop",
+   "search_url": "https://www.google.com/search?q=Acer+Aspire+5",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p181",
+   "class": "laptop",
+   "name": "Dell XPS 13",
+   "brand": "Dell",
+   "price": 1000.0,
+   "style_tags": [
+    "tech",
+    "minimal"
+   ],
+   "description": "13.4 in ultraportable",
+   "search_url": "https://www.google.com/search?q=Dell+XPS+13",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p182",
+   "class": "laptop",
+   "name": "Apple MacBook Air 13 in (M3)",
+   "brand": "Apple",
+   "price": 1100.0,
+   "style_tags": [
+    "tech",
+    "luxe"
+   ],
+   "description": "fanless, all-day battery",
+   "search_url": "https://www.google.com/search?q=Apple+MacBook+Air+13+in+%28M3%29",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p190",
+   "class": "computer keyboard",
+   "name": "Logitech K380 Multi-Device",
+   "brand": "Logitech",
+   "price": 40.0,
+   "style_tags": [
+    "budget",
+    "minimal"
+   ],
+   "description": "Bluetooth, 3 devices",
+   "search_url": "https://www.google.com/search?q=Logitech+K380+Multi-Device",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p191",
+   "class": "computer keyboard",
+   "name": "Keychron K2",
+   "brand": "Keychron",
+   "price": 80.0,
+   "style_tags": [
+    "tech",
+    "classic"
+   ],
+   "description": "75% wireless mechanical",
+   "search_url": "https://www.google.com/search?q=Keychron+K2",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p192",
+   "class": "computer keyboard",
+   "name": "Logitech MX Keys S",
+   "brand": "Logitech",
+   "price": 110.0,
+   "style_tags": [
+    "tech",
+    "minimal"
+   ],
+   "description": "backlit, multi-device",
+   "search_url": "https://www.google.com/search?q=Logitech+MX+Keys+S",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p200",
+   "class": "mouse",
+   "name": "Logitech M185",
+   "brand": "Logitech",
+   "price": 15.0,
+   "style_tags": [
+    "budget",
+    "minimal"
+   ],
+   "description": "wireless, compact",
+   "search_url": "https://www.google.com/search?q=Logitech+M185",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p201",
+   "class": "mouse",
+   "name": "Razer DeathAdder V3",
+   "brand": "Razer",
+   "price": 70.0,
+   "style_tags": [
+    "sporty",
+    "tech"
+   ],
+   "description": "ergonomic gaming mouse",
+   "search_url": "https://www.google.com/search?q=Razer+DeathAdder+V3",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p202",
+   "class": "mouse",
+   "name": "Logitech MX Master 3S",
+   "brand": "Logitech",
+   "price": 100.0,
+   "style_tags": [
+    "tech",
+    "luxe"
+   ],
+   "description": "quiet clicks, MagSpeed wheel",
+   "search_url": "https://www.google.com/search?q=Logitech+MX+Master+3S",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p210",
+   "class": "cellular telephone",
+   "name": "Google Pixel 8a",
+   "brand": "Google",
+   "price": 500.0,
+   "style_tags": [
+    "tech",
+    "budget"
+   ],
+   "description": "6.1 in, Tensor G3",
+   "search_url": "https://www.google.com/search?q=Google+Pixel+8a",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p211",
+   "class": "cellular telephone",
+   "name": "Apple iPhone 15",
+   "brand": "Apple",
+   "price": 700.0,
+   "style_tags": [
+    "tech",
+    "classic"
+   ],
+   "description": "6.1 in, USB-C",
+   "search_url": "https://www.google.com/search?q=Apple+iPhone+15",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p212",
+   "class": "cellular telephone",
+   "name": "Samsung Galaxy S24",
+   "brand": "Samsung",
+   "price": 800.0,
+   "style_tags": [
+    "tech",
+    "luxe"
+   ],
+   "description": "6.2 in, AMOLED",
+   "search_url": "https://www.google.com/search?q=Samsung+Galaxy+S24",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p220",
+   "class": "iPod",
+   "name": "Apple iPod touch (7th gen, discontinued)",
+   "brand": "Apple",
+   "price": 200.0,
+   "style_tags": [
+    "tech",
+    "classic"
+   ],
+   "description": "launch price; now sold used",
+   "search_url": "https://www.google.com/search?q=Apple+iPod+touch+%287th+gen%2C+discontinued%29",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p221",
+   "class": "iPod",
+   "name": "Sony Walkman NW-A306",
+   "brand": "Sony",
+   "price": 350.0,
+   "style_tags": [
+    "tech",
+    "luxe"
+   ],
+   "description": "hi-res audio player",
+   "search_url": "https://www.google.com/search?q=Sony+Walkman+NW-A306",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p230",
+   "class": "binoculars",
+   "name": "Nikon Aculon A211 10x50",
+   "brand": "Nikon",
+   "price": 110.0,
+   "style_tags": [
+    "outdoor",
+    "budget"
+   ],
+   "description": "Porro prism",
+   "search_url": "https://www.google.com/search?q=Nikon+Aculon+A211+10x50",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p231",
+   "class": "binoculars",
+   "name": "Bushnell H2O 10x42",
+   "brand": "Bushnell",
+   "price": 100.0,
+   "style_tags": [
+    "outdoor",
+    "sporty"
+   ],
+   "description": "waterproof roof prism",
+   "search_url": "https://www.google.com/search?q=Bushnell+H2O+10x42",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p232",
+   "class": "binoculars",
+   "name": "Vortex Diamondback HD 10x42",
+   "brand": "Vortex",
+   "price": 250.0,
+   "style_tags": [
+    "outdoor",
+    "luxe"
+   ],
+   "description": "HD glass, lifetime warranty",
+   "search_url": "https://www.google.com/search?q=Vortex+Diamondback+HD+10x42",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p240",
+   "class": "acoustic guitar",
+   "name": "Fender CD-60S",
+   "brand": "Fender",
+   "price": 200.0,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "solid spruce top dreadnought",
+   "search_url": "https://www.google.com/search?q=Fender+CD-60S",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p241",
+   "class": "acoustic guitar",
+   "name": "Yamaha FG800",
+   "brand": "Yamaha",
+   "price": 220.0,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "solid spruce top",
+   "search_url": "https://www.google.com/search?q=Yamaha+FG800",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p242",
+   "class": "acoustic guitar",
+   "name": "Taylor GS Mini",
+   "brand": "Taylor",
+   "price": 600.0,
+   "style_tags": [
+    "luxe",
+    "classic"
+   ],
+   "description": "compact scale, solid top",
+   "search_url": "https://www.google.com/search?q=Taylor+GS+Mini",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p250",
+   "class": "electric guitar",
+   "name": "Squier Classic Vibe '50s Stratocaster",
+   "brand": "Squier",
+   "price": 450.0,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "alnico pickups",
+   "search_url": "https://www.google.com/search?q=Squier+Classic+Vibe+%2750s+Stratocaster",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p251",
+   "class": "electric guitar",
+   "name": "Epiphone Les Paul Standard '50s",
+   "brand": "Epiphone",
+   "price": 650.0,
+   "style_tags": [
+    "classic",
+    "luxe"
+   ],
+   "description": "mahogany body",
+   "search_url": "https://www.google.com/search?q=Epiphone+Les+Paul+Standard+%2750s",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p252",
+   "class": "electric guitar",
+   "name": "Fender Player Stratocaster",
+   "brand": "Fender",
+   "price": 850.0,
+   "style_tags": [
+    "classic",
+    "luxe"
+   ],
+   "description": "alder body, 3 single coils",
+   "search_url": "https://www.google.com/search?q=Fender+Player+Stratocaster",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p260",
+   "class": "umbrella",
+   "name": "Totes AutoOpen Compact Umbrella",
+   "brand": "Totes",
+   "price": 25.0,
+   "style_tags": [
+    "budget",
+    "minimal"
+   ],
+   "description": "auto-open, compact",
+   "search_url": "https://www.google.com/search?q=Totes+AutoOpen+Compact+Umbrella",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p261",
+   "class": "umbrella",
+   "name": "Repel Windproof Travel Umbrella",
+   "brand": "Repel",
+   "price": 25.0,
+   "style_tags": [
+    "budget",
+    "sporty"
+   ],
+   "description": "Teflon coating, 9 ribs",
+   "search_url": "https://www.google.com/search?q=Repel+Windproof+Travel+Umbrella",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p262",
+   "class": "umbrella",
+   "name": "Blunt Metro",
+   "brand": "Blunt",
+   "price": 80.0,
+   "style_tags": [
+    "luxe",
+    "minimal"
+   ],
+   "description": "storm-rated compact",
+   "search_url": "https://www.google.com/search?q=Blunt+Metro",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p270",
+   "class": "sleeping bag",
+   "name": "Coleman Brazos 20\u00b0F",
+   "brand": "Coleman",
+   "price": 40.0,
+   "style_tags": [
+    "outdoor",
+    "budget"
+   ],
+   "description": "synthetic, rectangular",
+   "search_url": "https://www.google.com/search?q=Coleman+Brazos+20%C2%B0F",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p271",
+   "class": "sleeping bag",
+   "name": "Kelty Cosmic 20",
+   "brand": "Kelty",
+   "price": 180.0,
+   "style_tags": [
+    "outdoor",
+    "classic"
+   ],
+   "description": "550-fill down",
+   "search_url": "https://www.google.com/search?q=Kelty+Cosmic+20",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p272",
+   "class": "sleeping bag",
+   "name": "REI Co-op Magma 15",
+   "brand": "REI Co-op",
+   "price": 380.0,
+   "style_tags": [
+    "outdoor",
+    "luxe"
+   ],
+   "description": "850-fill down, ultralight",
+   "search_url": "https://www.google.com/search?q=REI+Co-op+Magma+15",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p280",
+   "class": "lipstick",
+   "name": "Maybelline SuperStay Matte Ink",
+   "brand": "Maybelline",
+   "price": 11.0,
+   "style_tags": [
+    "budget",
+    "classic"
+   ],
+   "description": "long-wear liquid lipstick",
+   "search_url": "https://www.google.com/search?q=Maybelline+SuperStay+Matte+Ink",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p281",
+   "class": "lipstick",
+   "name": "MAC Matte Lipstick",
+   "brand": "MAC",
+   "price": 25.0,
+   "style_tags": [
+    "classic",
+    "luxe"
+   ],
+   "description": "iconic matte finish",
+   "search_url": "https://www.google.com/search?q=MAC+Matte+Lipstick",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p282",
+   "class": "lipstick",
+   "name": "Charlotte Tilbury Matte Revolution",
+   "brand": "Charlotte Tilbury",
+   "price": 35.0,
+   "style_tags": [
+    "luxe",
+    "classic"
+   ],
+   "description": "hydrating matte",
+   "search_url": "https://www.google.com/search?q=Charlotte+Tilbury+Matte+Revolution",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p290",
+   "class": "perfume",
+   "name": "Glossier You Eau de Parfum 50 ml",
+   "brand": "Glossier",
+   "price": 78.0,
+   "style_tags": [
+    "minimal",
+    "cozy"
+   ],
+   "description": "musky, skin-like scent",
+   "search_url": "https://www.google.com/search?q=Glossier+You+Eau+de+Parfum+50+ml",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p291",
+   "class": "perfume",
+   "name": "Dior Sauvage Eau de Toilette 100 ml",
+   "brand": "Dior",
+   "price": 120.0,
+   "style_tags": [
+    "luxe",
+    "classic"
+   ],
+   "description": "fresh, spicy",
+   "search_url": "https://www.google.com/search?q=Dior+Sauvage+Eau+de+Toilette+100+ml",
+   "real": true,
+   "approx_price": true
+  },
+  {
+   "product_id": "p292",
+   "class": "perfume",
+   "name": "Chanel N\u00b05 Eau de Parfum 100 ml",
+   "brand": "Chanel",
+   "price": 175.0,
+   "style_tags": [
+    "luxe",
+    "classic"
+   ],
+   "description": "floral aldehyde",
+   "search_url": "https://www.google.com/search?q=Chanel+N%C2%B05+Eau+de+Parfum+100+ml",
+   "real": true,
+   "approx_price": true
+  }
+ ]
+}

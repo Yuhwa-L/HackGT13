@@ -58,8 +58,8 @@ One row per evaluated image. `base_image_id` is the split unit.
 ## 3. How to use it
 
 ```bash
-python -m benchmark.make_splits                  # 2,000 base images → 84,000 rows (default)
-python -m benchmark.make_splits --n-base 10000   # full benchmark → 412,000 rows (~1.3 s)
+python -m benchmark.make_splits                  # default: 10,000 base images → 412,000 rows (~1.3 s), the frozen benchmark
+python -m benchmark.make_splits --n-base 2000    # CPU-sized → 84,000 rows (different splits: don't mix with committed results)
 python -m benchmark.make_splits --n-base 40      # 1 PM-style tiny pipeline → 1,650 rows
 ```
 
@@ -216,10 +216,20 @@ Use the mocks for schemas, joins and plumbing only. Their signal quality is **no
 
 ## 8. Next steps
 
-The core B work is complete. Remaining B items from the project doc's timeline:
+The core B work is complete.
 
-1. **Spot-check the benchmark (9–12 PM):** review a few `demo_cache.json` images against their manifest rows (corruption, severity, label).
-2. **Methods and data explanation for the pitch (2–4 AM):** the leakage-safe split, leave-one-family-out, CIFAR-10.1, and what each signal measures.
+**Signal analysis and pitch notes (done).** `python -m trust.signal_ablation` retrains C's exact XGBoost setup on different feature sets. Its "all 8" row reproduces `evaluation.json` exactly. It writes `data/signal_ablation.json`. Findings:
+- Stability (`tta_pconf`) is the best single signal in all four held-out families.
+- Adding stability to the confidence signals gives most of the gain; familiarity adds a little.
+- `trust_score` does not help: on noise it slightly hurts, with a significant bootstrap CI. So C's 8-feature model stands.
+- Paste-ready text and numbers for the Devpost and slides: [person-b-pitch-notes.md](person-b-pitch-notes.md).
+
+**Reproducibility.** The full pipeline was regenerated from scratch on a second machine, a base M3 (inference took 23 min on its GPU). It matched the committed `scores.parquet` on all 84,000 test rows: identical correctness, and confidences within 5×10⁻¹¹.
+
+Remaining B items from the project doc's timeline:
+
+1. ~~Spot-check the benchmark~~ **Done:** all 40 demo images × 41 versions are in `test`, and labels, corruption and severity match the manifest. 300 random versions are pixel-identical to `load_images`.
+2. ~~Methods and data explanation for the pitch~~ **Drafted:** [person-b-pitch-notes.md](person-b-pitch-notes.md).
 3. **Devpost write-up (4–6 AM).**
 4. **Optional stretch B8:** `benchmark/corruptions.py` for live `/predict`.
 

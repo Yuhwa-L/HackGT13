@@ -3,7 +3,8 @@ true_label, true_class, corruption, family, severity, split.
 Split by base_image_id, never by row: train 50 / val 15 / cal 15 / test 20, stratified by class, fixed seed.
 CIFAR-10.1 rows: dataset=cifar10_1, corruption=natural, family=natural, split=test.
 
-Run: python -m benchmark.make_splits [--n-base 2000]   (10000 = full 410k-row benchmark; <= 50 = 1 PM tiny pipeline)
+Run: python -m benchmark.make_splits [--n-base 10000]   (default 10000 = the frozen 410k-row benchmark the committed results
+use; 2000 = CPU-sized, different splits; <= 50 = 1 PM tiny pipeline)
 """
 import argparse
 
@@ -14,7 +15,7 @@ from benchmark.load_cifar import RAW, class_names, load_cifar10_1, load_cifar10_
 from benchmark.load_cifar10c import C10C_DIR, CORRUPTIONS, SEVERITIES, c10c_index, load_cifar10c_labels
 
 SEED = 0
-N_BASE = 2000
+N_BASE = 10000  # frozen benchmark size: data/evaluation.json, scores.parquet and demo_cache.json come from it
 TINY_MAX = 50  # at or below this many base images, CIFAR-10.1 is subsampled too
 SPLITS = {"train": 0.50, "val": 0.15, "cal": 0.15, "test": 0.20}
 OUT = RAW.parent / "manifest.csv"
