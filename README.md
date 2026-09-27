@@ -95,8 +95,8 @@ The demo uses only Python's standard library and loads nothing from the internet
 **Try it with our data.** The repository includes the results of our full run, so the demo works right after cloning. They come from a pretrained ResNet-18 (94.98% accurate on clean CIFAR-10 test photos), kept frozen and never retrained, run on all 10,000 CIFAR-10 test photos in 41 versions each (clean, plus 8 corruptions at 5 severity levels) and on 2,000 CIFAR-10.1 photos. Our trust layer scored every prediction, and each corrupted photo is judged by a trust layer that never saw that type of corruption.
 
 ```bash
-git clone https://github.com/Yuhwa-L/HackGT13.git
-cd HackGT13
+git clone https://github.com/Yuhwa-L/Trust-Issues.git
+cd Trust-Issues
 python3 -m backend.main          # Windows: py -m backend.main
 ```
 
@@ -126,8 +126,8 @@ All commands are for macOS or Linux. On Windows, use WSL. Run every command from
 **1. Get the code and system tools.**
 
 ```bash
-git clone https://github.com/Yuhwa-L/HackGT13.git
-cd HackGT13
+git clone https://github.com/Yuhwa-L/Trust-Issues.git
+cd Trust-Issues
 brew install libomp              # macOS only: XGBoost needs it
 ```
 
