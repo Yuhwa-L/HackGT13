@@ -1,4 +1,4 @@
-"""Owner: B. Self-checks for the loaders, load_images and the manifest. Needs data/raw/ (REQUIREMENTS.md §2.3);
+"""Owner: B. Self-checks for the loaders, load_images and the manifest. Needs data/raw/ (REQUIREMENTS.md §3.3);
 tests whose dataset is missing print a skip instead of failing.
 Run from the repo root: python -m benchmark.test_benchmark (pytest also works).
 """

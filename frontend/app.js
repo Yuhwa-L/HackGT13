@@ -426,7 +426,7 @@ async function boot() {
     [state.cache, state.ev] = await Promise.all([get("data/demo_cache.json"), get("data/evaluation.json")]);
   } catch (e) {
     const el = $("load-error");
-    el.textContent = `Could not load the demo data (${e.message}). The demo needs data/demo_cache.json and data/evaluation.json, which come with the repository. If they are missing, create them with the README's "Option 2: rebuild everything from scratch", then start the demo again with python -m backend.main.`;
+    el.textContent = `Could not load the demo data (${e.message}). The demo needs data/demo_cache.json and data/evaluation.json, which come with the repository. If they are missing, create them with REQUIREMENTS.md, section 3 "Rebuild everything from scratch", then start the demo again with python -m backend.main.`;
     el.hidden = false; $("demo").hidden = true;
     return;
   }

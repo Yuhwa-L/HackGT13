@@ -17,7 +17,7 @@ Say this line first in every format. Everything else is evidence for it.
 
 The three-beat story, in plain words:
 1. **The problem:** an image model stays confident while its accuracy collapses. Our CIFAR ResNet says 87.5% on
-   heavily blurred photos and is right 60.3% of the time. [README "The problem, measured"]
+   heavily blurred photos and is right 60.3% of the time. [README "The problem"]
 2. **The fix:** a second model watches the first one: is its answer stable, and does the photo look familiar? It
    outputs one honest number, `p_correct`, and TRUST / CAUTION / REJECT.
 3. **The payoff:** the same layer, dropped onto a totally different model, runs a shopping assistant. It allows
@@ -140,8 +140,8 @@ Tags: submit to **Oracle of the Deep** (track) and **Visa** (challenge).
 
 ## 8. Before 8 AM checklist
 
-- [ ] Demo laptop: `git pull`, `pip install -r requirements.txt`, ViT weights downloaded, `.env` with the key (README,
-      "Set up the Shopping assistant tab"). Open `/#shop` once and try the webcam.
+- [ ] Demo laptop: `git pull`, `pip install -r requirements.txt`, ViT weights downloaded, `.env` with the key (REQUIREMENTS.md,
+      section 2 "Shopping assistant tab"). Open `/#shop` once and try the webcam.
 - [ ] Record the video (§4) and keep a copy offline as the backup.
 - [ ] Devpost: write each section (§6), add screenshots of all three tabs, and submit to both the track and the Visa
       challenge.
