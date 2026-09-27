@@ -55,6 +55,32 @@ def test_checkout_policy_table_and_boundaries():
     assert "0.97" in checkout_requirements("trust", 0.97, 20, CFG)["explanation"]
 
 
+
+def test_risk_levels_change_friction_not_decisions():
+    from shop.config import RISK_LEVELS
+    tier = lambda risk, eff, total: checkout_requirements(eff, 0.9, total, RISK_LEVELS[risk])["tier"]
+    assert tier("relaxed", "trust", 250) == "one_tap" and tier("normal", "trust", 250) == "confirm"
+    assert tier("strict", "trust", 5) == "confirm" and tier("strict", "trust_confirmed", 5) == "confirm_twice"
+    assert tier("strict", "trust", 0) == "confirm" and tier("strict", "trust_confirmed", 0) == "confirm_twice"
+    for risk in RISK_LEVELS:                                               # no setting unlocks a locked decision
+        assert not checkout_requirements("reject", 0.9, 1, RISK_LEVELS[risk])["allowed"]
+        assert not checkout_requirements("caution", 0.9, 1, RISK_LEVELS[risk])["allowed"]
+
+
+def test_user_profile_validation():
+    from shop.profiles import normalize_profile
+    p = normalize_profile({"name": "  Ro   ", "budget_per_item": "80", "style_tags": ["tech", "bogus", "tech"],
+                           "risk": "strict", "owned": ["x0", "nope"]}, {"x0": {}})
+    assert p["name"] == "Ro" and p["budget_per_item"] == 80 and p["style_tags"] == ["tech"] and p["risk"] == "strict"
+    assert p["purchase_history"] == [{"product_id": "x0", "date": ""}]
+    for bad in ({"budget_per_item": "abc"}, {"budget_per_item": 0}, {"budget_per_item": 50, "risk": "yolo"}, "x"):
+        try:
+            normalize_profile(bad, {})
+        except ValueError:
+            continue
+        raise AssertionError(f"accepted {bad!r}")
+
+
 CATALOG = [{"product_id": f"x{i}", "class": c, "name": f"Test {c} {i}", "brand": "B", "price": 20.0 + i,
             "style_tags": ["minimal", "budget"], "description": "", "fictional": True}
            for i, c in enumerate(["backpack", "backpack", "purse", "toaster"])]

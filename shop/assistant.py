@@ -168,7 +168,7 @@ def enforce(out, eff, products):
 
 # ---- entry point ----
 
-def assist(item, profile, catalog, user_message="", confirmed_class=None, llm="auto"):
+def assist(item, profile, catalog, user_message="", confirmed_class=None, llm="auto", policy_cfg=CHECKOUT_POLICY):
     """item: a shop_cache entry. Returns the /api/shop/assist response."""
     by_id = {p["product_id"]: p for p in catalog}
     eff = effective_decision(item["decision"], confirmed_class, item["candidates"])
@@ -195,7 +195,7 @@ def assist(item, profile, catalog, user_message="", confirmed_class=None, llm="a
         ranked = sorted(ranked, key=lambda p: [c["class"] for c in item["candidates"]].index(p["class"]))
         ranked = [p for i, p in enumerate(ranked) if sum(q["class"] == p["class"] for q in ranked[:i]) < 2]
     ranked = ranked[:MAX_PRODUCTS]
-    policy = checkout_requirements(eff, item["p_correct"], 0.0, CHECKOUT_POLICY)
+    policy = checkout_requirements(eff, item["p_correct"], 0.0, policy_cfg)
     return {
         "decision": item["decision"], "effective_decision": eff, "p_correct": item["p_correct"],
         "allowed_actions": allowed_actions(eff), "action": out["action"], "assistant_message": out["reply"],

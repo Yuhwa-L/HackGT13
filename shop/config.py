@@ -32,8 +32,14 @@ TARGET_REJECT, TARGET_TRUST = 0.05, 0.01
 IMAGE_SIZE = 224
 TTA_SHIFT = 14  # px at 224; the same 6% of the width as the core's 2 px at 32
 
-# Checkout policy amounts are DEMO SETTINGS, not recommendations.
-CHECKOUT_POLICY = {"trust_one_tap_cap": 150.0, "confirmed_cap": 75.0}
+# Checkout policy amounts are DEMO SETTINGS, not recommendations. The shopper picks how careful checkout should be;
+# this only changes caps and confirmations, never the trust layer's calibrated thresholds.
+RISK_LEVELS = {
+    "relaxed": {"trust_one_tap_cap": 300.0, "confirmed_cap": 150.0},
+    "normal": {"trust_one_tap_cap": 150.0, "confirmed_cap": 75.0},
+    "strict": {"trust_one_tap_cap": 0.0, "confirmed_cap": 0.0},   # every purchase confirmed; twice after a CAUTION pick
+}
+CHECKOUT_POLICY = RISK_LEVELS["normal"]
 
 
 def shop_path(*parts):

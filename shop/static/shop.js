@@ -60,8 +60,15 @@
   #shop .offline { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--sunken); color: var(--ink-2); }
   `;
 
-  const S = { samples: null, profiles: [], profile: null, base: null, photo: null, confirmed: null, cart: {}, confirmations: 0,
-              assist: null, chat: [], busy: false };
+  const S = { samples: null, meta: null, me: null, mode: "me", editing: false, base: null, photo: null, confirmed: null,
+              cart: {}, confirmations: 0, assist: null, chat: [], busy: false };
+  const RISK_TEXT = { relaxed: "Relaxed: one-tap up to $300", normal: "Normal: one-tap up to $150",
+                      strict: "Strict: confirm every purchase" };
+  const store = { get: () => { try { return JSON.parse(localStorage.getItem("shop.profile")); } catch (e) { return null; } },
+                  set: v => { try { localStorage.setItem("shop.profile", JSON.stringify(v)); } catch (e) { /* private mode */ } } };
+  // The shopper's own profile is the default; the fictional examples are a proof of concept.
+  const who = () => S.mode === "me" ? { profile: S.me } : { profile_id: S.mode };
+  const whoName = () => S.mode === "me" ? (S.me.name || "You") : S.meta.examples.find(p => p.profile_id === S.mode).name;
   let root;
 
   function versionsOf(base) { return S.samples.photos.find(p => p.base_image_id === base).versions; }
@@ -69,7 +76,7 @@
 
   async function runAssist(userMessage) {
     S.busy = true; render();
-    const r = await api("/api/shop/assist", { photo_id: S.photo, profile_id: S.profile, user_message: userMessage || "", confirmed_class: S.confirmed });
+    const r = await api("/api/shop/assist", { photo_id: S.photo, ...who(), user_message: userMessage || "", confirmed_class: S.confirmed });
     S.busy = false;
     if (!r.ok) { S.chat.push({ who: "a", text: `Error: ${r.j.error || r.status}` }); return render(); }
     S.assist = r.j;
@@ -91,14 +98,14 @@
   async function quote() {
     const cart = Object.entries(S.cart).filter(([, q]) => q > 0).map(([product_id, qty]) => ({ product_id, qty }));
     if (!cart.length) { S.quote = null; return render(); }
-    const r = await api("/api/shop/quote", { photo_id: S.photo, confirmed_class: S.confirmed, cart });
+    const r = await api("/api/shop/quote", { photo_id: S.photo, ...who(), confirmed_class: S.confirmed, cart });
     S.quote = r.ok ? r.j : { tier: "blocked", explanation: r.j.error || "Unavailable", allowed: false, total: 0 };
     render();
   }
 
   async function checkout() {
     const cart = Object.entries(S.cart).filter(([, q]) => q > 0).map(([product_id, qty]) => ({ product_id, qty }));
-    const r = await api("/api/shop/checkout", { photo_id: S.photo, profile_id: S.profile, confirmed_class: S.confirmed, cart, confirmations: S.confirmations });
+    const r = await api("/api/shop/checkout", { photo_id: S.photo, ...who(), confirmed_class: S.confirmed, cart, confirmations: S.confirmations });
     S.order = r.ok ? r.j : { error: r.j.explanation || r.j.error, need: r.j.confirmations_required };
     render();
   }
@@ -200,13 +207,65 @@
       order);
   }
 
+  function renderProfileEditor() {
+    const d = S.draft;
+    const chip = t => el("button", { type: "button", class: "btn", "aria-pressed": String(d.style_tags.includes(t)),
+      style: d.style_tags.includes(t) ? "background:var(--trust);color:#fff;border-color:transparent" : null, text: t,
+      onclick: () => { d.style_tags = d.style_tags.includes(t) ? d.style_tags.filter(x => x !== t) : [...d.style_tags, t].slice(0, 4); render(); } });
+    const byClass = {};
+    for (const p of S.meta.catalog) (byClass[p.class] = byClass[p.class] || []).push(p);
+    const owned = el("select", { multiple: "", size: "6", "aria-label": "Things you already own", style: "width:100%",
+      onchange: e => { d.owned = [...e.target.selectedOptions].map(o => o.value).slice(0, 12); } },
+      Object.entries(byClass).map(([c, ps]) => el("optgroup", { label: c }, ps.map(p =>
+        el("option", { value: p.product_id, selected: d.owned.includes(p.product_id) ? "" : null, text: p.name })))));
+    const save = () => {
+      const budget = Number(d.budget_per_item);
+      if (!(budget >= 1 && budget <= 10000)) { S.formError = "Budget per item must be between $1 and $10,000."; return render(); }
+      S.formError = null; S.me = { ...d, budget_per_item: budget }; store.set(S.me); S.mode = "me"; S.editing = false;
+      select(S.base, S.photo);
+    };
+    return el("section", { class: "card", "aria-labelledby": "shop-prof-h" },
+      el("h2", { id: "shop-prof-h", text: "Your shopping profile" }),
+      el("p", { class: "sub", text: "The assistant personalizes picks with this, and your careful-checkout setting sets how much " +
+        "confirmation checkout asks for. Saved in this browser only." }),
+      el("div", { class: "row" },
+        el("label", { class: "small", for: "shop-name", text: "Name" }),
+        el("input", { id: "shop-name", type: "text", value: d.name, maxlength: "40", placeholder: "Your name",
+          oninput: e => { d.name = e.target.value; } }),
+        el("label", { class: "small", for: "shop-budget", text: "Budget per item ($)" }),
+        el("input", { id: "shop-budget", type: "number", min: "1", max: "10000", step: "1", value: String(d.budget_per_item),
+          style: "width:7em", oninput: e => { d.budget_per_item = e.target.value; } })),
+      el("div", { class: "row" }, el("span", { class: "small", text: "Your style (up to 4):" }), S.meta.style_tags.map(chip)),
+      el("div", { class: "row" }, el("span", { class: "small", text: "Careful checkout:" }),
+        el("div", { class: "seg", role: "group", "aria-label": "Careful checkout" }, Object.keys(S.meta.risk_levels).map(r =>
+          el("button", { type: "button", "aria-pressed": String(d.risk === r), text: r[0].toUpperCase() + r.slice(1),
+            title: RISK_TEXT[r], onclick: () => { d.risk = r; render(); } }))),
+        el("span", { class: "small", text: RISK_TEXT[d.risk] })),
+      el("div", {}, el("span", { class: "small", text: "Things you already own (optional; Cmd/Ctrl-click for several):" }), owned),
+      S.formError ? el("p", { class: "err", text: S.formError }) : null,
+      el("div", { class: "row" }, el("button", { class: "btn primary", type: "button", text: "Save profile", onclick: save }),
+        S.me ? el("button", { class: "btn", type: "button", text: "Cancel", onclick: () => { S.editing = false; render(); } }) : null));
+  }
+
+  function renderShopperBar() {
+    const sel = el("select", { id: "shop-profile", "aria-label": "Shopper",
+      onchange: e => { S.mode = e.target.value; select(S.base, S.photo); } },
+      el("option", { value: "me", selected: S.mode === "me" ? "" : null, text: `You${S.me && S.me.name ? ` (${S.me.name})` : ""}` }),
+      el("optgroup", { label: "Examples (fictional)" }, S.meta.examples.map(p => el("option", { value: p.profile_id,
+        selected: p.profile_id === S.mode ? "" : null, text: `${p.name} · ${money(p.budget_per_item)}/item · ${p.style_tags.join(", ")}` }))));
+    const cur = S.mode === "me" ? S.me : S.meta.examples.find(p => p.profile_id === S.mode);
+    return el("div", { class: "row" }, el("label", { class: "small", for: "shop-profile", text: "Shopper" }), sel,
+      S.mode === "me" && S.me ? el("button", { class: "btn", type: "button", text: "Edit profile",
+        onclick: () => { S.draft = { ...S.me }; S.editing = true; render(); } }) : null,
+      cur ? el("span", { class: "small", text: `${money(cur.budget_per_item)}/item · ${cur.style_tags.join(", ") || "no style set"} · ${(cur.risk || "normal")} checkout` }) : null);
+  }
+
   function renderStory() {
     const st = S.samples.story || {};
     const steps = [["1 · TRUST: one-tap", st.trust, 1], ["2 · TRUST: big order", st.trust, "big"], ["3 · CAUTION: confirm", st.caution, 1], ["4 · REJECT: retake", st.reject, 1]];
     return el("div", { class: "row" }, el("span", { class: "small", text: "Demo story:" }),
       steps.filter(s => s[1]).map(([t, v, q]) => el("button", { class: "btn", type: "button", text: t,
         onclick: async () => {
-          const prof = S.profiles.find(p => p.profile_id === S.profile);
           await select(v.base_image_id, v.photo_id);
           if (S.assist && S.assist.cart_allowed && S.assist.products.length) {
             const p = S.assist.products[0];
@@ -218,8 +277,15 @@
 
   function render() {
     if (!root || !S.samples) return;
-    const prof = S.profiles.find(p => p.profile_id === S.profile);
     root.textContent = "";
+    if (S.editing || (S.mode === "me" && !S.me)) {  // first visit: set up your own profile before shopping
+      if (!S.draft) S.draft = { name: "", budget_per_item: 100, style_tags: [], risk: "normal", owned: [] };
+      root.append(renderProfileEditor(),
+        el("p", { class: "small", text: "Just looking? Pick an example shopper instead:" }),
+        el("div", { class: "row" }, S.meta.examples.map(p => el("button", { class: "btn", type: "button", text: `${p.name} (example)`,
+          onclick: () => { S.mode = p.profile_id; S.editing = false; select(S.base, S.photo); } }))));
+      return;
+    }
     root.append(
       el("section", { class: "card" },
         el("div", { class: "card-head" },
@@ -227,11 +293,8 @@
             el("p", { class: "sub", text: "Upload a product photo; the same trust layer decides what the AI assistant may do. " +
               "TRUST allows one-tap checkout, CAUTION asks which item you meant, REJECT asks for a better photo. " +
               "Rules are enforced in code, not by the AI. Products are real models with approximate prices (not affiliated); " +
-              "shoppers are fictional; checkout is a mock and nothing is charged." })),
-          el("div", { class: "row" }, el("label", { class: "small", for: "shop-profile", text: "Shopper" }),
-            el("select", { id: "shop-profile", onchange: e => { S.profile = e.target.value; select(S.base, S.photo); } },
-              S.profiles.map(p => el("option", { value: p.profile_id, selected: p.profile_id === S.profile ? "" : null,
-                text: `${p.name} · ${money(p.budget_per_item)}/item · ${p.style_tags.join(", ")}` }))))),
+              "example shoppers are fictional; checkout is a mock and nothing is charged." })),
+          renderShopperBar()),
         renderStory()),
       el("div", { class: "shop-grid" },
         el("div", { style: "display:grid;gap:18px" }, renderPicker(), renderTrust()),
@@ -255,9 +318,10 @@
   (async () => {
     const [s, p] = await Promise.all([api("/api/shop/samples"), api("/api/shop/profiles")]).catch(() => [{}, {}]);
     if (!s.ok || !p.ok) return;   // shop not installed: leave the page untouched
-    S.samples = s.j; S.profiles = p.j.profiles; S.profile = S.profiles[0].profile_id;
+    S.samples = s.j; S.meta = p.j; S.me = store.get();
     install();
     const first = S.samples.story && S.samples.story.trust ? S.samples.story.trust : S.samples.photos[0].versions[0];
-    select(first.base_image_id, first.photo_id);
+    S.base = first.base_image_id; S.photo = first.photo_id;
+    if (S.me) select(first.base_image_id, first.photo_id); else render();
   })();
 })();

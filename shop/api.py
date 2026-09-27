@@ -1,11 +1,12 @@
 """Snap-to-Shop HTTP routes, mounted into backend/main.py's standard-library server behind a guarded import.
 
 GET  /api/shop/samples    curated photos (with images) + the demo story
-GET  /api/shop/profiles   fictional shoppers
+GET  /api/shop/profiles   example (fictional) shoppers, style tags, risk levels, catalog names for "things I own"
 POST /api/shop/identify   {photo_id} -> cached prediction, trust decision, candidates, reasons
-POST /api/shop/assist     {photo_id, profile_id, user_message?, confirmed_class?} -> assistant response
+POST /api/shop/assist     {photo_id, profile | profile_id, user_message?, confirmed_class?} -> assistant response
+                          (profile = the shopper's own {name, budget_per_item, style_tags, risk, owned}; the default)
 POST /api/shop/quote      {photo_id, confirmed_class?, cart} -> checkout tier for this cart; places nothing
-POST /api/shop/checkout   {photo_id, profile_id, confirmed_class?, cart: [{product_id, qty}], confirmations}
+POST /api/shop/checkout   {photo_id, profile | profile_id, confirmed_class?, cart: [{product_id, qty}], confirmations}
 GET  /shop.js             the tab's script
 
 The server never trusts client-sent decisions or totals: both are recomputed from the cache and the catalog.
@@ -17,8 +18,10 @@ from pathlib import Path
 
 from shop.assistant import assist
 from shop.checkout_policy import checkout_requirements
-from shop.config import CHECKOUT_POLICY, DATA
+from shop.catalog import STYLES
+from shop.config import DATA, RISK_LEVELS
 from shop.gate import effective_decision, is_allowed, shoppable_classes
+from shop.profiles import normalize_profile
 
 STATIC = Path(__file__).resolve().parent / "static"
 MAX_QTY = 20
@@ -57,12 +60,15 @@ class ShopAPI:
             if route == ("GET", "samples"):
                 return self._ok(self.samples)
             if route == ("GET", "profiles"):
-                return self._ok({"profiles": list(self.profiles.values())})
+                return self._ok({"examples": list(self.profiles.values()), "style_tags": STYLES,
+                                 "risk_levels": RISK_LEVELS,
+                                 "catalog": [{k: p[k] for k in ("product_id", "name", "class")} for p in self.catalog]})
             if route == ("POST", "identify"):
                 return self._ok(self._public(self._item(req)))
             if route == ("POST", "assist"):
-                return self._ok(assist(self._item(req), self._profile(req), self.catalog,
-                                       str(req.get("user_message") or "")[:500], self._confirmed(req)))
+                prof = self._profile(req)
+                return self._ok(assist(self._item(req), prof, self.catalog, str(req.get("user_message") or "")[:500],
+                                       self._confirmed(req), policy_cfg=RISK_LEVELS[prof.get("risk", "normal")]))
             if route == ("POST", "quote"):
                 eff, lines, total, policy = self._price(req)
                 return self._ok({**policy, "total": total, "effective_decision": eff})
@@ -87,10 +93,13 @@ class ShopAPI:
         return item
 
     def _profile(self, req):
+        """The shopper's own profile (default) or one of the fictional examples."""
+        if req.get("profile") is not None:
+            return normalize_profile(req["profile"], self.by_id)
         prof = self.profiles.get(str(req.get("profile_id")))
         if prof is None:
-            raise LookupError("unknown profile_id")
-        return prof
+            raise LookupError("send a profile object or a known example profile_id")
+        return {**prof, "risk": prof.get("risk", "normal")}
 
     @staticmethod
     def _confirmed(req):
@@ -101,12 +110,13 @@ class ShopAPI:
     def _public(item):
         return {k: v for k, v in item.items() if k != "image"}
 
-    def _price(self, req):
+    def _price(self, req, profile=None):
         """Recompute the effective decision, cart lines and total server-side; never trust the client's."""
         item = self._item(req)
+        cfg = RISK_LEVELS[(profile or self._profile(req)).get("risk", "normal")]
         eff = effective_decision(item["decision"], self._confirmed(req), item["candidates"])
         if not is_allowed(eff, "checkout"):  # gate first: a locked decision is a 403, whatever the cart holds
-            raise PermissionError(checkout_requirements(eff, item["p_correct"], 0.0, CHECKOUT_POLICY))
+            raise PermissionError(checkout_requirements(eff, item["p_correct"], 0.0, cfg))
         classes = set(shoppable_classes(eff, item["pred_class"], item["candidates"], self._confirmed(req)))
         lines = []
         for line in req.get("cart") or []:
@@ -116,11 +126,11 @@ class ShopAPI:
                 raise ValueError("cart has an unknown, out-of-class or invalid item")
             lines.append({"product_id": p["product_id"], "name": p["name"], "price": p["price"], "qty": qty})
         total = round(sum(line["price"] * line["qty"] for line in lines), 2)
-        return eff, lines, total, checkout_requirements(eff, item["p_correct"], total, CHECKOUT_POLICY)
+        return eff, lines, total, checkout_requirements(eff, item["p_correct"], total, cfg)
 
     def _checkout(self, req):
         profile = self._profile(req)
-        eff, lines, total, policy = self._price(req)
+        eff, lines, total, policy = self._price(req, profile)
         if not lines:
             return self._json(400, {"error": "cart is empty"})
         confirmations = int(req.get("confirmations") or 0)
