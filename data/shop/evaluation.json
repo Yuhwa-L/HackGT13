@@ -1,5 +1,6 @@
 {
- "note": "Snap-to-Shop, one split by photo, test split only; demo-scale (ImageNetV2 photos), not a benchmark claim",
+ "note": "Snap-to-Shop, test split only; demo-scale (ImageNetV2 photos), not a benchmark claim",
+ "calibration": "5-fold cross-fit over the 380 non-test photos: isotonic and thresholds from out-of-fold scores; final model on all non-test photos",
  "classes": 30,
  "photos": {
   "train": 238,
@@ -10,65 +11,65 @@
  "bank_photos": 146,
  "rows": 11875,
  "test_rows": 2375,
- "test_accuracy": 0.5098947368421053,
- "T_clean": 1.4473327026502094,
- "T_corrupted": 1.4409809589951976,
+ "test_accuracy": 0.696,
+ "T_clean": 1.0491497393670917,
+ "T_corrupted": 0.9963892958468576,
  "auroc": {
-  "raw_confidence": 0.8158149380960894,
-  "trust_layer": 0.821419348980281
+  "raw_confidence": 0.8594530552190008,
+  "trust_layer": 0.863959258160685
  },
  "aurc": {
-  "raw_confidence": 0.23935948967864054,
-  "trust_layer": 0.23846029850600028
+  "raw_confidence": 0.09988665824742757,
+  "trust_layer": 0.0975921197103882
  },
  "ece": {
-  "raw_confidence": 0.0722294632522966,
-  "temp_clean": 0.05694740714841342,
-  "temp_corrupted": 0.05561701032578302,
-  "p_correct": 0.07921266295132796
+  "raw_confidence": 0.044810458403249626,
+  "temp_clean": 0.056146574221385616,
+  "temp_corrupted": 0.043680699064398615,
+  "p_correct": 0.05869561697370724
  },
  "decisions_test": {
   "trust": {
-   "share": 0.1288421052631579,
-   "error": 0.009803921568627416
+   "share": 0.2732631578947368,
+   "error": 0.007704160246533087
   },
   "caution": {
-   "share": 0.023578947368421053,
-   "error": 0.0892857142857143
+   "share": 0.0863157894736842,
+   "error": 0.08292682926829265
   },
   "reject": {
-   "share": 0.8475789473684211,
-   "error": 0.574267262791853
+   "share": 0.640421052631579,
+   "error": 0.460223537146614
   }
  },
  "by_severity_test": [
   {
    "severity": 0,
    "n": 95,
-   "accuracy": 0.7684210526315789,
-   "raw_confidence": 0.7521525916101324,
-   "p_correct": 0.6288501037835807
+   "accuracy": 0.8526315789473684,
+   "raw_confidence": 0.7954415904123685,
+   "p_correct": 0.755720767835958
   },
   {
    "severity": 1,
    "n": 760,
-   "accuracy": 0.6605263157894737,
-   "raw_confidence": 0.6747453991577017,
-   "p_correct": 0.5396897715595179
+   "accuracy": 0.7986842105263158,
+   "raw_confidence": 0.7491005275939149,
+   "p_correct": 0.7212116843588564
   },
   {
    "severity": 3,
    "n": 760,
-   "accuracy": 0.5394736842105263,
-   "raw_confidence": 0.5888992724953038,
-   "p_correct": 0.4398814698195225
+   "accuracy": 0.7157894736842105,
+   "raw_confidence": 0.6744858350072603,
+   "p_correct": 0.6572484218008006
   },
   {
    "severity": 5,
    "n": 760,
-   "accuracy": 0.29736842105263156,
-   "raw_confidence": 0.46147437969073324,
-   "p_correct": 0.2904988791235234
+   "accuracy": 0.5539473684210526,
+   "raw_confidence": 0.5315924354236826,
+   "p_correct": 0.5195772856338268
   }
  ]
 }

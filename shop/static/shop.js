@@ -90,9 +90,11 @@
     }
   }
   async function upload(file) {
-    if (!file) return;
+    if (file) return uploadDataURL(await toDataURL(file));
+  }
+  async function uploadDataURL(dataURL) {
     S.uploading = true; S.uploadError = null; render();
-    const r = await api("/api/shop/upload", { image: await toDataURL(file) }).catch(e => ({ ok: false, j: { error: String(e) } }));
+    const r = await api("/api/shop/upload", { image: dataURL }).catch(e => ({ ok: false, j: { error: String(e) } }));
     S.uploading = false;
     if (!r.ok) { S.uploadError = r.j.error || `Upload failed (HTTP ${r.status})`; return render(); }
     const it = r.j;
@@ -100,6 +102,40 @@
     S.chat.push({ who: "u", text: "(uploaded a photo)" });
     select(it.base_image_id, it.photo_id, { keepChat: true });
   }
+  // ---- webcam: live preview, capture one frame, same upload path (camera access works on localhost) ----
+  const hasCamera = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+  async function openCamera() {
+    S.cameraError = null;
+    try {
+      S.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1280 } }, audio: false });
+    } catch (e) {
+      S.cameraError = e.name === "NotAllowedError" ? "Camera permission was denied; allow it in the browser's address bar."
+        : `Couldn't open a camera (${e.name || e}).`;
+    }
+    render();
+  }
+  function closeCamera() {
+    if (S.stream) S.stream.getTracks().forEach(t => t.stop());
+    S.stream = null; render();
+  }
+  function capture(video) {
+    const c = document.createElement("canvas"), k = Math.min(1, 800 / Math.max(video.videoWidth, video.videoHeight));
+    c.width = Math.round(video.videoWidth * k); c.height = Math.round(video.videoHeight * k);
+    c.getContext("2d").drawImage(video, 0, 0, c.width, c.height);
+    const url = c.toDataURL("image/jpeg", 0.9);
+    closeCamera();
+    uploadDataURL(url);
+  }
+  function renderCamera() {
+    if (!S.stream) return S.cameraError ? el("p", { class: "err", text: S.cameraError }) : null;
+    const video = el("video", { autoplay: "", playsinline: "", muted: "", class: "photo", style: "object-fit:cover" });
+    video.srcObject = S.stream;
+    return el("div", { class: "camera" }, video,
+      el("div", { class: "row" }, el("button", { class: "btn primary", type: "button", text: "Capture", onclick: () => capture(video) }),
+        el("button", { class: "btn", type: "button", text: "Cancel", onclick: closeCamera }),
+        el("span", { class: "small", text: "Fill the frame with one item." })));
+  }
+
   function uploadButton(label = "Upload or snap a photo") {
     const input = el("input", { type: "file", accept: "image/*", hidden: "", onchange: e => upload(e.target.files[0]) });
     const ready = S.uploadStatus === "ready";
@@ -171,7 +207,11 @@
         text: s === 0 ? "clean" : `sev ${s}`, onclick: () => pick(s === 0 ? "clean" : (cur.corruption === "clean" ? corrs.find(c => c !== "clean") : cur.corruption), s) })));
     return el("section", { class: "card" },
       el("h2", { text: "1 · Snap a photo" }),
-      el("div", { class: "row" }, uploadButton(), el("span", { class: "small", text: "or pick a sample:" })),
+      el("div", { class: "row" }, uploadButton("Upload a photo"),
+        hasCamera && S.uploadStatus === "ready" ? el("button", { class: "btn", type: "button", text: S.stream ? "Camera on" : "Use camera",
+          disabled: S.stream || S.uploading ? "" : null, onclick: openCamera }) : null,
+        el("span", { class: "small", text: "or pick a sample:" })),
+      renderCamera(),
       S.uploadError ? el("p", { class: "err", text: S.uploadError }) : null,
       el("div", { class: "thumbs" }, photos.map(p => { const v0 = p.versions.find(v => ["clean", "upload"].includes(v.corruption));
         return el("button", { type: "button", "aria-pressed": String(p.base_image_id === S.base), title: p.true_class || "your photo",
@@ -378,7 +418,10 @@
       for (const t of others) { document.getElementById(t).hidden = true; document.getElementById(`tab-${t}`).setAttribute("aria-selected", "false"); }
       root.hidden = false; btn.setAttribute("aria-selected", "true"); render();
     });
-    for (const t of others) document.getElementById(`tab-${t}`).addEventListener("click", () => { root.hidden = true; btn.setAttribute("aria-selected", "false"); });
+    for (const t of others) document.getElementById(`tab-${t}`).addEventListener("click", () => {
+      root.hidden = true; btn.setAttribute("aria-selected", "false");
+      if (S.stream) closeCamera();   // don't leave the camera light on in another tab
+    });
   }
 
   (async () => {

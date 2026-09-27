@@ -1,7 +1,8 @@
 # Snap to Shop: a trust-gated shopping agent (Visa wrapper)
 
 The trust layer is the product; this tab shows it in agentic commerce. A shopper picks a product photo; a frozen ImageNet
-ResNet-18 identifies it (restricted to 30 product classes); the same trust layer as the core project, retrained on
+ViT-B/16 vision transformer identifies it (restricted to 30 product classes; a different architecture from the core
+project's CIFAR ResNet-18, on purpose); the same trust layer as the core project, retrained on
 product photos, turns that into `p_correct` and TRUST / CAUTION / REJECT. A GenAI assistant (OpenAI `gpt-6-luna`) then
 helps the shopper, and **code** decides what it may do and how much checkout friction applies.
 
@@ -38,15 +39,15 @@ Demo story (buttons at the top of the tab): 1 TRUST one-tap · 2 TRUST order ove
 ## Live photo upload
 
 "Upload or snap a photo" in the tab sends your photo (downsized to ~800 px in the browser) to the server, which runs
-the same ResNet, signals and trust layer on it in about 50 ms and returns TRUST / CAUTION / REJECT like any demo
+the same ViT, signals and trust layer on it in well under a second and returns TRUST / CAUTION / REJECT like any demo
 photo. The assistant, retake coach and checkout work the same way. Photos of things outside the 30 product types
 should come back CAUTION or REJECT. Uploads stay in server memory only (the last 100), and nothing is written to disk.
 
-Needs torch and the ResNet-18 weights at `data/shop/raw/resnet18-f37072fd.pth` (the curl command below). Without them
+Needs torch and the ViT-B/16 weights at `data/shop/raw/vit_b_16-c867db91.pth` (330 MB) (the curl command below). Without them
 the button says "Upload unavailable", and everything else still works.
 
 **Why a separate model process:** on macOS, torch and XGBoost each ship their own OpenMP runtime, and in one process
-whichever runs parallel code second can segfault. So the server (XGBoost, trust layer) never imports torch. The ResNet
+whichever runs parallel code second can segfault. So the server (XGBoost, trust layer) never imports torch. The ViT
 runs in `python -m shop.live_worker`, a torch-only child that exchanges images and outputs over stdin/stdout. The
 pipeline is split the same way (`shop.pipeline_model` runs as its own process). Live scores match the pipeline's
 cached scores exactly (checked on 65 cached versions).
@@ -59,17 +60,18 @@ cached scores exactly (checked on 65 cached versions).
   forbidden actions, drops unknown or out-of-class products and strips the cart when the gate forbids it.
 - `shop/api.py`: recomputes the decision and the order total from the cache and catalog; never trusts the client.
 
-## Rebuild from scratch (~10 min on an M-series Mac)
+## Rebuild from scratch (~25 min on an M3 MacBook; the ViT stage dominates, faster on a discrete GPU)
 
 ```bash
 pip install -r requirements.txt          # includes the shop/ extras at the bottom
-curl -L -o data/shop/raw/resnet18-f37072fd.pth https://download.pytorch.org/models/resnet18-f37072fd.pth
+curl -L -o data/shop/raw/vit_b_16-c867db91.pth https://download.pytorch.org/models/vit_b_16-c867db91.pth
 python -m shop.download_data      # streams 3 x 1.26 GB ImageNetV2 tars, keeps the 30 classes (~2 min)
-python -m shop.run_pipeline       # corruptions, model (own process), signals, trust layer (~2 min); --reuse skips the model
+python -m shop.run_pipeline       # corruptions, ViT (own process, ~20 min on M3), signals, trust layer; --reuse skips the model
 python -m shop.catalog            # real-product catalog + fictional profiles
 python -m shop.build_shop_cache   # data/shop/shop_cache.json (+ quality_ref.json)
 # Rebuilds are byte-for-byte reproducible (every corruption is seeded, including skimage's impulse noise).
 python -m shop.test_shop          # gate, checkout policy, assistant enforcement
+python -m shop.threshold_stability # optional: fixed split vs cross-fitting, 10 reshuffles (~30 s)
 ```
 
 Photos: **ImageNetV2** (Recht et al. 2019), a public re-collection of ImageNet validation-style images, 10 per class per
@@ -79,23 +81,30 @@ per class). Each photo: clean + 8 corruptions (`imagecorruptions`) × severities
 
 ## Results (test split, 95 photos × 25 versions; demo-scale, not a benchmark claim)
 
-Source: `data/shop/evaluation.json`.
+Source: `data/shop/evaluation.json`. Model: ViT-B/16 (ImageNet weights), 30-way subset softmax. The trust layer is
+**cross-fitted**: 5 folds over the 380 non-test photos give out-of-fold scores for isotonic calibration and both
+thresholds, and the final model is fit on all 380. The 95 test photos are used only for these numbers.
 
 | | |
 |---|---|
-| ResNet accuracy (30-way) | 51% overall; 77% clean, 30% at severity 5 |
-| At severity 5 | raw confidence 46% vs accuracy 30%; p_correct 29% |
-| TRUST | 12.9% of test images, **1.0% error** (target 1%) |
-| CAUTION | 2.4%, 8.9% error |
-| REJECT | 84.8%, 57% error |
-| Failure AUROC | raw confidence 0.816, trust layer 0.821 |
-| ECE | raw 0.072, p_correct 0.079 (worse: only 71 validation photos for calibration) |
+| ViT accuracy (30-way) | 70% overall; 85% clean, 55% at severity 5 |
+| At severity 5 | raw confidence 53% vs accuracy 55%; p_correct 52% |
+| TRUST | 27.3% of test images, **0.8% error** (target 1%) |
+| CAUTION | 8.6%, 8.3% error |
+| REJECT | 64.0%, 46% error |
+| Failure AUROC | raw confidence 0.859, trust layer 0.864 |
+| AURC (lower is better) | raw confidence 0.0999, trust layer 0.0976 |
+| ECE | raw 0.045, p_correct 0.059 |
 
-Say it plainly: with this little data the layer is conservative (it REJECTs most corrupted photos) and its calibration
-is no better than raw confidence; what it does well is keep the TRUST tier at its 1% error target. The thresholds are
-also volatile: they're set on only 71 calibration photos, so small changes move them (after making impulse noise
-reproducible, tau_reject went from 0.56 to 0.80 and CAUTION shrank from 16% to 2% of test images). Scope cuts vs `plan.md`:
-one split, no leave-one-family-out, no bootstrap, 3 severities.
+**Why cross-fitting** (`python -m shop.threshold_stability`): across 10 random reshuffles of the non-test photos, the
+old fixed split (71 calibration photos) moved the TRUST threshold with std 0.050, and TRUST-tier test error was
+0.8% ± 0.7%. Cross-fitting cut that to std 0.015 and 0.6% ± 0.3%, with the same average behavior.
+
+Say it plainly. Unlike the core project's CIFAR ResNet, this ViT is **not overconfident** under these corruptions (at
+severity 5 it claims 53% and is right 55% of the time), so raw confidence is already well calibrated and p_correct
+doesn't beat it on calibration. The trust layer's value here is the gate: the one-tap TRUST tier holds its 1% error
+target, and failure ranking improves slightly. Scope cuts vs `plan.md`: no leave-one-family-out, no bootstrap,
+3 severities.
 
 ## Isolation
 

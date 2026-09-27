@@ -1,4 +1,4 @@
-"""The ResNet half of live scoring, in its own process (torch only, never XGBoost).
+"""The model (ViT-B/16) half of live scoring, in its own process (torch only, never XGBoost).
 
 On macOS, torch and XGBoost each bring their own OpenMP runtime; loaded into one process, whichever runs parallel code
 second can segfault. So the server process (XGBoost, trust layer) never imports torch, and this worker, started as
@@ -32,7 +32,7 @@ def main():
 
         from shop.model import WEIGHTS, device, forward, load_model
         if not WEIGHTS.exists():
-            raise FileNotFoundError(f"ResNet-18 weights missing at {WEIGHTS}; see shop/README.md")
+            raise FileNotFoundError(f"model weights missing at {WEIGHTS}; see shop/README.md")
         dev = device()
         model = load_model(dev)
         forward(model, np.zeros((1, 224, 224, 3), np.uint8), dev)  # warm up the GPU path

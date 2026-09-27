@@ -10,8 +10,8 @@ from shop.config import PRODUCT_CLASSES, shop_path
 
 @lru_cache(maxsize=None)
 def imagenet_categories():
-    from torchvision.models import ResNet18_Weights
-    return tuple(ResNet18_Weights.IMAGENET1K_V1.meta["categories"])
+    from torchvision.models import ViT_B_16_Weights  # same 1000 ImageNet categories as every torchvision classifier
+    return tuple(ViT_B_16_Weights.IMAGENET1K_V1.meta["categories"])
 
 
 @lru_cache(maxsize=None)

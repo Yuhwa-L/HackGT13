@@ -1,8 +1,8 @@
 """Live scoring of an uploaded photo: the same model, signals and trust layer as shop/run_pipeline.py, for one image.
 
-The ResNet runs in a child process (shop/live_worker.py) so torch and XGBoost never share a process (their OpenMP
+The ViT-B/16 runs in a child process (shop/live_worker.py) so torch and XGBoost never share a process (their OpenMP
 runtimes crash each other on macOS). Loads in the background at server start from committed artifacts:
-models/xgb.json, models/isotonic.json, thresholds.json, live_reference.npz, quality_ref.json, plus the ResNet-18
+models/xgb.json, models/isotonic.json, thresholds.json, live_reference.npz, quality_ref.json, plus the ViT-B/16
 weights in data/shop/raw/ (see shop/README.md) and torch. Without those, uploads are disabled with a clear message;
 the rest of the tab still works.
 """

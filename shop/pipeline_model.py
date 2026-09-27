@@ -11,7 +11,7 @@ from shop.benchmark_data import ARRAY_NAMES as NAMES, N, VERSIONS, build_manifes
 from shop.config import shop_path
 from shop.corrupt import corrupt
 from shop.images import load_photo
-from shop.model import device, forward, load_model
+from shop.model import EMB_DIM, device, forward, load_model
 
 BATCH = 50
 
@@ -27,7 +27,7 @@ def run_model(manifest, bank):
     model = load_model(dev)
     bases = manifest.drop_duplicates("base_image_id")[["path", "base_image_id"]].to_numpy()
     n = len(manifest)
-    logits, tta, emb = np.empty((n, N), np.float32), np.empty((n, 3, N), np.float32), np.empty((n, 512), np.float32)
+    logits, tta, emb = np.empty((n, N), np.float32), np.empty((n, 3, N), np.float32), np.empty((n, EMB_DIM), np.float32)
     pos = {sid: i for i, sid in enumerate(manifest.sample_id)}
     with ProcessPoolExecutor() as pool:  # corruptions on CPU workers while the GPU runs the model
         for k, ((_, base), imgs) in enumerate(zip(bases, pool.map(_versions, [tuple(b) for b in bases], chunksize=4))):
