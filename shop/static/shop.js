@@ -44,6 +44,9 @@
   #shop .chat { display: grid; gap: 8px; max-height: 260px; overflow-y: auto; padding: 2px; }
   #shop .msg { padding: 9px 12px; border-radius: 10px; font-size: 14px; max-width: 92%; }
   #shop .msg.a { background: var(--sunken); justify-self: start; }
+  #shop .msg.g { justify-self: stretch; max-width: none; font-size: 13px; font-weight: 600; color: var(--crit-ink);
+    background: color-mix(in srgb, var(--crit) 10%, transparent); border: 1px solid color-mix(in srgb, var(--crit) 35%, transparent); }
+  #shop .msg.g::before { content: "🔒 "; }
   #shop .msg.u { background: color-mix(in srgb, var(--trust) 16%, transparent); justify-self: end; }
   #shop .products { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
   #shop .prod { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; display: grid; gap: 5px; background: var(--page); }
@@ -70,6 +73,7 @@
     S.busy = false;
     if (!r.ok) { S.chat.push({ who: "a", text: `Error: ${r.j.error || r.status}` }); return render(); }
     S.assist = r.j;
+    if (r.j.gate_note) S.chat.push({ who: "g", text: r.j.gate_note });
     S.chat.push({ who: "a", text: r.j.assistant_message });
     if (!r.j.cart_allowed) S.cart = {};
     render(); quote();

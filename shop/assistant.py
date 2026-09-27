@@ -9,6 +9,7 @@ IDs are dropped, and cart/checkout affordances are stripped when the gate forbid
 """
 import json
 import os
+import re
 
 from shop.checkout_policy import checkout_requirements
 from shop.config import CHECKOUT_POLICY, ROOT
@@ -28,6 +29,7 @@ SCHEMA = {
     },
 }
 MAX_PRODUCTS = 4
+BUY_INTENT = re.compile(r"\b(buy|purchase|order|check ?out|add (it )?to (my )?cart|pay)\b", re.I)
 RETAKE_TIPS = {"noise": "use more light so the camera doesn't add grain", "blur": "hold the phone still and tap to focus",
                "weather": "avoid haze and glare; shoot indoors or in shade", "digital": "use the original photo, not a compressed copy",
                "clean": "fill the frame with the item on a plain background"}
@@ -77,17 +79,30 @@ def rank_offline(products, profile, catalog_by_id):
     return [p for *_, p in sorted(out, key=lambda t: (t[0], t[1]))]
 
 
-def offline_text(eff, item, profile, ranked):
+def gate_note(eff, p_correct, user_message):
+    """Code-generated note when the shopper asks to buy but the gate forbids it. The LLM can't suppress it."""
+    if eff in ("trust", "trust_confirmed") or not BUY_INTENT.search(user_message or ""):
+        return None
+    why = ("the photo can't be identified reliably" if eff == "reject"
+           else "the model isn't sure which item this is; pick one of the options first")
+    return f"Checkout blocked by the trust gate ({eff.upper()}, p_correct {p_correct:.2f}): {why}. The assistant can't override this."
+
+
+def offline_text(eff, item, profile, ranked, user_message=""):
     name, cands = profile["name"], item["candidates"]
+    refused = BUY_INTENT.search(user_message or "") and eff in ("reject", "caution")
     if eff == "reject":
         tip = RETAKE_TIPS.get(item.get("family", "clean"), RETAKE_TIPS["clean"])
-        return (f"Sorry {name}, I can't identify this photo reliably. Could you retake it? Tip: {tip}.", "")
+        lead = (f"I can't buy this for you, {name}: I can't identify the item reliably, so checkout is locked. "
+                if refused else f"Sorry {name}, I can't identify this photo reliably. ")
+        return (lead + f"Could you retake it? Tip: {tip}.", "")
     if eff == "caution":
         names = [c["class"] for c in cands]
         picks = {c: next((p for p in ranked if p["class"] == c), None) for c in names}
         comp = " ".join(f"If it's a {c}, the {p['name']} (${p['price']:.2f}) suits you: {p['why_for_you'][:1].lower() + p['why_for_you'][1:]}"
                         for c, p in picks.items() if p)
-        return (f"I'm not sure whether this is a {' or a '.join(names)}. Which one did you mean?", comp)
+        lead = "I can't check out until we know which item this is. " if refused else ""
+        return (lead + f"I'm not sure whether this is a {' or a '.join(names)}. Which one did you mean?", comp)
     top = ranked[0] if ranked else None
     what = item["pred_class"] if eff == "trust" else item["confirmed_class"]
     msg = f"This looks like a {what}." + (f" For you, {name}, I'd start with the {top['name']} (${top['price']:.2f})."
@@ -112,7 +127,9 @@ def _prompt(eff, item, profile, products, user_message):
             f"what you may do. Decision: {eff}. Allowed actions: {', '.join(allowed_actions(eff))}. {rules} "
             "Only use product_ids from the provided list; write one short why_for_you per product using the shopper's "
             "budget, style tags and past purchases. Never state or imply more certainty than p_correct. "
-            "Keep 'reply' under 60 words.")},
+            "Always respond directly to the shopper's latest message first. If they ask for something not in the allowed "
+            "actions (for example buying or checking out when that isn't allowed), say plainly that you can't and why, "
+            "in one short sentence, then do what is allowed. Keep 'reply' under 60 words.")},
         {"role": "user", "content": json.dumps({
             "p_correct": round(item["p_correct"], 3), "predicted_class": item["pred_class"],
             "candidates": item["candidates"], "confirmed_class": item.get("confirmed_class"),
@@ -169,7 +186,7 @@ def assist(item, profile, catalog, user_message="", confirmed_class=None, llm="a
         except Exception as e:  # timeout, bad JSON, API error: fall back, never fail the demo
             print(f"shop assistant: LLM unavailable ({type(e).__name__}: {str(e)[:120]}); offline fallback")
     if not llm_used:
-        reply, comp = offline_text(eff, item, profile, ranked_off)
+        reply, comp = offline_text(eff, item, profile, ranked_off, user_message)
         out = {"reply": reply, "action": DEFAULT_ACTION[eff], "ranked": [] if eff == "reject" else ranked_off,
                "comparison": comp}
     ranked = out["ranked"] or ([] if eff == "reject" else ranked_off)  # LLM returned none: keep the offline order
@@ -186,5 +203,6 @@ def assist(item, profile, catalog, user_message="", confirmed_class=None, llm="a
                      for p in ranked],
         "cart_allowed": cart_allowed(eff),
         "checkout_policy": {k: policy[k] for k in ("tier", "max_one_tap_total", "explanation")},
+        "gate_note": gate_note(eff, item["p_correct"], user_message),
         "llm_used": llm_used,
     }
