@@ -39,6 +39,7 @@
   #shop .b-trust, #shop .b-trust_confirmed { background: color-mix(in srgb, var(--good) 18%, transparent); color: var(--good-ink); }
   #shop .b-caution { background: color-mix(in srgb, var(--warn) 22%, transparent); color: var(--warn-ink); }
   #shop .b-reject { background: color-mix(in srgb, var(--crit) 18%, transparent); color: var(--crit-ink); }
+  #shop .why-line { font-size: 14.5px; line-height: 1.45; margin: 0; }
   #shop .kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 13.5px; }
   #shop .kv span:nth-child(odd) { color: var(--ink-2); }
   #shop .chat { display: grid; gap: 8px; max-height: 260px; overflow-y: auto; padding: 2px; }
@@ -148,6 +149,7 @@
     const reasons = (cur.reasons || []).map(r => el("li", { text: r.text }));
     return el("section", { class: "card" },
       el("div", { class: "row" }, el("h2", { text: "2 · Trust check" }), el("span", { class: `badge b-${a.effective_decision}`, text: DEC[a.effective_decision] })),
+      a.explanation ? el("p", { class: "why-line", text: a.explanation }) : null,
       el("div", { class: "kv" },
         el("span", { text: "Model says" }), el("span", { text: `${cur.pred_class} (raw confidence ${pct(cur.raw_confidence)})` }),
         el("span", { text: "Trust layer" }), el("span", { text: `p_correct ${pct(a.p_correct)}` }),

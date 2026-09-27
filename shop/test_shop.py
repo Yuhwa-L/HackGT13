@@ -81,6 +81,18 @@ def test_user_profile_validation():
         raise AssertionError(f"accepted {bad!r}")
 
 
+
+def test_explanations():
+    from shop.explain import explain
+    base = {"pred_class": "backpack", "raw_confidence": 0.9, "candidates": CANDS, "reasons": []}
+    assert "99%+" in explain({**base, "decision": "trust", "p_correct": 1.0})             # never shows 100%
+    assert "backpack or a purse" in explain({**base, "decision": "caution", "p_correct": 0.6})
+    r = explain({**base, "decision": "reject", "p_correct": 0.2,
+                 "reasons": [{"signal": "stability"}], "quality": {"label": "blurry"}})
+    assert "blurry" in r and "nudged" in r and "claims 90%" in r
+    assert "only 55%" in explain({**base, "decision": "reject", "p_correct": 0.55, "raw_confidence": 0.6})
+
+
 CATALOG = [{"product_id": f"x{i}", "class": c, "name": f"Test {c} {i}", "brand": "B", "price": 20.0 + i,
             "style_tags": ["minimal", "budget"], "description": "", "fictional": True}
            for i, c in enumerate(["backpack", "backpack", "purse", "toaster"])]

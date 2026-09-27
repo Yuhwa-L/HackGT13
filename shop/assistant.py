@@ -13,6 +13,7 @@ import re
 
 from shop.checkout_policy import checkout_requirements
 from shop.config import CHECKOUT_POLICY, ROOT
+from shop.explain import explain
 from shop.gate import ALLOWED, DEFAULT_ACTION, allowed_actions, cart_allowed, effective_decision, shoppable_classes
 
 ACTIONS = sorted(set().union(*ALLOWED.values()) | {"compare"})
@@ -205,5 +206,6 @@ def assist(item, profile, catalog, user_message="", confirmed_class=None, llm="a
         "cart_allowed": cart_allowed(eff),
         "checkout_policy": {k: policy[k] for k in ("tier", "max_one_tap_total", "explanation")},
         "gate_note": gate_note(eff, item["p_correct"], user_message),
+        "explanation": explain(item),
         "llm_used": llm_used,
     }
