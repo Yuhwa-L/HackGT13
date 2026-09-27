@@ -1,5 +1,7 @@
 """Owner: C. Self-checks for the trust layer. Run from the repo root: python -m trust.test_trust (pytest also works)."""
 import json
+import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -9,6 +11,7 @@ import xgboost as xgb
 from sklearn.isotonic import IsotonicRegression
 from sklearn.metrics import roc_auc_score
 
+from trust import fit_any
 from trust.calibrate import apply_isotonic, fit_isotonic
 from trust.evaluate import (auroc, auroc_within, aurc, ece, err_at_coverage, paired_bootstrap, rc_curve, reliability,
                             summarize)
@@ -284,6 +287,122 @@ def test_contract_violations_are_caught():
                 assert message in str(e), (message, str(e))
             else:
                 raise AssertionError(f"contract violation not caught: {message}")
+
+
+def write_any(d, K=3, n_items=500, views=0, dim=0, split=False, seed=0):
+    """trust.fit_any's input format from a synthetic classifier: each item clean + 2 harder conditions. Harder rows get a
+    weaker class signal, less stable TTA views and embeddings farther from the reference."""
+    rng, d = np.random.default_rng(seed), Path(d)
+    item, c = np.repeat(np.arange(n_items), 3), np.tile(np.arange(3), n_items)
+    n, y = len(item), rng.integers(0, K, n_items)[item]
+    hard = c + rng.gamma(2, .3, n)
+    z = rng.normal(0, 1, (n, K))
+    z[np.arange(n), y] += 3.5 - 1.2 * hard
+    df = pd.DataFrame({"sample_id": [f"s{i}" for i in range(n)], "group_id": [f"item{i}" for i in item], "label": y,
+                       **{f"logit_{k}": z[:, k] for k in range(K)}, "condition": np.array(["clean", "fog", "glare"])[c]})
+    if split:
+        df["split"] = rng.choice(["train", "val", "cal", "test"], n_items, p=[.5, .15, .15, .2])[item]
+    df.to_csv(d / "predictions.csv", index=False)
+    if views:
+        np.save(d / "tta_logits.npy", z[:, None] + rng.normal(0, 1, (n, views, K)) * (.3 + .6 * hard)[:, None, None])
+    if dim:
+        protos, ref_y = rng.normal(0, 2, (K, dim)), np.arange(40 * K) % K
+        np.save(d / "embeddings.npy", protos[y] + rng.normal(0, 1, (n, dim)) * (1 + hard)[:, None])
+        np.save(d / "reference_embeddings.npy", protos[ref_y] + rng.normal(0, 1, (len(ref_y), dim)))
+        np.save(d / "reference_labels.npy", ref_y)
+        (d / "classes.txt").write_text("".join(f"class {k}\n" for k in range(K)))
+    return df
+
+
+def _layer_matches_fit(df, rep, layer, te, tta=None, emb=None):
+    """score() on the test rows, from the saved layer, reproduces fit()'s test numbers."""
+    res = fit_any.score(layer, df.loc[te, [c for c in df if c.startswith("logit_")]], tta, emb)
+    ok, t = (res.pred == df.label[te].to_numpy()).to_numpy(), rep["test"]
+    assert np.isclose(ok.mean(), t["accuracy"]) and np.isclose(ece(res.p_correct, ok), t["ece"]["trust_layer"])
+    for d in fit_any.DECISIONS:
+        assert np.isclose((res.decision == d).mean(), t["decisions"]["trust_layer"][d]["share"])
+    rs = res.reasons.map(json.loads)
+    assert (rs[res.decision == "trust"].map(len) == 0).all() and rs.map(len).sum() > 0
+    return res, rs
+
+
+def test_fit_any_k3_confidence_only():
+    with tempfile.TemporaryDirectory() as tmp:
+        d, out = Path(tmp), Path(tmp) / "layer"
+        df = write_any(d)
+        rep = fit_any.fit(d, out)
+        assert {p.name for p in out.iterdir()} == {"xgb.json", "isotonic.json", "trust_config.json", "reference.npz", "report.json"}
+        cfg = _strict_json(out / "trust_config.json")
+        assert cfg["features"] == ["raw_confidence", "entropy", "margin"] and cfg["n_classes"] == 3 and cfg["n_views"] is None
+        assert cfg["split_seed"] == 0 and cfg["class_names"] is None and cfg["targets"] == {"reject": .05, "trust": .01}
+        assert cfg["tau_reject"] <= (cfg["tau_trust"] or 1)
+        split = fit_any.split_by_group(df, cfg["split_seed"])   # no split column: whole items, 50/15/15/20 of them
+        assert (pd.Series(split).groupby(df.group_id).nunique() == 1).all()
+        assert rep["rows"] == {s: int((split == s).sum()) for s in fit_any.SPLITS}
+        assert all(abs(rep["rows"][s] / len(df) - f) < .02 for s, f in fit_any.SPLITS.items())
+        assert any("rows in cal" in w for w in rep["warnings"])                  # thin data warns instead of failing
+        assert rep["test"]["auroc"]["trust_layer"] > .7 and list(rep["test_by_condition"]) == ["clean", "fog", "glare"]
+        _, rs = _layer_matches_fit(df, rep, fit_any.load_layer(out), split == "test")
+        assert {r["signal"] for x in rs for r in x} == {"confidence"}
+
+
+def test_fit_any_all_signals():
+    with tempfile.TemporaryDirectory() as tmp:
+        d, out = Path(tmp), Path(tmp) / "layer"
+        df = write_any(d, K=4, views=4, dim=8, split=True)
+        rep = fit_any.fit(d, out)
+        cfg = _strict_json(out / "trust_config.json")
+        assert cfg["features"] == FEATURES and cfg["n_classes"] == 4 and cfg["n_views"] == 4 and cfg["split_seed"] is None
+        assert cfg["class_names"] == ["class 0", "class 1", "class 2", "class 3"]
+        te = (df.split == "test").to_numpy()
+        layer = fit_any.load_layer(out)
+        res, rs = _layer_matches_fit(df, rep, layer, te, np.load(d / "tta_logits.npy")[te], np.load(d / "embeddings.npy")[te])
+        assert (res.pred_class == "class " + res.pred.astype(str)).all()
+        text = " ".join(r["text"] for x in rs for r in x)
+        assert "of 4 small input changes" in text and "the reference examples" in text                # generic wording
+        assert "flips/shifts" not in text and "training images" not in text
+        try:
+            fit_any.score(layer, df.loc[te, [f"logit_{k}" for k in range(4)]])
+        except fit_any.InputError as e:
+            assert "tta_logits" in str(e)
+        else:
+            raise AssertionError("scoring without the TTA logits the layer needs must fail")
+        run_cli = lambda *a: subprocess.run([sys.executable, "-m", "trust.fit_any", *map(str, a)], capture_output=True, text=True)
+        cli = run_cli("--score", out, "--data", d, "--out", d / "scores.csv")
+        scored = pd.read_csv(d / "scores.csv")
+        assert cli.returncode == 0 and list(scored.sample_id) == list(df.sample_id) and scored.p_correct.between(0, 1).all()
+
+
+def test_fit_any_rejects_bad_inputs():
+    csv = lambda fn: lambda d: fn(pd.read_csv(d / "predictions.csv")).to_csv(d / "predictions.csv", index=False)
+    npy = lambda name, fn: lambda d: np.save(d / name, fn(np.load(d / name)))
+    cases = [(csv(lambda f: f.drop(columns="label")), "missing the column(s) label"),
+             (csv(lambda f: f.drop(columns="logit_1")), "no gaps; found logit_0, logit_2"),
+             (csv(lambda f: f.drop(columns=["logit_1", "logit_2"])), "at least 2 classes"),
+             (csv(lambda f: f.assign(sample_id="same")), "sample_id must be unique"),
+             (csv(lambda f: f.assign(label=f.label.where(f.index != 5, 3))), "line 7 has '3'"),
+             (csv(lambda f: f.assign(logit_0=f.logit_0.where(f.index != 3, np.nan))), "first on line 5"),
+             (csv(lambda f: f.assign(split=np.where(f.index == 0, "test", "train"))), "more than one split"),
+             (csv(lambda f: f.assign(split="validation")), "split must be one of train, val, cal, test"),
+             (csv(lambda f: f.assign(split=np.where(f.index < 60, "train", "test"))), "the val split is empty"),
+             (npy("tta_logits.npy", lambda a: a[:-1]), "tta_logits.npy must be N x V x K = 120 x V x 3"),
+             (npy("embeddings.npy", lambda a: a[:, :2]), "reference_embeddings.npy must be M x 2"),
+             (npy("reference_labels.npy", lambda a: np.minimum(a, 1)), "must include every class; missing 2"),
+             (lambda d: (d / "reference_labels.npy").unlink(), "needs reference_embeddings.npy and reference_labels.npy")]
+    for edit, message in cases:
+        with tempfile.TemporaryDirectory() as tmp:
+            write_any(tmp, n_items=40, views=2, dim=4)
+            edit(Path(tmp))
+            try:
+                fit_any.fit(tmp, Path(tmp) / "layer")
+            except fit_any.InputError as e:
+                assert message in str(e), (message, str(e))
+            else:
+                raise AssertionError(f"bad input not caught: {message}")
+            if message.startswith("missing"):   # the CLI prints the message, not a traceback
+                cli = subprocess.run([sys.executable, "-m", "trust.fit_any", "--data", tmp, "--out", f"{tmp}/layer"],
+                                     capture_output=True, text=True)
+                assert cli.returncode == 1 and cli.stderr.startswith("error: ") and "Traceback" not in cli.stderr
 
 
 if __name__ == "__main__":

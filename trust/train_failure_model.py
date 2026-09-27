@@ -18,6 +18,9 @@ XGB_PARAMS = dict(n_estimators=300, max_depth=4, learning_rate=0.05, subsample=0
 GRID = [dict(XGB_PARAMS, max_depth=d, n_estimators=n) for d in (3, 4, 6) for n in (200, 400)]   # python -m trust.run_trust --select
 CLEAN_SHARE = 0.25   # clean rows are ~3% of rows; without this the layer comes out underconfident on clean images
 MIN_SHAP = 0.1       # a reason group must add at least this much failure log-odds to be shown
+# Reason wording: the image pipelines keep IMAGE_WORDS (the demos' text); trust.fit_any, for any model, uses GENERIC_WORDS
+IMAGE_WORDS = {"views": "small flips/shifts", "reference": "clean training images"}
+GENERIC_WORDS = {"views": "small input changes", "reference": "the reference examples"}
 
 
 def clean_weights(is_clean, share=CLEAN_SHARE):
@@ -34,41 +37,45 @@ def fit_lr(X, correct, w):
     return make_pipeline(StandardScaler(), LogisticRegression(max_iter=2000)).fit(X, correct, logisticregression__sample_weight=w)
 
 
-def fit_xgb(X, correct, w, params=XGB_PARAMS):
-    """XGBoost failure model (label: failure = 1 - correct)."""
-    return xgb.XGBClassifier(**params).fit(X[FEATURES], 1 - np.asarray(correct), sample_weight=w)
+def fit_xgb(X, correct, w, params=XGB_PARAMS, features=FEATURES):
+    """XGBoost failure model (label: failure = 1 - correct) on the columns `features`."""
+    return xgb.XGBClassifier(**params).fit(X[features], 1 - np.asarray(correct), sample_weight=w)
 
 
-def p_correct_score(model, X):
+def p_correct_score(model, X, features=FEATURES):
     """Uncalibrated P(correct) from the failure model; isotonic calibration turns it into p_correct."""
-    return model.predict_proba(X[FEATURES])[:, 0]
+    return model.predict_proba(X[features])[:, 0]
 
 
-def reasons(model, X, decision, reference):
+def reasons(model, X, decision, reference, features=FEATURES, n_views=3, words=IMAGE_WORDS):
     """JSON list of {signal, text, shap} per row: groups whose SHAP sum pushes failure risk up by >= MIN_SHAP, largest first.
-    TRUST rows get []. `reference` = feature rows of correct training predictions, used to phrase values as percentiles."""
-    phi = model.get_booster().predict(xgb.DMatrix(X[FEATURES]), pred_contribs=True)
-    group_shap = {g: phi[:, [FEATURES.index(f) for f in fs]].sum(1) for g, fs in GROUPS.items()}
-    ref = {c: np.sort(reference[c].to_numpy()) for c in ("raw_confidence", "tta_pconf", "knn_dist", "maha_pred")}
-    x = {c: X[c].to_numpy() for c in FEATURES}
+    TRUST rows get []. `reference` = feature rows of correct training predictions, used to phrase values as percentiles.
+    A group counts only if all its features are in `features`; `n_views` (TTA views) and `words` phrase the text."""
+    groups = {g: fs for g, fs in GROUPS.items() if set(fs) <= set(features)}
+    phi = model.get_booster().predict(xgb.DMatrix(X[features]), pred_contribs=True)
+    group_shap = {g: phi[:, [features.index(f) for f in fs]].sum(1) for g, fs in groups.items()}
+    x = {c: X[c].to_numpy() for c in features}
+    ref = {c: np.sort(reference[c].to_numpy()) for c in ("raw_confidence", "tta_pconf", "knn_dist", "maha_pred") if c in x}
     share_above = lambda c: 1 - np.searchsorted(ref[c], x[c], "right") / len(ref[c])   # of correct predictions
     share_below = lambda c: np.searchsorted(ref[c], x[c], "left") / len(ref[c])
-    lower_tta, lower_conf = share_above("tta_pconf"), share_above("raw_confidence")
-    farther = np.maximum(share_below("knn_dist"), share_below("maha_pred"))
-    flips = np.rint(3 * (1 - x["tta_agree"])).astype(int)
+    lower_conf = share_above("raw_confidence")
+    if "stability" in groups:
+        lower_tta, flips = share_above("tta_pconf"), np.rint(n_views * (1 - x["tta_agree"])).astype(int)
+    if "familiarity" in groups:
+        farther = np.maximum(share_below("knn_dist"), share_below("maha_pred"))
 
     def text(g, i):
         if g == "stability":
             if flips[i]:
-                return f"Prediction changed under {flips[i]} of 3 small flips/shifts"
-            return (f"Class probability under small flips/shifts is {x['tta_pconf'][i]:.0%}, "
+                return f"Prediction changed under {flips[i]} of {n_views} {words['views']}"
+            return (f"Class probability under {words['views']} is {x['tta_pconf'][i]:.0%}, "
                     f"lower than {lower_tta[i]:.0%} of correct predictions")
         if g == "familiarity":
-            return f"Embedding is farther from clean training images than {farther[i]:.0%} of correct predictions"
+            return f"Embedding is farther from {words['reference']} than {farther[i]:.0%} of correct predictions"
         return f"Raw confidence {x['raw_confidence'][i]:.0%} is lower than {lower_conf[i]:.0%} of correct predictions"
 
     out = []
     for i, d in enumerate(decision):
-        items = [] if d == "trust" else sorted(((float(group_shap[g][i]), g) for g in GROUPS if group_shap[g][i] >= MIN_SHAP), reverse=True)
+        items = [] if d == "trust" else sorted(((float(group_shap[g][i]), g) for g in groups if group_shap[g][i] >= MIN_SHAP), reverse=True)
         out.append(json.dumps([dict(signal=g, text=text(g, i), shap=round(v, 3)) for v, g in items]))
     return out

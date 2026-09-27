@@ -105,7 +105,7 @@
   #shop .kv span:nth-child(odd) { color: var(--ink-2); }
   #shop .ok-line { color: var(--good-ink); font-weight: 600; font-size: 13.5px; margin: 0; }
   #shop .eval { gap: 18px; }
-  #shop .eval-block { display: grid; gap: 10px; }
+  #shop .eval-block { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); }   /* wide tables scroll in .tscroll, not the page */
   #shop .eval h3 { font-size: 15px; }
   #shop .tiles { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
   #shop .tile { border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; background: var(--page); display: grid; gap: 2px; border-top: 4px solid var(--axis); }
@@ -123,6 +123,7 @@
   #shop .mini .fill { height: 100%; }
   #shop .notes { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 13.5px; color: var(--ink-2); }
   #shop .eval summary { cursor: pointer; font-weight: 600; font-size: 13.5px; }
+  #shop .takeaway { margin: 0; font-weight: 600; font-size: 14.5px; }
   #shop .fine { font-size: 12px; color: var(--muted); text-align: center; }
   `;
 
@@ -506,10 +507,14 @@
       const rawKey = Object.keys(sm.one_tap_purchases).find(k => k.startsWith("raw_confidence"));
       const rawCut = rawKey ? rawKey.split("_").pop() : "0.8";
       const naiveWrong = rows.filter(r => r.raw_confidence >= +rawCut && !r.correct);
+      const gateN = sm.one_tap_purchases.trust_gate, gateWrong = sm.wrong_one_tap_purchases.trust_gate;
+      const unknownTrusted = +String(sm.outside_catalog_trusted).split("/")[0];
       parts.push(el("div", { class: "eval-block" },
         el("h3", { text: `1 · Real phone photos we took (${sm.photos} photos, ${sm.outside_catalog} of them items outside the catalog)` }),
-        el("p", { class: "sub", text: "Scored through the same path as the upload button. The trust layer did not train on these; " +
-          "they include busy backgrounds, washed-out, dark, and blurry shots." }),
+        el("p", { class: "takeaway", text: (gateWrong === 0 ? `All ${gateN} one-tap purchases the gate allowed were the right item`
+          : `${gateWrong} of the ${gateN} one-tap purchases the gate allowed were the wrong item`) + (unknownTrusted === 0
+          ? `, and it trusted none of the ${sm.outside_catalog} items the store doesn't sell.` : `, and it trusted ${sm.outside_catalog_trusted} items the store doesn't sell.`) }),
+        el("p", { class: "sub", text: "Scored like an upload and never used in training, they include busy backgrounds and washed-out, dark and blurry shots." }),
         el("div", { class: "tiles" },
           tile(sm.trust_correct, "one-tap purchases were the right item", "the TRUST tier", "good"),
           tile(sm.outside_catalog_trusted, "unknown items trusted", "things the store doesn't sell", "good"),
@@ -525,7 +530,7 @@
               "Everything else asked the shopper first or asked for a better photo." }))),
         el("details", {}, el("summary", { text: `All ${rows.length} photos` }),
           el("div", { class: "tscroll" }, el("table", { class: "compact" },
-            el("thead", {}, el("tr", {}, ["Photo", "Really is", "Model said", "Own confidence", "p_correct", "Decision", ""].map(h => el("th", { text: h })))),
+            el("thead", {}, el("tr", {}, ["Photo", "Really is", "Model said", "Own confidence", "Trust layer's estimate", "Decision", ""].map(h => el("th", { text: h })))),
             el("tbody", {}, rows.map(r => el("tr", {},
               el("td", { text: r.file.replace(/\.[^.]+$/, "").replace(/_/g, " ") }),
               el("td", { text: r.true_class || "(not in catalog)" }), el("td", { text: r.pred_class }),
@@ -537,33 +542,35 @@
     if (T) {
       const dec = T.decisions_test || {};
       parts.push(el("div", { class: "eval-block" },
-        el("h3", { text: `2 · Held-out test photos (${T.photos.test} ImageNetV2 photos × 25 versions = ${T.test_rows.toLocaleString()} images)` }),
-        el("p", { class: "sub", text: `Each photo clean and with 8 kinds of damage at 3 severities. None of them were used to build the trust layer, ` +
-          `which was fit on ${T.photos.train + T.photos.val + T.photos.cal} other photos (with 5-fold cross-fitting to keep its cutoffs stable). ` +
-          `TRUST needs p_correct ≥ ${pct(th.tau_trust)}; REJECT is below ${pct(th.tau_reject)}.` }),
+        el("h3", { text: `2 · Test photos the trust layer never saw (${T.photos.test} photos × 25 versions = ${T.test_rows.toLocaleString()} images)` }),
+        dec.trust ? el("p", { class: "takeaway", text: `The one-tap TRUST tier covered ${pct(dec.trust.share)} of images, and ${pctErr(dec.trust.error)} ` +
+          `of those were wrong (target: at most ${pct((th.target_error || {}).trust)}).` }) : null,
+        el("p", { class: "sub", text: `Each photo appears clean and with 8 kinds of damage, none used to build the trust layer; ` +
+          `TRUST needs an estimate of at least ${pct(th.tau_trust)}, and REJECT is below ${pct(th.tau_reject)}.` }),
         el("div", { class: "tiles" }, ["trust", "caution", "reject"].map(d => dec[d] ? tile(pct(dec[d].share), `of images got ${d.toUpperCase()}`,
           `${pctErr(dec[d].error)} of those were wrong`, d === "trust" ? "good" : d === "caution" ? "warn" : "crit") : null),
           tile(pct(T.test_accuracy), "model accuracy overall", "30 product types", "")),
         el("div", { class: "tscroll" }, el("table", { class: "compact" },
-          el("thead", {}, el("tr", {}, ["Damage", "Images", "Actually right", "Model's own confidence", "Trust layer p_correct"].map(h => el("th", { text: h })))),
+          el("thead", {}, el("tr", {}, ["Damage", "Images", "Actually right", "Model's own confidence", "Trust layer's estimate"].map(h => el("th", { text: h })))),
           el("tbody", {}, (T.by_severity_test || []).map(r => el("tr", {},
             el("td", { text: r.severity === 0 ? "none (clean)" : `severity ${r.severity}` }), el("td", { text: r.n.toLocaleString() }),
             el("td", {}, bar(r.accuracy, "var(--ink-2)")), el("td", {}, bar(r.raw_confidence, "var(--raw)")), el("td", {}, bar(r.p_correct, "var(--trust)"))))))),
-        el("p", { class: "small", text: `Finding the mistakes (AUROC, higher is better): model's own confidence ${T.auroc.raw_confidence.toFixed(3)}, ` +
-          `trust layer ${T.auroc.trust_layer.toFixed(3)}. Calibration error (ECE, lower is better): own confidence ${T.ece.raw_confidence.toFixed(3)}, ` +
-          `p_correct ${T.ece.p_correct.toFixed(3)}.` })));
+        el("p", { class: "small", text: `Telling right from wrong answers (1 is perfect): model alone ${T.auroc.raw_confidence.toFixed(3)}, ` +
+          `trust layer ${T.auroc.trust_layer.toFixed(3)}; gap between stated confidence and reality (0 is perfect): ` +
+          `${T.ece.raw_confidence.toFixed(3)} vs ${T.ece.p_correct.toFixed(3)}.` }),
+        el("p", { class: "tech", text: "AUROC · ECE · ImageNetV2 photos" })));
     }
 
     parts.push(el("div", { class: "eval-block" }, el("h3", { text: "3 · What this does and doesn't show" }),
       el("ul", { class: "notes" },
         el("li", { text: "The gate is the win here: one-tap purchases are held to a 1% error target, and it held on real photos." }),
-        el("li", { text: "This vision model (ViT-B/16) is already honest about its confidence on these photos, so p_correct doesn't beat it on " +
-          "calibration. The core project's CIFAR model is the overconfident one; see Research results." }),
+        el("li", { text: "This vision model's own confidence is already close to reality on these photos, so the trust layer's estimate " +
+          "doesn't beat it there. The overconfident model is the core project's CIFAR one (see Research results)." }),
         el("li", { text: "It's deliberately cautious: some correct answers get held back, and the shopper is asked instead." }),
         el("li", { text: "Demo scale: 95 test photos and 26 real ones. The numbers come from data/shop/evaluation.json and real_photo_eval.json." }))));
 
     return el("section", { class: "card eval", "aria-labelledby": "shop-eval-h" },
-      el("h2", { id: "shop-eval-h", text: "How well does the gate work?" }), ...parts);
+      el("h2", { id: "shop-eval-h", text: "One-tap purchases stayed within the gate's 1% error target, on test photos and on real ones." }), ...parts);
   }
 
   function renderStory() {

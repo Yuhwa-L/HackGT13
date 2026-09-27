@@ -11,7 +11,9 @@
 
 The README is the checked version of this argument: every number in it was matched against `data/`.
 
-**One-sentence claim:** a classifier's confidence lies when its inputs shift. Our trust layer turns each prediction into one calibrated probability of being right, plus a TRUST / CAUTION / REJECT decision, and it keeps its promises on corruption types it never saw.
+**One-sentence claim:** the trust layer is universal. It works with any classification model, as long as you export the model's outputs in our input format and fit the layer on that model's labeled outputs. Fitting takes seconds, and the classifier itself is never retrained. For every prediction it returns one calibrated probability of being right, a TRUST / CAUTION / REJECT decision, and the reasons.
+
+**The evidence:** the same code already runs on two different architectures in two domains, a CNN (ResNet-18 on CIFAR-10) and a vision transformer (ViT-B/16 on product photos). The generic entry point, `python -m trust.fit_any`, reproduces the core pipeline's CIFAR results to four decimals (AUROC 0.8839, ECE 0.0236 on unseen blur). How to plug in a model: `docs/USE_WITH_YOUR_MODEL.md`.
 
 **Arguments for the service.** Numbers from the full run, blur held out (the trust layer never trained on any blur).
 
@@ -19,9 +21,15 @@ The README is the checked version of this argument: every number in it was match
 2. **Fixing the average is not enough.** Temperature scaling on corrupted data is almost as well calibrated as the trust layer (ECE 0.030 vs 0.024), but it finds failing predictions no better than raw confidence (AUROC 0.861 vs 0.863); the trust layer reaches 0.884. So with cutoffs tuned on the same corrupted calibration photos, raw confidence accepts 59% of blurred photos at 4.2% error and the trust layer accepts 64% at 4.6%. Say this fair comparison, not only "20% vs 4.6%" (the 20% rule was tuned on clean photos).
 3. **Safer automation.** TRUST covers 42.0% of unseen-blur images at 1.1% error. The 20% most-trusted have 0.2% error (raw confidence: 1.0%). REJECT catches 592 of 797 confidently wrong severe-blur predictions (74%).
 4. **A built-in drift alarm.** The REJECT rate rises from 14% on clean images to 61% at the worst blur and 79% at the worst noise. A rising REJECT rate tells an operator the inputs changed (dirty lens, fog, compression) before accuracy is measured.
-5. **Plug-in and cheap.** The classifier is never retrained. The layer needs only the model's outputs, 3 extra passes and an embedding lookup, and it trains in about 25 s on 412,000 predictions. Any classifier can get one after a quick retrain.
-6. **Explainable.** Every CAUTION and REJECT comes with plain-language reasons (unstable under small flips, unfamiliar image, low confidence).
+5. **Universal and cheap.** Any classifier works. Export its logits (optionally also its logits on small changes of each input, and its embeddings), run `trust.fit_any`, and the layer is fit: 3 s on 332,000 CIFAR predictions, plus about 80 s for the optional nearest-neighbor search. The classifier is never retrained; when it changes, the layer is refit.
+6. **Explainable.** Every CAUTION and REJECT comes with plain-language reasons (unstable under small changes, unfamiliar input, low confidence).
 7. **Honestly evaluated.** It is tested only on families it never trained on, with bootstrap intervals over photos, plus a real-world shift set (CIFAR-10.1).
+
+**Honest limits (say them before a judge does):**
+- We have measured two models. On any other model, fit it and read the report; we claim no gains we haven't measured.
+- On the ViT, the TRUST tier held 0.8% error against its 1% target, and failure ranking improved slightly (AUROC 0.859 → 0.864). The ViT's raw confidence was already well calibrated, and `p_correct` was slightly less calibrated than it (ECE 0.059 vs 0.045). The value there is the gate.
+- The stability and familiarity signals need the optional files. With logits alone, the layer still fixes calibration (CIFAR blur ECE 0.137 → 0.027) but ranks failures about as well as raw confidence (AUROC 0.865 vs 0.863).
+- For non-image models, the user defines the "small changes": paraphrases for text, light noise for audio.
 
 **Service shape:** `POST /predict` returns the prediction, raw confidence, baselines, `p_correct`, the decision and the reasons. Uses: auto-approve TRUST, send CAUTION for review, escalate REJECT to a human or a bigger model, and chart the REJECT rate over time as a drift monitor.
 
@@ -82,6 +90,7 @@ The cache builder picks the story automatically: the most dramatic blur photo in
 - *Where does it fail?* Noise is the hardest family: accuracy is 49.7% but mean p_correct is 65.5%, so it is still overconfident there. On CIFAR-10.1 (real-world shift) it gains over raw confidence (AUROC 0.896 vs 0.884) but the interval touches zero, TTA-only ranks slightly better (0.903), and temperature scaling on clean data is better calibrated (ECE 0.035 vs 0.049).
 - *Did you try the Trust Score (Jiang et al.)?* Yes, B computes it; adding it changed validation AURC by less than 0.0001, so the model keeps its 8 features.
 - *Why not retrain the ResNet?* The classifier is the system under test; keeping it frozen makes the comparison clean, and real users often cannot retrain theirs.
+- *Does it work with my model?* Yes, if it's a classifier: export its outputs in the input format and run `python -m trust.fit_any` on labeled examples it didn't train on. It already runs on a CNN and a vision transformer. For your model, the report on your test split is the evidence; we don't promise gains we haven't measured.
 - *Cost?* 4 forward passes per image plus an embedding lookup; XGBoost itself takes microseconds.
 - *Clean images?* The layer is a little cautious there: it rejects 14.5% of clean images while 4.7% are wrong.
 

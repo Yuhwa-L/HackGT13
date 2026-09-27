@@ -6,19 +6,17 @@ const $ = id => document.getElementById(id);
 const pct = (v, d = 1) => v == null ? "n/a" : (100 * v).toFixed(d) + "%";
 const pctUI = v => v >= 0.995 ? ">99%" : v < 0.005 ? "<1%" : pct(v, 0);   // the demo never claims certainty
 const f3 = v => v == null ? "n/a" : v.toFixed(3);
-const signed = (v, d = 3) => v == null ? "n/a" : (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(d);
-const ci = (c, d = 3) => c ? `[${signed(c[0], d)}, ${signed(c[1], d)}]` : "n/a";
 const FAMILIES = ["noise", "blur", "weather", "digital"];
 const famName = f => ({ noise: "Noise", blur: "Blur", weather: "Weather", digital: "Digital", clean: "Clean" })[f] || f;
 const CORR_NAME = { gaussian_noise: "Gaussian noise", impulse_noise: "Impulse noise", defocus_blur: "Defocus blur", motion_blur: "Motion blur",
   fog: "Fog", brightness: "Brightness", contrast: "Contrast", jpeg_compression: "JPEG compression" };
 const corrName = c => CORR_NAME[c] || c.replace(/_/g, " ");
-const M = {
-  raw_confidence: { label: "Raw confidence", short: "Raw conf.", color: "--raw" },
-  temp_clean: { label: "Temp-scaled (clean val)", short: "T clean", color: "--tclean" },
-  temp_corrupted: { label: "Temp-scaled (corrupted val)", short: "T corrupted", color: "--tcorr" },
-  tta_only: { label: "TTA only", short: "TTA only", color: "--tta" },
-  trust_layer: { label: "Trust layer (p_correct)", short: "p_correct", color: "--trust" },
+const M = {   // research-tab names in plain words; small .tech labels carry the technical names
+  raw_confidence: { label: "Model's own confidence", color: "--raw" },
+  temp_clean: { label: "Rescaled, tuned on clean photos", color: "--tclean" },
+  temp_corrupted: { label: "Rescaled, tuned on damaged photos", color: "--tcorr" },
+  tta_only: { label: "Stability check only", color: "--tta" },
+  trust_layer: { label: "Trust layer's estimate", color: "--trust" },
 };
 const DECISION = {
   trust: { label: "TRUST", what: "Act on it automatically.", color: "--good", chip: "good", icon: "✓" },
@@ -277,93 +275,95 @@ const fold = () => state.ev.folds[state.ev.headline_fold];
 function renderKpis() {
   const f = fold(), mt = f.heldout_test.methods, b = f.bootstrap_heldout || {}, bp = f.broken_promise_heldout, br = b.trust_minus_raw_confidence || {};
   const host = $("kpis"); host.textContent = "";
-  const tile = (label, value, small, kids) => host.append(h("div", { class: "kpi" }, [h("div", { class: "label", text: label }),
-    h("div", { class: "value" }, [value, small ? h("small", { text: small }) : null]), h("div", { class: "delta" }, kids)]));
-  const rawClean = bp.raw_conf_rule_set_on_clean_cal, rawSeen = bp.raw_conf_rule_set_on_seen_cal, trustRule = bp.trust_layer_reject_rule;
-  tile(`Error when a rule promises ${pct(trustRule.target_error, 0)}`, pct(trustRule.error), `trust layer, keeps ${pct(trustRule.coverage, 0)}`,
-    [`raw confidence: ${pct(rawClean.error)} when its cutoff is tuned on clean images`,
-      rawClean.error > rawClean.target_error ? h("span", { class: "chip crit", text: "✕ promise broken" }) : null,
-      `Tuned on the same corrupted images: ${pct(rawSeen.error)}, but it keeps only ${pct(rawSeen.coverage, 0)}.`]);
-  tile("Which predictions will fail? AUROC (higher is better)", f3(mt.trust_layer.auroc), `raw ${f3(mt.raw_confidence.auroc)}`,
-    [`temperature scaling: ${f3(mt.temp_corrupted.auroc)}, so fixing the average does not find the failures · ${signed(br.auroc_diff)} vs raw, 95% CI ${ci(br.auroc_diff_ci)}`,
-      sigChip(br.auroc_diff_ci, true)]);
-  tile("Calibration error, ECE (lower is better)", f3(mt.trust_layer.ece), `raw ${f3(mt.raw_confidence.ece)}`,
-    [`temperature scaling on corrupted val: ${f3(mt.temp_corrupted.ece)} · on clean val: ${f3(mt.temp_clean.ece)}`]);
-  tile("Error among the 20% most trusted", pct(mt.trust_layer.err_at_20), `raw ${pct(mt.raw_confidence.err_at_20)}`,
-    [`temperature scaling: ${pct(mt.temp_corrupted.err_at_20)} · among the 50% most trusted: ${pct(mt.trust_layer.err_at_50)} (raw ${pct(mt.raw_confidence.err_at_50)})`]);
+  const tile = (takeaway, value, small, explain, tech, chip) => host.append(h("div", { class: "kpi" }, [h("div", { class: "label", text: takeaway }),
+    h("div", { class: "value" }, [value, small ? h("small", { text: small }) : null]), h("div", { class: "delta" }, [explain, chip]),
+    h("div", { class: "tech", text: tech })]));
+  const rawClean = bp.raw_conf_rule_set_on_clean_cal, trustRule = bp.trust_layer_reject_rule, target = pct(trustRule.target_error, 0);
+  tile(`Keeps its “at most ${target} wrong” promise on blur it never saw`, pct(trustRule.error), "wrong",
+    `The model's own confidence, tuned the usual way, lets ${pct(rawClean.error)} wrong answers through.`, `selective risk at a ${target} target`,
+    rawClean.error > rawClean.target_error ? h("span", { class: "chip crit", text: "✕ promise broken" }) : null);
+  tile("Better at telling right answers from wrong ones", f3(mt.trust_layer.auroc), `model alone ${f3(mt.raw_confidence.auroc)}`,
+    "1 is perfect; 0.5 is guessing.", "AUROC", sigChip(br.auroc_diff_ci, true));
+  tile("Its stated confidence is much closer to reality", f3(mt.trust_layer.ece), `model alone ${f3(mt.raw_confidence.ece)}`,
+    "The average gap between stated confidence and real accuracy; 0 is perfect.", "ECE");
+  tile("Fewer mistakes among the answers it trusts most", pct(mt.trust_layer.err_at_20), `model alone ${pct(mt.raw_confidence.err_at_20)}`,
+    "Share wrong among the 20% of answers it trusts most.", "selective risk at 20% coverage");
 }
 
 function renderHeadline() {
   const rows = fold().headline_chart || [], host = $("headline-chart");
   if (!rows.length) { host.textContent = "No headline_chart in evaluation.json."; return; }
-  const keys = [["accuracy", "Actual accuracy", "Accuracy", "--acc", true], ["raw_confidence", M.raw_confidence.label, "Raw conf.", "--raw", false],
-    ["temp_clean", M.temp_clean.label, "T clean", "--tclean", false], ["temp_corrupted", M.temp_corrupted.label, "T corrupted", "--tcorr", false],
-    ["p_correct", "Trust layer p_correct", "p_correct", "--trust", false]];
+  const keys = [["accuracy", "Actually right", "Right", "--acc", true], ["raw_confidence", M.raw_confidence.label, "Model", "--raw", false],
+    ["temp_clean", M.temp_clean.label, "", "--tclean", false], ["temp_corrupted", M.temp_corrupted.label, "", "--tcorr", false],
+    ["p_correct", M.trust_layer.label, "Trust layer", "--trust", false]];
   const series = keys.map(([k, label, short, color, markers]) => ({ key: k, label, short, color, markers,
     endLabel: ["accuracy", "raw_confidence", "p_correct"].includes(k), pts: rows.map(r => [r.severity, r[k]]) }));
   const lo = Math.min(...series.flatMap(s => s.pts.map(p => p[1]))), y0 = Math.max(0, Math.floor(lo * 10 - 0.5) / 10), last = rows[rows.length - 1];
-  $("headline-desc").textContent = `${famName(state.ev.headline_fold)} was never used to train the trust layer. At severity ${last.severity} the ResNet is right ${pct(last.accuracy)} of the time but claims ${pct(last.raw_confidence)}; p_correct says ${pct(last.p_correct)} and temperature scaling on corrupted data says ${pct(last.temp_corrupted)}. Both fix the average; the tiles above show that only p_correct also finds which predictions fail. Severity 0 is the clean test photos.`;
+  const fam = famName(state.ev.headline_fold);
+  $("headline-desc").textContent = `At the strongest ${fam.toLowerCase()}, the model is right ${pct(last.accuracy)} of the time but claims ${pct(last.raw_confidence)}, while the trust layer estimates ${pct(last.p_correct)}.`;
   legend($("headline-legend"), series.map(s => ({ label: s.label, color: s.color, kind: s.markers ? "dot" : "" })));
   lineChart(host, {
-    height: 300, aria: "Accuracy and four confidence estimates by severity", endLabels: true, valueFmt: v => pct(v),
+    height: 300, aria: `How often the model was right, and four confidence estimates, by ${fam.toLowerCase()} level`, endLabels: true, valueFmt: v => pct(v),
     x: { domain: [-0.25, last.severity + 0.25], ticks: rows.map(r => r.severity), fmt: v => v === 0 ? "clean" : `${v}` },
     y: { domain: [y0, 1], ticks: range(y0, 1, 0.1), fmt: v => Math.round(v * 100) + "%" },
-    xLabel: `${famName(state.ev.headline_fold)} severity (held-out family)`, series, snapXs: rows.map(r => r.severity),
-    tip: i => ({ title: `${rows[i].severity === 0 ? "Clean photos" : "Severity " + rows[i].severity} · ${rows[i].n.toLocaleString()} images`,
+    xLabel: `${fam} level (never seen in training)`, series, snapXs: rows.map(r => r.severity),
+    tip: i => ({ title: `${rows[i].severity === 0 ? "Clean photos" : `${fam} level ${rows[i].severity}`} · ${rows[i].n.toLocaleString()} photos`,
       rows: series.map(s => ({ color: s.color, kind: s.markers ? "dot" : "", value: pct(s.pts[i][1]), label: s.label })) }),
   });
   $("headline-table").textContent = "";
   $("headline-table").append(table(rows.map(r => [r.severity === 0 ? "clean" : `${r.severity}`, r.n.toLocaleString(), ...keys.map(k => pct(r[k[0]]))]),
-    ["Severity", "Images", ...keys.map(k => k[1])]));
+    [`${fam} level`, "Photos", ...keys.map(k => k[1])]));
 }
 
 function renderDrift() {
   const fc = state.cache.family_curves || {}, host = $("drift-chart"), tbl = $("drift-table");
-  const defs = [["accuracy", "Actual accuracy", "--acc", true], ["p_correct", "Trust layer p_correct", "--trust", false], ["reject", "Share REJECTed", "--crit", false]];
+  const defs = [["accuracy", "Actually right", "--acc", true], ["p_correct", M.trust_layer.label, "--trust", false], ["reject", "Share rejected", "--crit", false]];
   legend($("drift-legend"), defs.map(([, label, color, mk]) => ({ label, color, kind: mk ? "dot" : "" })));
   host.textContent = ""; tbl.textContent = "";
-  const high = FAMILIES.filter(f => fc[f] && fc[f].at(-1).p_correct - fc[f].at(-1).accuracy > 0.1).map(f => famName(f).toLowerCase());
-  $("drift-desc").textContent = "Each panel is a corruption family the trust layer never trained on. As the images get worse, the share of predictions it REJECTs rises and p_correct falls with the real accuracy"
-    + (high.length ? `; on ${high.join(" and ")}, p_correct stays too high at the worst level.` : ".");
+  $("drift-desc").textContent = "Each panel is a kind of damage the trust layer never saw in training: as the damage grows, accuracy falls and the share it rejects rises.";
   const draws = [];   // panels first, charts after: a lone panel in an auto-fit grid measures full width
   for (const fam of FAMILIES.filter(f => fc[f])) {
     const pts = fc[fam], first = pts[0], last = pts[pts.length - 1];
     const chart = h("div", { class: "chart" });
-    host.append(h("div", { class: "panel" }, [h("h3", { text: `${famName(fam)} (held out)` }),
-      h("div", { class: "sub", text: `REJECT ${pct(first.reject, 0)} → ${pct(last.reject, 0)} · accuracy ${pct(first.accuracy, 0)} → ${pct(last.accuracy, 0)}` }), chart]));
+    host.append(h("div", { class: "panel" }, [h("h3", { text: famName(fam) }),
+      h("div", { class: "sub", text: `Clean → level ${last.severity}: rejected ${pct(first.reject, 0)} → ${pct(last.reject, 0)}, right ${pct(first.accuracy, 0)} → ${pct(last.accuracy, 0)}` }), chart]));
     const series = defs.map(([k, label, color, markers]) => ({ key: k, label, color, markers, pts: pts.map(p => [p.severity, p[k]]) }));
     draws.push(() => lineChart(chart, {
-      height: 220, aria: `${famName(fam)}: accuracy, p_correct and reject share by severity`,
+      height: 220, aria: `${famName(fam)}: how often the model was right, the trust layer's estimate and the share rejected, by level`,
       x: { domain: [-0.25, 5.25], ticks: [0, 1, 2, 3, 4, 5], fmt: v => v === 0 ? "clean" : `${v}` },
       y: { domain: [0, 1], ticks: [0, .25, .5, .75, 1], fmt: v => Math.round(v * 100) + "%" }, series, snapXs: pts.map(p => p.severity),
-      tip: i => ({ title: `${famName(fam)} · ${pts[i].severity === 0 ? "clean" : "severity " + pts[i].severity} · ${pts[i].n.toLocaleString()} images`,
+      tip: i => ({ title: `${famName(fam)} · ${pts[i].severity === 0 ? "clean" : "level " + pts[i].severity} · ${pts[i].n.toLocaleString()} photos`,
         rows: series.map(s => ({ color: s.color, kind: s.markers ? "dot" : "", value: pct(s.pts[i][1]), label: s.label })) }),
     }));
     tbl.append(h("h3", { text: famName(fam), style: "margin:10px 0 4px" }), table(pts.map(p => [p.severity === 0 ? "clean" : `${p.severity}`, p.n.toLocaleString(),
       pct(p.accuracy), pct(p.raw_confidence), pct(p.p_correct), pct(p.trust), pct(p.caution), pct(p.reject)]),
-      ["Severity", "Images", "Accuracy", "Raw conf.", "p_correct", "TRUST", "CAUTION", "REJECT"]));
+      ["Level", "Photos", "Actually right", "Model's own confidence", M.trust_layer.label, "TRUST", "CAUTION", "REJECT"]));
   }
   draws.forEach(d => d());
 }
 
 function renderPromise() {
-  const bp = fold().broken_promise_heldout;
-  const rules = [["raw_conf_rule_set_on_clean_cal", "Raw confidence", "cutoff tuned on clean images", "--raw"],
-    ["raw_conf_rule_set_on_seen_cal", "Raw confidence", "cutoff tuned on seen corruptions", "--raw"],
-    ["trust_layer_reject_rule", "Trust layer, REJECT rule", "cutoff tuned on seen corruptions", "--trust"],
-    ["trust_layer_trust_rule", "Trust layer, TRUST rule", "cutoff tuned on seen corruptions", "--trust"]].filter(r => bp[r[0]]);
+  const bp = fold().broken_promise_heldout, fam = famName(state.ev.headline_fold).toLowerCase();
+  const rules = [["raw_conf_rule_set_on_clean_cal", "Model's own confidence", "tuned the usual way, on clean photos", "--raw"],
+    ["raw_conf_rule_set_on_seen_cal", "Model's own confidence", "tuned on damaged photos", "--raw"],
+    ["trust_layer_reject_rule", "Trust layer", "tuned on damaged photos", "--trust"]].filter(r => bp[r[0]]);
   const [top] = niceMax(Math.max(...rules.map(r => Math.max(bp[r[0]].error || 0, bp[r[0]].target_error))) / 0.58);
   const host = $("promise"); host.textContent = "";
   for (const [k, name, sub, color] of rules) {
     const r = bp[k], track = h("div", { class: "ptrack" }), w = (r.error || 0) / top * 100;
     const fill = h("div", { class: "fill" }); fill.style.width = `${w}%`; fill.style.background = `var(${color})`;
     const tgt = h("div", { class: "target", title: `promised ${pct(r.target_error, 0)}` }); tgt.style.left = `calc(${r.target_error / top * 100}% - 1px)`;
-    const val = h("div", { class: "val", text: r.error == null ? "accepts nothing" : `${pct(r.error)} wrong · keeps ${pct(r.coverage, 0)}` });
+    const val = h("div", { class: "val", text: r.error == null ? "approves nothing" : `${pct(r.error)} wrong · ${pct(r.coverage, 0)} approved` });
     val.style.left = `calc(${Math.max(w, r.target_error / top * 100)}% + 8px)`;
     track.append(fill, tgt, val);
-    host.append(h("div", { class: "promise-row" }, [h("div", { class: "name" }, [`${name} · promises ${pct(r.target_error, 0)}`, h("small", { text: sub })]), track]));
+    host.append(h("div", { class: "promise-row" }, [h("div", { class: "name" }, [name, h("small", { text: sub })]), track]));
   }
-  $("promise-scale").textContent = `bar length = actual error on held-out ${famName(state.ev.headline_fold).toLowerCase()}; scale 0–${pct(top, 0)}`;
+  const rs = bp.raw_conf_rule_set_on_seen_cal, tr = bp.trust_layer_reject_rule, t = pct(tr.target_error, 0);
+  const kept = r => r.error != null && r.error <= r.target_error;
+  $("promise-scale").textContent = `Bar = share of auto-approved answers that were wrong on ${fam} it never saw (scale 0–${pct(top, 0)}).`;
+  $("promise-desc").textContent = kept(rs) && kept(tr)
+    ? `Both rules tuned on damaged photos stay under the ${t} line, but the trust layer auto-approves more photos (${pct(tr.coverage, 0)} vs ${pct(rs.coverage, 0)}).`
+    : `Each bar must end left of the black line to keep the “at most ${t} wrong” promise.`;
 }
 
 function renderReliability() {
@@ -371,16 +371,16 @@ function renderReliability() {
   const host = $("rel-chart"), tbl = $("rel-table"), draws = []; host.textContent = ""; tbl.textContent = "";
   for (const k of ["raw_confidence", "temp_clean", "temp_corrupted", "trust_layer"].filter(k => rel[k])) {
     const bins = rel[k], chart = h("div", { class: "chart" });
-    host.append(h("div", { class: "panel" }, [h("h3", { text: M[k].label }), h("div", { class: "sub", text: `ECE ${f3(mt[k].ece)} · ${bins.length} bins` }), chart]));
+    host.append(h("div", { class: "panel" }, [h("h3", { text: M[k].label }), h("div", { class: "sub", text: `Average gap ${f3(mt[k].ece)} (ECE)` }), chart]));
     draws.push(() => lineChart(chart, {
-      height: 230, aria: `Reliability diagram for ${M[k].label}`, x: { domain: [0, 1], ticks: [0, .5, 1], fmt: v => Math.round(v * 100) + "%" },
+      height: 230, aria: `${M[k].label}: stated confidence vs. how often it was right`, x: { domain: [0, 1], ticks: [0, .5, 1], fmt: v => Math.round(v * 100) + "%" },
       y: { domain: [0, 1], ticks: [0, .25, .5, .75, 1], fmt: v => Math.round(v * 100) + "%" }, xLabel: "stated confidence",
       refs: [[[0, 0], [1, 1]]], series: [{ key: k, color: M[k].color, markers: true, pts: bins.map(b => [b.conf, b.acc]) }], snapXs: bins.map(b => b.conf),
-      tip: i => ({ title: `${pct(bins[i].lo, 0)}–${pct(bins[i].hi, 0)} bin · ${bins[i].n.toLocaleString()} images`,
+      tip: i => ({ title: `Stated ${pct(bins[i].lo, 0)}–${pct(bins[i].hi, 0)} · ${bins[i].n.toLocaleString()} photos`,
         rows: [{ color: M[k].color, kind: "dot", value: pct(bins[i].acc), label: "actually right" }, { color: "--axis", value: pct(bins[i].conf), label: "stated" }] }),
     }));
-    tbl.append(h("div", { class: "panel" }, [h("h3", { text: M[k].label }),
-      table(bins.map(b => [`${pct(b.lo, 0)}–${pct(b.hi, 0)}`, b.n.toLocaleString(), pct(b.conf), pct(b.acc)]), ["Bin", "Images", "Stated", "Right"])]));
+    tbl.append(h("div", { class: "panel" }, [h("h3", { text: M[k].label }), h("div", { class: "scroll" },
+      table(bins.map(b => [`${pct(b.lo, 0)}–${pct(b.hi, 0)}`, b.n.toLocaleString(), pct(b.conf), pct(b.acc)]), ["Stated confidence", "Photos", "Average stated", "Actually right"]))]));
   }
   draws.forEach(d => d());
 }

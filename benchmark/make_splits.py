@@ -38,7 +38,7 @@ def assign_splits(labels, rng):
     then all images are sorted by key and cut at the split fractions, so the classes interleave evenly.
     """
     key = np.empty(len(labels))
-    for c in range(N_CLASSES):
+    for c in np.unique(labels):   # any label set (trust.fit_any reuses this); CIFAR's 0..9 give the same draws as before
         idx = rng.permutation(np.flatnonzero(labels == c))
         key[idx] = (np.arange(len(idx)) + rng.random()) / len(idx)
     order = np.argsort(key, kind="stable")

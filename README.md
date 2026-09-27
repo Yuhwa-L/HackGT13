@@ -1,8 +1,36 @@
 # Trust Issues
 
-**A trust layer that says when a confident image classifier is about to be wrong.** Built at HackGT 13 (Oracle of the Deep track). The same layer also runs a **shopping assistant** that decides when an AI may buy for you ([below](#the-shopping-assistant-trust-in-agentic-commerce)).
+**A trust layer for any classifier: it says when a confident model is about to be wrong.** Built at HackGT 13 (Oracle of the Deep track). The same layer also runs a **shopping assistant** that decides when an AI may buy for you ([below](#the-shopping-assistant-trust-in-agentic-commerce)).
 
-Image classifiers report high confidence even when they are wrong, and it gets worse when photos are blurred, noisy or compressed. We put a trust layer on top of a frozen ResNet-18. For every prediction it returns one calibrated probability that the prediction is right (`p_correct`), a decision (TRUST, CAUTION or REJECT), and plain-language reasons. We tested it only on corruption types it never saw during training.
+Classifiers report high confidence even when they are wrong, and it gets worse when their inputs shift. Trust Issues sits on top of a frozen model. For every prediction it returns one calibrated probability that the prediction is right (`p_correct`), a decision (TRUST, CAUTION or REJECT), and plain-language reasons.
+
+## Works with any classifier
+
+The trust layer is universal. It works with any classification model, as long as you export the model's outputs in our input format and fit the layer on that model's labeled outputs. Fitting takes seconds, and the classifier itself is never retrained.
+
+```bash
+python -m trust.fit_any --data my_model_outputs --out my_trust_layer                 # fit, and report on the test split
+python -m trust.fit_any --score my_trust_layer --data new_outputs --out scores.csv    # TRUST / CAUTION / REJECT per prediction
+```
+
+The input is the model's logits, plus two optional extras: its logits on small changes of each input, and its embeddings. Fitting took 3 s on 332,000 CIFAR predictions. The optional embeddings add a one-time nearest-neighbor search (about 80 s there). **Step-by-step guide, with PyTorch and scikit-learn export code: [docs/USE_WITH_YOUR_MODEL.md](docs/USE_WITH_YOUR_MODEL.md).**
+
+**The evidence:** the same code already runs on two different architectures in two domains.
+
+| | CNN: ResNet-18 on CIFAR-10 | Vision transformer: ViT-B/16 on product photos |
+|---|---|---|
+| Tested on | 8 kinds of photo damage, each scored by a layer that never saw it | ImageNetV2 product photos with 8 kinds of damage, plus our own phone photos |
+| Tells right answers from wrong ones (AUROC), model alone → trust layer | 0.863 → 0.884 (blur) | 0.859 → 0.864 |
+| Stated confidence vs. reality (ECE, lower is better), model alone → trust layer | 0.137 → 0.024 (blur) | 0.045 → 0.059 |
+| TRUST tier: share auto-approved, and how many of those were wrong (target 1%) | 42.0% at 1.1% (blur) | 27% at 0.8% |
+
+On the CIFAR run, the generic `trust.fit_any` reproduces the core pipeline's results to four decimals (AUROC 0.8839, ECE 0.0236 on blur it never saw), so the generic entry point is the path we tested.
+
+What we don't claim:
+- We have measured two models. On any other model, fit the layer and read its report; we promise no gains we haven't measured.
+- The ViT's own confidence was already well calibrated, and `p_correct` was slightly less calibrated than it (ECE 0.059 vs 0.045). There the layer's value is the gate: the TRUST tier held 0.8% error against its 1% target, and failure ranking improved slightly (AUROC 0.859 → 0.864).
+- The stability and familiarity signals need the optional files. With logits alone, the layer still fixes calibration and sets the cutoffs (CIFAR blur ECE 0.137 → 0.027), but it ranks failures about as well as raw confidence (AUROC 0.865 vs 0.863).
+- For non-image models, you define the "small changes" yourself: paraphrases for text, light noise for audio.
 
 ## The problem, measured
 
@@ -246,7 +274,7 @@ Without a GPU the full run takes about 6 hours. To try it on a CPU, use `--n-bas
 **5. Check the code** (optional, about 20 seconds, needs no data):
 
 ```bash
-python -m trust.test_trust        # 12 checks: metrics, thresholds, calibration, leakage, file formats
+python -m trust.test_trust        # 15 checks: metrics, thresholds, calibration, leakage, file formats, fit_any
 python -m backend.test_backend    # 3 checks: demo cache, image encoding, server and /predict
 python -m trust.test_features     # 9 checks: signals vs scipy/sklearn references, row alignment, bad inputs
 python -m benchmark.test_benchmark  # 8 checks: loaders, split leakage, pixel-exact image loading (needs data/raw/)
@@ -293,11 +321,11 @@ The results the demo needs (`data/evaluation.json`, `thresholds.json`, `scores.p
 |---|---|
 | `benchmark/` | CIFAR loaders and the manifest with per-photo splits |
 | `inference/` | ResNet-18 loading, inference with flips/shifts, embeddings |
-| `trust/` | signals and features, temperature scaling, the failure model, calibration, cutoffs, metrics, the evaluation runner |
+| `trust/` | signals and features, temperature scaling, the failure model, calibration, cutoffs, metrics, the evaluation runner; `fit_any.py` fits and scores the layer for any classifier |
 | `backend/` | demo cache builder and the local demo server |
 | `frontend/` | the demo page (plain HTML/JS, hand-drawn SVG charts) |
 | `shop/` | the shopping assistant: the ViT pipeline, the trust gate, checkout policy, the GenAI assistant, and the tab (optional: delete it and everything else still works) |
-| `docs/` | team plans, pitch notes and the pitch plan |
+| `docs/` | [the guide for your own model](docs/USE_WITH_YOUR_MODEL.md), team plans, pitch notes and the pitch plan |
 | `data/` | results used by the demo; `data/raw/` holds downloads (not in git) |
 
 

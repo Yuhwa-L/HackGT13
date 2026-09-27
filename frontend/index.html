@@ -122,10 +122,11 @@ pre { margin: 8px 0 0; background: var(--sunken); border-radius: 8px; padding: 1
 /* ---- research tab ---- */
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
 .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
-.kpi .label { font-size: 13px; color: var(--ink-2); }
+.kpi .label { font-size: 14px; font-weight: 600; }
 .kpi .value { font-size: 30px; font-weight: 650; line-height: 1.15; }
 .kpi .value small { font-size: 14px; font-weight: 500; color: var(--ink-2); margin-left: 6px; }
 .kpi .delta { font-size: 13px; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tech { font-size: 12px; color: var(--muted); }   /* technical names, for judges */
 .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--ink-2); }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .key { display: inline-block; width: 16px; height: 2px; border-radius: 1px; flex: none; }
@@ -167,6 +168,8 @@ table { border-collapse: collapse; width: 100%; font-size: 13px; }
 th, td { text-align: right; padding: 7px 10px; border-bottom: 1px solid var(--grid); white-space: nowrap; font-variant-numeric: tabular-nums; }
 th { font-weight: 500; color: var(--ink-2); font-size: 12px; vertical-align: bottom; }
 th:first-child, td:first-child { text-align: left; }
+#research th { white-space: normal; }   /* plain-word headers are long: let them wrap instead of widening the table */
+#rel-table th, #rel-table td { padding-inline: 6px; }
 footer { font: 12px/1.6 var(--mono); color: var(--muted); }
 @media (max-width: 560px) { .promise-row { grid-template-columns: 1fr; } .ptrack { height: 42px; } .ptrack .val { top: 22px; left: 0 !important; } .rung { grid-template-columns: 1fr 52px; } .rung .track { grid-column: span 2; order: 3; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
@@ -251,7 +254,7 @@ footer { font: 12px/1.6 var(--mono); color: var(--muted); }
       <section class="card" aria-labelledby="h-headline">
         <div class="card-head">
           <div>
-            <h2 id="h-headline">Confidence stays high while accuracy falls</h2>
+            <h2 id="h-headline">When photos get blurry, the model stays nearly as sure of itself but gets far more answers wrong.</h2>
             <p class="sub" id="headline-desc"></p>
           </div>
           <button class="btn" type="button" data-toggle="headline">Show table</button>
@@ -259,12 +262,13 @@ footer { font: 12px/1.6 var(--mono); color: var(--muted); }
         <div class="legend" id="headline-legend"></div>
         <div class="chart" id="headline-chart"></div>
         <div class="scroll" id="headline-table" hidden></div>
+        <p class="tech">“Rescaled” is the standard fix (temperature scaling).</p>
       </section>
 
       <section class="card" aria-labelledby="h-drift">
         <div class="card-head">
           <div>
-            <h2 id="h-drift">A drift alarm on every family</h2>
+            <h2 id="h-drift">When incoming photos get worse, the trust layer rejects more answers, so its reject rate works as an alarm.</h2>
             <p class="sub" id="drift-desc"></p>
           </div>
           <button class="btn" type="button" data-toggle="drift">Show table</button>
@@ -278,19 +282,19 @@ footer { font: 12px/1.6 var(--mono); color: var(--muted); }
       <section class="card" aria-labelledby="h-promise">
         <div class="card-head">
           <div>
-            <h2 id="h-promise">Does a "5% error" promise hold on an unseen family?</h2>
-            <p class="sub">Each rule picks its cutoff on calibration images so accepted predictions are wrong at most the target rate, then runs unchanged on the held-out family.</p>
+            <h2 id="h-promise">The trust layer keeps its “at most 5% wrong” promise on blur it never saw, and auto-approves more photos.</h2>
+            <p class="sub" id="promise-desc"></p>
           </div>
         </div>
         <div class="promise" id="promise"></div>
-        <div class="scale-note"><span><span class="key" style="width:2px;height:12px;background:var(--ink)"></span> promised error</span><span id="promise-scale"></span></div>
+        <div class="scale-note"><span><span class="key" style="width:2px;height:12px;background:var(--ink)"></span> the promise</span><span id="promise-scale"></span></div>
       </section>
 
       <section class="card" aria-labelledby="h-rel">
         <div class="card-head">
           <div>
-            <h2 id="h-rel">Calibration: stated confidence vs. how often it was right</h2>
-            <p class="sub">Each dot is a bin of held-out predictions. On the diagonal, the number means what it says. ECE is the average gap.</p>
+            <h2 id="h-rel">The trust layer's confidence matches reality on blur it never saw; the model's own confidence runs too high.</h2>
+            <p class="sub">Each dot compares stated confidence with how often those answers were right, so dots on the diagonal are honest.</p>
           </div>
           <button class="btn" type="button" data-toggle="rel">Show table</button>
         </div>
