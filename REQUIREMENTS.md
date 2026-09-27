@@ -14,7 +14,7 @@ The demo runs from precomputed files committed to git: `data/demo_cache.json`, `
 
 | What | Version | How to get | Notes |
 |---|---|---|---|
-| Git | any | https://git-scm.com/downloads | `git clone https://github.com/Yuhwa-L/HackGT13.git` |
+| Git | any | https://git-scm.com/downloads | `git clone https://github.com/Yuhwa-L/Trust-Issues.git` |
 | Python | 3.11–3.13 | https://www.python.org/downloads/ | Verified on 3.13.2 |
 | Nothing else | | | The server uses only Python's standard library, and the page loads no fonts, libraries or CDNs, so it runs offline |
 
