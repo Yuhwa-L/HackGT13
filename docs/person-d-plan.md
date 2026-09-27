@@ -64,10 +64,8 @@ data/raw/ (CIFAR pixels) ──────────────────�
 - headline numbers
 - confidence vs. accuracy by severity (headline family)
 - the drift chart: all four families, REJECT share and p_correct vs. accuracy by severity
-- risk–coverage, calibration
+- calibration
 - the broken-promise check
-- the method comparison table (pooled and within-group AUROC, AURC, ECE)
-- every fold + CIFAR-10.1
 
 ## 5. One-minute story (at the table)
 

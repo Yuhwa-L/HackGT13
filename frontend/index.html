@@ -126,12 +126,10 @@ pre { margin: 8px 0 0; background: var(--sunken); border-radius: 8px; padding: 1
 .kpi .value { font-size: 30px; font-weight: 650; line-height: 1.15; }
 .kpi .value small { font-size: 14px; font-weight: 500; color: var(--ink-2); margin-left: 6px; }
 .kpi .delta { font-size: 13px; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--ink-2); }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .key { display: inline-block; width: 16px; height: 2px; border-radius: 1px; flex: none; }
 .key.dot { width: 8px; height: 8px; border-radius: 50%; }
-.key.box { width: 10px; height: 10px; border-radius: 2px; }
 .chart { position: relative; min-width: 0; }
 .chart svg { display: block; overflow: visible; }
 svg .grid { stroke: var(--grid); stroke-width: 1; }
@@ -150,11 +148,6 @@ svg .end-label { fill: var(--ink-2); font: 12px var(--sans); font-variant-numeri
 .multiples { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px 20px; }
 .panel { display: grid; gap: 4px; min-width: 0; }
 .panel .sub { font-size: 12.5px; }
-.stack { display: flex; gap: 2px; height: 30px; border-radius: 4px; overflow: hidden; }
-.stack div { display: flex; align-items: center; padding-inline: 8px; font: 600 12.5px var(--sans); white-space: nowrap; min-width: 0; }
-.dec-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
-.dec-list div { display: grid; gap: 2px; font-size: 13px; color: var(--ink-2); }
-.dec-list b { color: var(--ink); font-size: 18px; font-weight: 600; }
 .chip { display: inline-flex; align-items: center; gap: 4px; font: 500 12px/1 var(--sans); padding: 4px 8px; border-radius: 999px; white-space: nowrap;
   border: 1px solid var(--border); color: var(--ink-2); }
 .chip.good { color: var(--good-ink); background: color-mix(in srgb, var(--good) 12%, transparent); border-color: color-mix(in srgb, var(--good) 30%, transparent); }
@@ -174,9 +167,6 @@ table { border-collapse: collapse; width: 100%; font-size: 13px; }
 th, td { text-align: right; padding: 7px 10px; border-bottom: 1px solid var(--grid); white-space: nowrap; font-variant-numeric: tabular-nums; }
 th { font-weight: 500; color: var(--ink-2); font-size: 12px; vertical-align: bottom; }
 th:first-child, td:first-child { text-align: left; }
-.group th { text-align: center; border-bottom: 1px solid var(--axis); }
-table.compact th, table.compact td { padding: 6px 7px; }
-tr.hl td { font-weight: 600; }
 footer { font: 12px/1.6 var(--mono); color: var(--muted); }
 @media (max-width: 560px) { .promise-row { grid-template-columns: 1fr; } .ptrack { height: 42px; } .ptrack .val { top: 22px; left: 0 !important; } .rung { grid-template-columns: 1fr 52px; } .rung .track { grid-column: span 2; order: 3; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
@@ -284,30 +274,6 @@ footer { font: 12px/1.6 var(--mono); color: var(--muted); }
         <div class="scroll" id="drift-table" hidden></div>
       </section>
 
-      <div class="two">
-        <section class="card" aria-labelledby="h-rc">
-          <div class="card-head">
-            <div>
-              <h2 id="h-rc">Risk–coverage</h2>
-              <p class="sub">Keep the most-trusted share of held-out images (x) and measure the error among the ones kept (y). Lower is better; the area under each curve is its AURC.</p>
-            </div>
-            <button class="btn" type="button" data-toggle="rc">Show table</button>
-          </div>
-          <div class="legend" id="rc-legend"></div>
-          <div class="chart" id="rc-chart"></div>
-          <div class="scroll" id="rc-table" hidden></div>
-        </section>
-        <section class="card" aria-labelledby="h-dec">
-          <div class="card-head">
-            <div>
-              <h2 id="h-dec">Decisions on the unseen family</h2>
-              <p class="sub" id="dec-desc"></p>
-            </div>
-          </div>
-          <div class="stack" id="dec-stack" role="img"></div>
-          <div class="dec-list" id="dec-list"></div>
-        </section>
-      </div>
 
       <section class="card" aria-labelledby="h-promise">
         <div class="card-head">
@@ -332,25 +298,6 @@ footer { font: 12px/1.6 var(--mono); color: var(--muted); }
         <div class="multiples" id="rel-table" hidden></div>
       </section>
 
-      <section class="card" aria-labelledby="h-methods">
-        <div class="card-head">
-          <div>
-            <h2 id="h-methods">Every method on the headline family</h2>
-            <p class="sub">Within-group AUROC ranks failures inside each corruption × severity group, so a method cannot win just by spotting that an image is corrupted.</p>
-          </div>
-        </div>
-        <div class="scroll" id="methods"></div>
-      </section>
-
-      <section class="card" aria-labelledby="h-folds">
-        <div class="card-head">
-          <div>
-            <h2 id="h-folds">Every held-out family, plus real-world shift</h2>
-            <p class="sub">Each row trains on the other three families and tests on the one named. CIFAR-10.1 is real-world shift and is never trained on. Chips compare the trust layer with a baseline using a 95% bootstrap interval over photos; n.s. means the interval includes zero.</p>
-          </div>
-        </div>
-        <div class="scroll" id="folds"></div>
-      </section>
     </div>
   </section>
 

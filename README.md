@@ -111,7 +111,7 @@ What you see:
 
    The photo was picked to show all three decisions.
 2. **Any photo, any corruption.** The gallery holds 30 picked photos and 10 random ones. A corruption picker and severity slider cover all 41 versions of each photo. For every version you see the confidence ladder (raw → temperature scaling → `p_correct`) against the REJECT/CAUTION/TRUST cutoffs, plus the reasons and the API response.
-3. **Research results.** Every table and chart above, drawn from `data/evaluation.json`.
+3. **Research results.** The headline numbers and charts on unseen corruptions, drawn from `data/evaluation.json`.
 
 The page reads precomputed results from `data/demo_cache.json`. The same answers are available from the API in the service's response format:
 
