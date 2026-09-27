@@ -31,9 +31,7 @@ SCHEMA = {
 }
 MAX_PRODUCTS = 4
 BUY_INTENT = re.compile(r"\b(buy|purchase|order|check ?out|add (it )?to (my )?cart|pay)\b", re.I)
-RETAKE_TIPS = {"noise": "use more light so the camera doesn't add grain", "blur": "hold the phone still and tap to focus",
-               "weather": "avoid haze and glare; shoot indoors or in shade", "digital": "use the original photo, not a compressed copy",
-               "clean": "fill the frame with the item on a plain background"}
+GENERIC_TIP = "Fill the frame with just the item, on a plain background, in even light."
 
 
 def _env():
@@ -93,16 +91,19 @@ def offline_text(eff, item, profile, ranked, user_message=""):
     name, cands = profile["name"], item["candidates"]
     refused = BUY_INTENT.search(user_message or "") and eff in ("reject", "caution")
     if eff == "reject":
-        tip = RETAKE_TIPS.get(item.get("family", "clean"), RETAKE_TIPS["clean"])
+        q = item.get("quality") or {}
+        issue = f"The photo looks {q['label']}. " if q.get("label") else ""
         lead = (f"I can't buy this for you, {name}: I can't identify the item reliably, so checkout is locked. "
                 if refused else f"Sorry {name}, I can't identify this photo reliably. ")
-        return (lead + f"Could you retake it? Tip: {tip}.", "")
+        return (f"{lead}{issue}Could you retake it? {q.get('tip') or GENERIC_TIP}", "")
     if eff == "caution":
         names = [c["class"] for c in cands]
         picks = {c: next((p for p in ranked if p["class"] == c), None) for c in names}
         comp = " ".join(f"If it's a {c}, the {p['name']} (${p['price']:.2f}) suits you: {p['why_for_you'][:1].lower() + p['why_for_you'][1:]}"
                         for c, p in picks.items() if p)
         lead = "I can't check out until we know which item this is. " if refused else ""
+        if len(names) == 1:
+            return (lead + f"This is probably a {names[0]}, but I'm not sure enough to go ahead. Is that right?", comp)
         return (lead + f"I'm not sure whether this is a {' or a '.join(names)}. Which one did you mean?", comp)
     top = ranked[0] if ranked else None
     what = item["pred_class"] if eff == "trust" else item["confirmed_class"]
@@ -119,8 +120,8 @@ def _prompt(eff, item, profile, products, user_message):
         "trust_confirmed": "The shopper confirmed the item. Recommend products of that class; you may suggest adding to cart.",
         "caution": "The identification is uncertain. Do NOT recommend buying. Compare the candidate classes in terms of this "
                    "shopper's needs in 'comparison' (one or two sentences) and ask which one they meant.",
-        "reject": "The photo cannot be identified reliably. Ask for a better photo with one concrete tip (lighting, "
-                  "focus, distance or angle). Return no products and an empty comparison.",
+        "reject": "The photo cannot be identified reliably. Ask for a better photo; if photo_issue is given, name it "
+                  "and use retake_tip. Return no products and an empty comparison.",
     }[eff]
     return [
         {"role": "system", "content": (
@@ -134,6 +135,8 @@ def _prompt(eff, item, profile, products, user_message):
             "in one short sentence, then do what is allowed. Keep 'reply' under 60 words.")},
         {"role": "user", "content": json.dumps({
             "p_correct": round(item["p_correct"], 3), "predicted_class": item["pred_class"],
+            "photo_issue": (item.get("quality") or {}).get("label"),
+            "retake_tip": (item.get("quality") or {}).get("tip"),
             "candidates": item["candidates"], "confirmed_class": item.get("confirmed_class"),
             "shopper": {k: profile[k] for k in ("name", "budget_per_item", "style_tags")},
             "past_purchases": profile.get("history_items", []),

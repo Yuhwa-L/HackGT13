@@ -17,6 +17,7 @@ from PIL import Image
 from shop.config import PRODUCT_CLASSES, shop_path
 from shop.corrupt import corrupt
 from shop.model import load_photo
+from shop.photo_quality import assess, reference
 from shop.run_pipeline import list_photos
 
 N_PHOTOS = 18
@@ -62,19 +63,25 @@ def main():
             seen.add(c)
 
     paths = {f"prod_{r.md5[:10]}": r.path for r in list_photos().itertuples()}
+    # Photo-quality reference: clean TRAIN photos only (never the test photos shown in the demo)
+    train_bases = s[(s.split == "train") & (s.corruption == "clean")].base_image_id
+    qref = reference([load_photo(paths[b]) for b in train_bases])
+    shop_path("quality_ref.json").write_text(json.dumps(qref, indent=1))
     photos = []
     for b in chosen:
         g = groups[b]
         img = load_photo(paths[b])
         versions = []
         for r in g.sort_values(["corruption", "severity"], key=lambda col: col.map(lambda x: (x != "clean", x)) if col.name == "corruption" else col).itertuples():
+            version = corrupt(img, r.corruption, r.severity, b)
+            q = assess(version, qref)
             versions.append({
                 "photo_id": r.sample_id, "base_image_id": b, "true_class": r.true_class, "corruption": r.corruption,
                 "family": r.family, "severity": int(r.severity), "pred_class": r.pred_class, "correct": bool(r.correct),
                 "raw_confidence": round(float(r.raw_confidence), 4), "temp_clean": round(float(r.temp_clean), 4),
                 "temp_corrupted": round(float(r.temp_corrupted), 4), "p_correct": round(float(r.p_correct), 4),
                 "decision": r.decision, "reasons": json.loads(r.reasons), "candidates": json.loads(r.candidates),
-                "image": jpeg_uri(corrupt(img, r.corruption, r.severity, b))})
+                "quality": {k: q[k] for k in ("issue", "label", "tip")}, "image": jpeg_uri(version)})
         photos.append({"base_image_id": b, "true_class": g.true_class.iloc[0], "versions": versions})
 
     t, c, r = ok[story_base]

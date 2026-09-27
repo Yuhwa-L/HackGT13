@@ -40,6 +40,7 @@
   #shop .b-caution { background: color-mix(in srgb, var(--warn) 22%, transparent); color: var(--warn-ink); }
   #shop .b-reject { background: color-mix(in srgb, var(--crit) 18%, transparent); color: var(--crit-ink); }
   #shop .why-line { font-size: 14.5px; line-height: 1.45; margin: 0; }
+  #shop .coach { border-color: color-mix(in srgb, var(--warn) 45%, transparent); }
   #shop .kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 13.5px; }
   #shop .kv span:nth-child(odd) { color: var(--ink-2); }
   #shop .chat { display: grid; gap: 8px; max-height: 260px; overflow-y: auto; padding: 2px; }
@@ -157,6 +158,28 @@
       reasons.length ? el("ul", { class: "small", style: "margin:0;padding-left:18px" }, reasons) : null);
   }
 
+  function clearerVersion(cur) {
+    // Same product, gentler corruption: the lowest-severity version that the trust layer doesn't REJECT.
+    const vers = versionsOf(S.base).filter(v => v.corruption === cur.corruption && v.severity < cur.severity && v.decision !== "reject");
+    const clean = versionsOf(S.base).find(v => v.corruption === "clean");
+    return vers.sort((a, b) => b.severity - a.severity)[0] || (clean && clean.photo_id !== cur.photo_id ? clean : null);
+  }
+
+  function renderCoach() {
+    const a = S.assist, cur = item();
+    if (!a || !["reject", "caution"].includes(a.effective_decision)) return null;
+    const q = cur.quality || {};
+    if (a.effective_decision === "caution" && !q.issue) return null;
+    const better = clearerVersion(cur);
+    return el("section", { class: "card coach" },
+      el("h2", { text: "Retake coach" }),
+      el("p", { text: q.issue ? `This photo looks ${q.label}. ${q.tip}` : q.tip || "Try a clearer photo of just the item." }),
+      el("p", { class: "small", text: "Detected from the pixels (sharpness, noise, brightness, contrast vs clean product photos)." }),
+      better ? el("div", { class: "row" }, el("button", { class: "btn", type: "button", text: "Try a clearer shot",
+        onclick: () => { S.chat.push({ who: "u", text: "Here's a clearer photo." }); select(S.base, better.photo_id, { keepChat: true }); } }),
+        el("span", { class: "small", text: better.corruption === "clean" ? "(the original photo)" : `(same item, ${nice(better.corruption)} severity ${better.severity})` })) : null);
+  }
+
   function renderChat() {
     const a = S.assist;
     const input = el("input", { type: "text", placeholder: "Ask the assistant…", "aria-label": "Message", disabled: S.busy ? "" : null });
@@ -166,8 +189,8 @@
       S.busy ? el("div", { class: "msg a small", text: "Thinking…" }) : null);
     const cmp = a && a.effective_decision === "caution" ? el("div", { class: "cmp" },
       a.comparison ? el("p", { text: a.comparison }) : null,
-      el("div", { class: "row" }, el("span", { class: "small", text: "Which is it?" }),
-        a.candidates.map(c => el("button", { class: "btn", type: "button", text: `${c.class} (${pct(c.prob)})`,
+      el("div", { class: "row" }, el("span", { class: "small", text: a.candidates.length > 1 ? "Which is it?" : "Is this right?" }),
+        a.candidates.map(c => el("button", { class: "btn", type: "button", text: a.candidates.length > 1 ? `${c.class} (${pct(c.prob)})` : `Yes, it's a ${c.class}`,
           onclick: () => { S.confirmed = c.class; S.chat.push({ who: "u", text: `It's a ${c.class}.` }); runAssist(`It's a ${c.class}.`); } })))) : null;
     return el("section", { class: "card" },
       el("div", { class: "row" }, el("h2", { text: "3 · Assistant" }), a && !a.llm_used ? el("span", { class: "offline", text: "Offline mode" }) : null),
@@ -299,7 +322,7 @@
           renderShopperBar()),
         renderStory()),
       el("div", { class: "shop-grid" },
-        el("div", { style: "display:grid;gap:18px" }, renderPicker(), renderTrust()),
+        el("div", { style: "display:grid;gap:18px" }, renderPicker(), renderTrust(), renderCoach()),
         el("div", { style: "display:grid;gap:18px" }, renderChat(), renderProducts(), renderCheckout())));
   }
 

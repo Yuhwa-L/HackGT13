@@ -101,8 +101,8 @@ PROFILE = {"profile_id": "t", "name": "Tess", "budget_per_item": 50.0, "style_ta
 
 
 def _item(decision):
-    return {"photo_id": "p", "decision": decision, "p_correct": 0.5, "pred_class": "backpack", "family": "blur",
-            "candidates": CANDS, "reasons": []}
+    return {"photo_id": "p", "decision": decision, "p_correct": 0.5, "raw_confidence": 0.8, "pred_class": "backpack",
+            "candidates": CANDS, "reasons": [], "quality": {"issue": "blurry", "label": "blurry", "tip": "Hold steady."}}
 
 
 class _FakeLLM:

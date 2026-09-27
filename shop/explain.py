@@ -14,7 +14,8 @@ def _pct(x):
 
 
 def explain(item):
-    decision, p, raw = item["decision"], item["p_correct"], item["raw_confidence"]
+    decision, p = item["decision"], item["p_correct"]
+    raw = item.get("raw_confidence", p)
     why = [SIGNAL_PHRASE[r["signal"]] for r in item.get("reasons") or [] if r.get("signal") in SIGNAL_PHRASE]
     issue = (item.get("quality") or {}).get("label")
     if issue and decision != "trust":
