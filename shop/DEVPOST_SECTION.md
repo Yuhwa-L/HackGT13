@@ -16,5 +16,5 @@ and an independent trust score decides what happens next:
 The AI writes the conversation and the recommendations, but the rules are enforced in code: even if the assistant were
 talked into "just buy it", the server refuses. The result is less friction when the system is genuinely right and
 better questions when it isn't. In our tests, purchases in the one-tap tier were identified correctly
-[TODO: result: TRUST-tier accuracy from data/shop/evaluation.json]. Everything in the demo is fictional: products, shoppers and a mock checkout
-with no payment data.
+[TODO: result: TRUST-tier accuracy from data/shop/evaluation.json]. The products are real models at approximate prices, the shoppers are
+fictional, and checkout is a mock with no payment data.

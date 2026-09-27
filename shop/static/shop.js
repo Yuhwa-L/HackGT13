@@ -171,7 +171,9 @@
     return el("section", { class: "card" }, el("h2", { text: a.cart_allowed ? "4 · Picked for you" : "4 · Options (cart locked until confirmed)" }),
       el("div", { class: "products" }, a.products.map(p => el("div", { class: "prod" },
         el("strong", { text: p.name }), el("span", { class: "price", text: money(p.price) }),
-        el("span", { class: "why", text: p.why_for_you }), el("span", { class: "small", text: `${p.class} · fictional product` }),
+        el("span", { class: "why", text: p.why_for_you }),
+        el("span", { class: "small" }, `${p.description ? p.description + " · " : ""}approx. price · `,
+          p.search_url ? el("a", { href: p.search_url, target: "_blank", rel: "noopener noreferrer", text: "Search ↗" }) : null),
         a.cart_allowed ? el("div", { class: "row" },
           el("button", { class: "btn", type: "button", "aria-label": `Remove one ${p.name}`, text: "−", onclick: () => setQty(p.product_id, -1) }),
           el("span", { text: String(S.cart[p.product_id] || 0) }),
@@ -224,7 +226,8 @@
           el("div", {}, el("h2", { text: "Snap to Shop: a shopping agent that knows when it might be wrong" }),
             el("p", { class: "sub", text: "Upload a product photo; the same trust layer decides what the AI assistant may do. " +
               "TRUST allows one-tap checkout, CAUTION asks which item you meant, REJECT asks for a better photo. " +
-              "Rules are enforced in code, not by the AI. Products and shoppers are fictional; checkout is a mock." })),
+              "Rules are enforced in code, not by the AI. Products are real models with approximate prices (not affiliated); " +
+              "shoppers are fictional; checkout is a mock and nothing is charged." })),
           el("div", { class: "row" }, el("label", { class: "small", for: "shop-profile", text: "Shopper" }),
             el("select", { id: "shop-profile", onchange: e => { S.profile = e.target.value; select(S.base, S.photo); } },
               S.profiles.map(p => el("option", { value: p.profile_id, selected: p.profile_id === S.profile ? "" : null,

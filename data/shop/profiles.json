@@ -11,27 +11,27 @@
    ],
    "purchase_history": [
     {
-     "product_id": "p002",
+     "product_id": "p001",
      "date": "2026-01-10"
     },
     {
-     "product_id": "p053",
+     "product_id": "p020",
      "date": "2026-02-11"
     },
     {
-     "product_id": "p121",
+     "product_id": "p051",
      "date": "2026-03-12"
     },
     {
-     "product_id": "p122",
+     "product_id": "p080",
      "date": "2026-04-13"
     },
     {
-     "product_id": "p191",
+     "product_id": "p120",
      "date": "2026-05-14"
     },
     {
-     "product_id": "p271",
+     "product_id": "p231",
      "date": "2026-06-15"
     }
    ],
@@ -47,27 +47,27 @@
    ],
    "purchase_history": [
     {
-     "product_id": "p051",
+     "product_id": "p061",
      "date": "2026-01-10"
     },
     {
-     "product_id": "p082",
+     "product_id": "p090",
      "date": "2026-02-11"
     },
     {
-     "product_id": "p090",
+     "product_id": "p100",
      "date": "2026-03-12"
     },
     {
-     "product_id": "p142",
+     "product_id": "p151",
      "date": "2026-04-13"
     },
     {
-     "product_id": "p160",
+     "product_id": "p161",
      "date": "2026-05-14"
     },
     {
-     "product_id": "p280",
+     "product_id": "p261",
      "date": "2026-06-15"
     }
    ],
@@ -83,27 +83,27 @@
    ],
    "purchase_history": [
     {
-     "product_id": "p073",
+     "product_id": "p122",
      "date": "2026-01-10"
     },
     {
-     "product_id": "p101",
+     "product_id": "p171",
      "date": "2026-02-11"
     },
     {
-     "product_id": "p111",
+     "product_id": "p220",
      "date": "2026-03-12"
     },
     {
-     "product_id": "p153",
+     "product_id": "p232",
      "date": "2026-04-13"
     },
     {
-     "product_id": "p161",
+     "product_id": "p262",
      "date": "2026-05-14"
     },
     {
-     "product_id": "p163",
+     "product_id": "p291",
      "date": "2026-06-15"
     }
    ],

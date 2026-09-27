@@ -126,7 +126,8 @@ def _prompt(eff, item, profile, products, user_message):
             "You are a concise shopping assistant inside a checkout app. A separate trust layer has already decided "
             f"what you may do. Decision: {eff}. Allowed actions: {', '.join(allowed_actions(eff))}. {rules} "
             "Only use product_ids from the provided list; write one short why_for_you per product using the shopper's "
-            "budget, style tags and past purchases. Never state or imply more certainty than p_correct. "
+            "budget, style tags and past purchases. Prices are approximate list prices; don't claim they are current. "
+            "Never state or imply more certainty than p_correct. "
             "Always respond directly to the shopper's latest message first. If they ask for something not in the allowed "
             "actions (for example buying or checking out when that isn't allowed), say plainly that you can't and why, "
             "in one short sentence, then do what is allowed. Keep 'reply' under 60 words.")},
@@ -199,8 +200,8 @@ def assist(item, profile, catalog, user_message="", confirmed_class=None, llm="a
         "decision": item["decision"], "effective_decision": eff, "p_correct": item["p_correct"],
         "allowed_actions": allowed_actions(eff), "action": out["action"], "assistant_message": out["reply"],
         "candidates": item["candidates"], "comparison": out["comparison"],
-        "products": [{k: p[k] for k in ("product_id", "name", "brand", "price", "class", "style_tags", "why_for_you")}
-                     for p in ranked],
+        "products": [{**{k: p[k] for k in ("product_id", "name", "brand", "price", "class", "style_tags", "why_for_you")},
+                      "description": p.get("description", ""), "search_url": p.get("search_url")} for p in ranked],
         "cart_allowed": cart_allowed(eff),
         "checkout_policy": {k: policy[k] for k in ("tier", "max_one_tap_total", "explanation")},
         "gate_note": gate_note(eff, item["p_correct"], user_message),

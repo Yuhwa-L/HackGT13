@@ -11,8 +11,10 @@ helps the shopper, and **code** decides what it may do and how much checkout fri
 | CAUTION | compare the candidates, ask which one, recommend | Locked until the shopper picks a candidate; then confirm once (twice above $75) |
 | REJECT | ask for a better photo | Locked |
 
-Dollar caps are **demo settings** (`shop/config.py`). Products and shoppers are **fictional**. Checkout is a **mock**:
-nothing is charged and no payment data is collected anywhere.
+Dollar caps are **demo settings** (`shop/config.py`). Products are **real, widely sold models**
+(`shop/catalog_data.py`, listed from general knowledge, no web lookups) with **approximate list prices that may be
+out of date**; we're not affiliated with any brand. Shoppers are **fictional**. Checkout is a **mock**: nothing is
+charged and no payment data is collected anywhere.
 
 ## Run the demo
 
@@ -48,7 +50,7 @@ pip install -r requirements.txt          # includes the shop/ extras at the bott
 curl -L -o data/shop/raw/resnet18-f37072fd.pth https://download.pytorch.org/models/resnet18-f37072fd.pth
 python -m shop.download_data      # streams 3 x 1.26 GB ImageNetV2 tars, keeps the 30 classes (~2 min)
 python -m shop.run_pipeline       # corruptions, model, signals, trust layer (~3 min); --reuse skips the model
-python -m shop.catalog            # fictional catalog + profiles
+python -m shop.catalog            # real-product catalog + fictional profiles
 python -m shop.build_shop_cache   # data/shop/shop_cache.json
 python -m shop.test_shop          # gate, checkout policy, assistant enforcement
 ```
