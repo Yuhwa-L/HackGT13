@@ -53,7 +53,7 @@ C needs no torch and no GPU. Dependencies: `numpy pandas pyarrow scikit-learn xg
 ## 4. File structure (files C owns)
 
 ```
-ml-reliability-lab/
+Trust-Issues/
 ├── data/
 │   ├── manifest.csv              ← B  (read)
 │   ├── prediction_runs.parquet   ← A  (read; needs logit_0..logit_9)

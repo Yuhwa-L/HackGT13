@@ -6,7 +6,6 @@ const $ = id => document.getElementById(id);
 const pct = (v, d = 1) => v == null ? "n/a" : (100 * v).toFixed(d) + "%";
 const pctUI = v => v >= 0.995 ? ">99%" : v < 0.005 ? "<1%" : pct(v, 0);   // the demo never claims certainty
 const f3 = v => v == null ? "n/a" : v.toFixed(3);
-const f4 = v => v == null ? "n/a" : v.toFixed(4);
 const signed = (v, d = 3) => v == null ? "n/a" : (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(d);
 const ci = (c, d = 3) => c ? `[${signed(c[0], d)}, ${signed(c[1], d)}]` : "n/a";
 const FAMILIES = ["noise", "blur", "weather", "digital"];
@@ -19,8 +18,6 @@ const M = {
   temp_clean: { label: "Temp-scaled (clean val)", short: "T clean", color: "--tclean" },
   temp_corrupted: { label: "Temp-scaled (corrupted val)", short: "T corrupted", color: "--tcorr" },
   tta_only: { label: "TTA only", short: "TTA only", color: "--tta" },
-  lr_softmax_only: { label: "LR, softmax only", short: "LR softmax", color: "--muted" },
-  lr_all: { label: "LR, all features", short: "LR all", color: "--muted" },
   trust_layer: { label: "Trust layer (p_correct)", short: "p_correct", color: "--trust" },
 };
 const DECISION = {
@@ -60,10 +57,10 @@ function niceMax(v) {
   return [1, 0.2];
 }
 const range = (a, b, s) => { const out = []; for (let v = a; v <= b + 1e-9; v += s) out.push(+v.toFixed(6)); return out; };
-function table(rows, head, hl) {
+function table(rows, head) {
   const t = h("table");
   t.append(h("thead", {}, h("tr", {}, head.map(c => h("th", { text: c })))));
-  t.append(h("tbody", {}, rows.map((r, i) => h("tr", { class: hl === i ? "hl" : "" }, r.map(c => h("td", {}, c))))));
+  t.append(h("tbody", {}, rows.map(r => h("tr", {}, r.map(c => h("td", {}, c))))));
   return t;
 }
 
@@ -349,46 +346,6 @@ function renderDrift() {
   draws.forEach(d => d());
 }
 
-function renderRC() {
-  const f = fold(), rc = f.risk_coverage_heldout || {}, mt = f.heldout_test.methods;
-  const order = ["trust_layer", "tta_only", "temp_corrupted", "raw_confidence"].filter(k => rc[k]);
-  if (!order.length) { $("rc-chart").textContent = "No risk_coverage_heldout in evaluation.json."; return; }
-  const series = order.map(k => ({ key: k, label: `${M[k].label} · AURC ${f4(mt[k].aurc)}`, color: M[k].color, pts: rc[k] }));
-  const [top, step] = niceMax(Math.max(...series.flatMap(s => s.pts.map(p => p[1]))) * 1.05), xs = series[0].pts.map(p => p[0]);
-  legend($("rc-legend"), series.map(s => ({ label: s.label, color: s.color })));
-  lineChart($("rc-chart"), {
-    height: 280, aria: "Risk-coverage curves", x: { domain: [0, 1], ticks: [0, .25, .5, .75, 1], fmt: v => Math.round(v * 100) + "%" },
-    y: { domain: [0, top], ticks: range(0, top, step), fmt: v => (v * 100).toFixed(step < 0.05 ? 1 : 0) + "%" },
-    xLabel: "Share of held-out images kept (most trusted first)", series, snapXs: xs,
-    tip: i => ({ title: `Keep the top ${pct(xs[i], 0)}`, rows: series.map(s => ({ color: s.color, value: pct(s.pts[i][1]), label: M[s.key].short + " error" })) }),
-  });
-  const pick = [0.1, 0.2, 0.3, 0.5, 0.7, 0.9, 1].map(c => xs.reduce((b, v, i) => Math.abs(v - c) < Math.abs(xs[b] - c) ? i : b, 0));
-  $("rc-table").textContent = "";
-  $("rc-table").append(table(pick.map(i => [pct(xs[i], 0), ...series.map(s => pct(s.pts[i][1]))]), ["Kept", ...series.map(s => M[s.key].short + " error")]));
-}
-
-function renderDecisions() {
-  const f = fold(), bp = f.broken_promise_heldout, acc = f.heldout_test.accuracy, th = f.thresholds;
-  const tr = bp.trust_layer_trust_rule, rj = bp.trust_layer_reject_rule;
-  const sT = tr.coverage, sA = rj.coverage, sC = Math.max(0, sA - sT), sR = 1 - sA;
-  const eC = sC > 0 && rj.error != null ? (rj.error * sA - (tr.error || 0) * sT) / sC : null;
-  const eR = sR > 0 ? ((1 - acc) - (rj.error || 0) * sA) / sR : null;
-  const parts = [["trust", sT, tr.error], ["caution", sC, eC], ["reject", sR, eR]];
-  $("dec-desc").textContent = `${famName(state.ev.headline_fold)} test images. REJECT below p_correct ${f3(th.tau_reject)}, TRUST at ${th.tau_trust == null ? "(unreachable)" : f3(th.tau_trust)} or above; both cutoffs were chosen on calibration images only.`;
-  const st = $("dec-stack"), W = st.clientWidth || 400; st.textContent = "";
-  st.setAttribute("aria-label", parts.map(([d, s]) => `${DECISION[d].label} ${pct(s)}`).join(", "));
-  for (const [d, share] of parts) {
-    if (share <= 0) continue;
-    const seg = h("div", { title: `${DECISION[d].label} ${pct(share)}` });
-    seg.style.flex = `${share} 1 0`; seg.style.background = `var(${DECISION[d].color})`; seg.style.color = d === "caution" ? "#0b0b0b" : "#fff";
-    if (share * W > 96) seg.textContent = `${DECISION[d].label} ${pct(share, 0)}`;
-    st.append(seg);
-  }
-  const list = $("dec-list"); list.textContent = "";
-  for (const [d, share, err] of parts) list.append(h("div", {}, [h("span", {}, [key(DECISION[d].color, "box"), ` ${DECISION[d].label}`]),
-    h("b", { text: pct(share) }), `of images · ${err == null ? "n/a" : pct(err)} of them wrong`]));
-}
-
 function renderPromise() {
   const bp = fold().broken_promise_heldout;
   const rules = [["raw_conf_rule_set_on_clean_cal", "Raw confidence", "cutoff tuned on clean images", "--raw"],
@@ -428,36 +385,9 @@ function renderReliability() {
   draws.forEach(d => d());
 }
 
-function renderMethods() {
-  const mt = fold().heldout_test.methods, order = Object.keys(M).filter(k => mt[k]);
-  const rows = order.map(k => { const x = mt[k]; return [M[k].label, f4(x.aurc), f3(x.auroc), f3(x.auroc_within), f3(x.ece), pct(x.mean_conf), pct(x.err_at_20), pct(x.err_at_50)]; });
-  $("methods").textContent = "";
-  $("methods").append(table(rows, ["Method", "AURC ↓", "AUROC", "Within-group AUROC", "ECE ↓", "Mean confidence", "Error, top 20%", "Error, top 50%"], order.indexOf("trust_layer")));
-}
-
-function renderFolds() {
-  const ev = state.ev;
-  const rowFor = (name, part, boot, fo, isHead) => {
-    const mt = part.methods, br = (boot || {}).trust_minus_raw_confidence, bt = (boot || {}).trust_minus_tta_only;
-    return [isHead ? h("span", {}, [name, " ", h("span", { class: "chip", text: "headline" })]) : name,
-      pct(part.accuracy), f3(mt.raw_confidence.auroc), f3(mt.tta_only.auroc), f3(mt.trust_layer.auroc),
-      h("span", {}, [sigChip(br && br.auroc_diff_ci)]), h("span", {}, [sigChip(bt && bt.auroc_diff_ci)]),
-      f3(mt.raw_confidence.ece), f3(mt.temp_corrupted.ece), f3(mt.trust_layer.ece),
-      fo ? f3(fo.thresholds.tau_reject) : "—", fo ? (fo.thresholds.tau_trust == null ? "none" : f3(fo.thresholds.tau_trust)) : "—",
-      fo ? pct(fo.broken_promise_heldout.raw_conf_rule_set_on_clean_cal.error) : "—"];
-  };
-  const rows = Object.entries(ev.folds).map(([F, fo]) => rowFor(famName(F), fo.heldout_test, fo.bootstrap_heldout, fo, F === ev.headline_fold));
-  if (ev.cifar10_1) rows.push(rowFor("CIFAR-10.1 (real-world)", ev.cifar10_1, ev.cifar10_1.bootstrap, null, false));
-  const t = h("table", { class: "compact" }), thead = h("thead");
-  thead.append(h("tr", { class: "group" }, [h("th"), h("th"), h("th", { colspan: 5, text: "Failure ranking (AUROC)" }), h("th", { colspan: 3, text: "Calibration (ECE)" }), h("th", { colspan: 2, text: "Cutoffs" }), h("th")]));
-  thead.append(h("tr", {}, ["Held out", "Accuracy", "Raw", "TTA only", "Trust", "Trust vs raw", "Trust vs TTA", "Raw", "T corrupted", "Trust", "REJECT below", "TRUST from", "Raw 5% rule error"].map(c => h("th", { text: c }))));
-  t.append(thead, h("tbody", {}, rows.map(r => h("tr", {}, r.map(c => h("td", {}, c))))));
-  $("folds").textContent = ""; $("folds").append(t);
-}
-
 function renderResearch() {
   if ($("research").hidden) return;
-  renderKpis(); renderHeadline(); renderDrift(); renderRC(); renderDecisions(); renderPromise(); renderReliability(); renderMethods(); renderFolds();
+  renderKpis(); renderHeadline(); renderDrift(); renderPromise(); renderReliability();
 }
 
 // ================= page wiring =================
