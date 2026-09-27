@@ -62,7 +62,7 @@ def knn_dist(emb, bank, k=KNN_K, chunk=CHUNK):
     return out
 
 
-def bank_signals(emb, pred, bank, bank_labels, k=KNN_K, chunk=CHUNK):
+def bank_signals(emb, pred, bank, bank_labels, k=KNN_K, chunk=CHUNK, n_classes=N_CLASSES):
     """knn_dist plus trust_score from one pass over the train bank (the similarity matmul is the expensive part).
 
     trust_score (Jiang et al. 2018, no density filtering): distance to the nearest bank embedding of any other class
@@ -72,7 +72,7 @@ def bank_signals(emb, pred, bank, bank_labels, k=KNN_K, chunk=CHUNK):
     q = _unit(emb)
     order = np.argsort(bank_labels, kind="stable")
     b = _unit(bank)[order]
-    starts = np.searchsorted(bank_labels[order], np.arange(N_CLASSES))
+    starts = np.searchsorted(bank_labels[order], np.arange(n_classes))
     knn, trust = np.empty(len(q)), np.empty(len(q))
     for s in range(0, len(q), chunk):
         sim = q[s:s + chunk] @ b.T

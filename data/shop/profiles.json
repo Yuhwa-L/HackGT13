@@ -1,0 +1,113 @@
+{
+ "fictional": true,
+ "profiles": [
+  {
+   "profile_id": "maya",
+   "name": "Maya",
+   "budget_per_item": 120.0,
+   "style_tags": [
+    "outdoor",
+    "sporty"
+   ],
+   "purchase_history": [
+    {
+     "product_id": "p002",
+     "date": "2026-01-10"
+    },
+    {
+     "product_id": "p053",
+     "date": "2026-02-11"
+    },
+    {
+     "product_id": "p121",
+     "date": "2026-03-12"
+    },
+    {
+     "product_id": "p122",
+     "date": "2026-04-13"
+    },
+    {
+     "product_id": "p191",
+     "date": "2026-05-14"
+    },
+    {
+     "product_id": "p271",
+     "date": "2026-06-15"
+    }
+   ],
+   "fictional": true
+  },
+  {
+   "profile_id": "jordan",
+   "name": "Jordan",
+   "budget_per_item": 60.0,
+   "style_tags": [
+    "budget",
+    "minimal"
+   ],
+   "purchase_history": [
+    {
+     "product_id": "p051",
+     "date": "2026-01-10"
+    },
+    {
+     "product_id": "p082",
+     "date": "2026-02-11"
+    },
+    {
+     "product_id": "p090",
+     "date": "2026-03-12"
+    },
+    {
+     "product_id": "p142",
+     "date": "2026-04-13"
+    },
+    {
+     "product_id": "p160",
+     "date": "2026-05-14"
+    },
+    {
+     "product_id": "p280",
+     "date": "2026-06-15"
+    }
+   ],
+   "fictional": true
+  },
+  {
+   "profile_id": "priya",
+   "name": "Priya",
+   "budget_per_item": 400.0,
+   "style_tags": [
+    "luxe",
+    "tech"
+   ],
+   "purchase_history": [
+    {
+     "product_id": "p073",
+     "date": "2026-01-10"
+    },
+    {
+     "product_id": "p101",
+     "date": "2026-02-11"
+    },
+    {
+     "product_id": "p111",
+     "date": "2026-03-12"
+    },
+    {
+     "product_id": "p153",
+     "date": "2026-04-13"
+    },
+    {
+     "product_id": "p161",
+     "date": "2026-05-14"
+    },
+    {
+     "product_id": "p163",
+     "date": "2026-06-15"
+    }
+   ],
+   "fictional": true
+  }
+ ]
+}

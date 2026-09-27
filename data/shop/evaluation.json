@@ -1,0 +1,74 @@
+{
+ "note": "Snap-to-Shop, one split by photo, test split only; demo-scale (ImageNetV2 photos), not a benchmark claim",
+ "classes": 30,
+ "photos": {
+  "train": 238,
+  "val": 71,
+  "cal": 71,
+  "test": 95
+ },
+ "bank_photos": 146,
+ "rows": 11875,
+ "test_rows": 2375,
+ "test_accuracy": 0.5103157894736842,
+ "T_clean": 1.4473327026502094,
+ "T_corrupted": 1.4476546792808447,
+ "auroc": {
+  "raw_confidence": 0.8158051187749902,
+  "trust_layer": 0.8211415509564713
+ },
+ "aurc": {
+  "raw_confidence": 0.23952110800791665,
+  "trust_layer": 0.23836052505511962
+ },
+ "ece": {
+  "raw_confidence": 0.07048850337241513,
+  "temp_clean": 0.05865968795940783,
+  "temp_corrupted": 0.05873760780894712,
+  "p_correct": 0.08617150704849169
+ },
+ "decisions_test": {
+  "trust": {
+   "share": 0.11705263157894737,
+   "error": 0.007194244604316502
+  },
+  "caution": {
+   "share": 0.15705263157894736,
+   "error": 0.19839142091152817
+  },
+  "reject": {
+   "share": 0.7258947368421053,
+   "error": 0.6305104408352669
+  }
+ },
+ "by_severity_test": [
+  {
+   "severity": 0,
+   "n": 95,
+   "accuracy": 0.7684210526315789,
+   "raw_confidence": 0.7521525916101324,
+   "p_correct": 0.6226548452284428
+  },
+  {
+   "severity": 1,
+   "n": 760,
+   "accuracy": 0.6605263157894737,
+   "raw_confidence": 0.6739391941698833,
+   "p_correct": 0.5305154075528338
+  },
+  {
+   "severity": 3,
+   "n": 760,
+   "accuracy": 0.5434210526315789,
+   "raw_confidence": 0.5829187173690785,
+   "p_correct": 0.4339030730135553
+  },
+  {
+   "severity": 5,
+   "n": 760,
+   "accuracy": 0.29473684210526313,
+   "raw_confidence": 0.46222336816750764,
+   "p_correct": 0.2833218844866384
+  }
+ ]
+}

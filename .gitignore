@@ -21,3 +21,12 @@ data/*.parquet
 
 # Regenerable mock inputs (python -m trust.features --mock)
 data/mock/
+
+# Visa wrapper: raw images and intermediates stay local; cache/catalog/profiles/results are committed
+data/shop/raw/
+data/shop/*.npy
+data/shop/*.parquet
+data/shop/*.csv
+
+# Secrets
+.env

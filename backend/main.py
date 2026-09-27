@@ -13,6 +13,11 @@ from functools import partial
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+try:  # optional Visa wrapper (shop/); the core demo is unchanged without it (plan.md section 11)
+    from shop.api import ShopAPI
+except ImportError:
+    ShopAPI = None
+
 ROOT = Path(__file__).resolve().parents[1]
 FILES = {"/": ("frontend/index.html", "text/html; charset=utf-8"),
          "/app.js": ("frontend/app.js", "text/javascript; charset=utf-8"),
@@ -30,8 +35,8 @@ def load_index(cache_path):
 
 
 class Handler(BaseHTTPRequestHandler):
-    def __init__(self, *args, root, index, **kwargs):
-        self.root, self.index = root, index
+    def __init__(self, *args, root, index, shop=None, **kwargs):
+        self.root, self.index, self.shop = root, index, shop
         super().__init__(*args, **kwargs)
 
     def log_message(self, *args):   # keep the terminal quiet during the demo
@@ -48,7 +53,19 @@ class Handler(BaseHTTPRequestHandler):
     def _json(self, code, obj):
         self._send(code, json.dumps(obj).encode(), "application/json")
 
+    def _shop(self, method, body=b""):
+        """True if the shop wrapper answered this request."""
+        if self.path.split("?")[0] == "/shop.js" and self.shop is None:
+            self._send(200, b"// Snap-to-Shop not installed", "text/javascript; charset=utf-8")
+            return True
+        res = self.shop.handle(method, self.path, body) if self.shop else None
+        if res is not None:
+            self._send(res[0], res[2], res[1])
+        return res is not None
+
     def do_GET(self):
+        if self._shop("GET"):
+            return
         entry = FILES.get(self.path.split("?")[0])
         path = entry and self.root / entry[0]
         if not path or not path.exists():
@@ -56,6 +73,12 @@ class Handler(BaseHTTPRequestHandler):
         self._send(200, path.read_bytes(), entry[1])
 
     def do_POST(self):
+        if self.path.startswith("/api/shop/"):
+            size = int(self.headers.get("Content-Length", 0))
+            if size > MAX_BODY:
+                return self._json(413, {"error": "request too large"})
+            if self._shop("POST", self.rfile.read(size)):
+                return
         if self.path != "/predict":
             return self._json(404, {"error": "unknown endpoint; use POST /predict"})
         try:
@@ -78,7 +101,8 @@ class Handler(BaseHTTPRequestHandler):
 def make_server(port=8000, root=ROOT):
     cache = root / "data" / "demo_cache.json"
     index = load_index(cache) if cache.exists() else None
-    return ThreadingHTTPServer(("127.0.0.1", port), partial(Handler, root=root, index=index))
+    shop = ShopAPI.load() if ShopAPI else None
+    return ThreadingHTTPServer(("127.0.0.1", port), partial(Handler, root=root, index=index, shop=shop))
 
 
 def main():

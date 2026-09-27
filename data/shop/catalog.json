@@ -1,0 +1,1565 @@
+{
+ "fictional": true,
+ "products": [
+  {
+   "product_id": "p000",
+   "class": "backpack",
+   "name": "Oakvale Essential Backpack",
+   "brand": "Oakvale",
+   "price": 34.99,
+   "style_tags": [
+    "minimal",
+    "budget"
+   ],
+   "description": "A minimal, budget backpack from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p001",
+   "class": "backpack",
+   "name": "Brisk Harbor Tempo Backpack",
+   "brand": "Brisk Harbor",
+   "price": 39.99,
+   "style_tags": [
+    "sporty",
+    "budget"
+   ],
+   "description": "A sporty, budget backpack from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p002",
+   "class": "backpack",
+   "name": "Oakvale Tempo Backpack",
+   "brand": "Oakvale",
+   "price": 69.99,
+   "style_tags": [
+    "sporty",
+    "budget"
+   ],
+   "description": "A sporty, budget backpack from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p003",
+   "class": "backpack",
+   "name": "Northloop Essential Backpack",
+   "brand": "Northloop",
+   "price": 114.99,
+   "style_tags": [
+    "minimal",
+    "cozy"
+   ],
+   "description": "A minimal, cozy backpack from Northloop.",
+   "fictional": true
+  },
+  {
+   "product_id": "p010",
+   "class": "sunglasses",
+   "name": "Ardent Co. Heritage Sunglasses",
+   "brand": "Ardent Co.",
+   "price": 24.99,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "A classic, budget sunglasses from Ardent Co..",
+   "fictional": true
+  },
+  {
+   "product_id": "p011",
+   "class": "sunglasses",
+   "name": "Tessary Heritage Sunglasses",
+   "brand": "Tessary",
+   "price": 49.99,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "A classic, budget sunglasses from Tessary.",
+   "fictional": true
+  },
+  {
+   "product_id": "p012",
+   "class": "sunglasses",
+   "name": "Northloop Trail Sunglasses",
+   "brand": "Northloop",
+   "price": 134.99,
+   "style_tags": [
+    "outdoor",
+    "classic"
+   ],
+   "description": "A outdoor, classic sunglasses from Northloop.",
+   "fictional": true
+  },
+  {
+   "product_id": "p013",
+   "class": "sunglasses",
+   "name": "Brisk Harbor Trail Sunglasses",
+   "brand": "Brisk Harbor",
+   "price": 154.99,
+   "style_tags": [
+    "outdoor",
+    "tech"
+   ],
+   "description": "A outdoor, tech sunglasses from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p020",
+   "class": "running shoe",
+   "name": "Brisk Harbor Heritage Running Shoe",
+   "brand": "Brisk Harbor",
+   "price": 99.99,
+   "style_tags": [
+    "classic",
+    "tech"
+   ],
+   "description": "A classic, tech running shoe from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p021",
+   "class": "running shoe",
+   "name": "Tessary Hearth Running Shoe",
+   "brand": "Tessary",
+   "price": 129.99,
+   "style_tags": [
+    "cozy",
+    "tech"
+   ],
+   "description": "A cozy, tech running shoe from Tessary.",
+   "fictional": true
+  },
+  {
+   "product_id": "p022",
+   "class": "running shoe",
+   "name": "Brisk Harbor Hearth Running Shoe",
+   "brand": "Brisk Harbor",
+   "price": 169.99,
+   "style_tags": [
+    "cozy",
+    "outdoor"
+   ],
+   "description": "A cozy, outdoor running shoe from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p023",
+   "class": "running shoe",
+   "name": "Quillfield Tempo Running Shoe",
+   "brand": "Quillfield",
+   "price": 169.99,
+   "style_tags": [
+    "sporty",
+    "cozy"
+   ],
+   "description": "A sporty, cozy running shoe from Quillfield.",
+   "fictional": true
+  },
+  {
+   "product_id": "p030",
+   "class": "sandal",
+   "name": "Quillfield Signature Sandal",
+   "brand": "Quillfield",
+   "price": 44.99,
+   "style_tags": [
+    "luxe",
+    "tech"
+   ],
+   "description": "A luxe, tech sandal from Quillfield.",
+   "fictional": true
+  },
+  {
+   "product_id": "p031",
+   "class": "sandal",
+   "name": "Quillfield Smart Sandal",
+   "brand": "Quillfield",
+   "price": 54.99,
+   "style_tags": [
+    "tech",
+    "luxe"
+   ],
+   "description": "A tech, luxe sandal from Quillfield.",
+   "fictional": true
+  },
+  {
+   "product_id": "p032",
+   "class": "sandal",
+   "name": "Oakvale Heritage Sandal",
+   "brand": "Oakvale",
+   "price": 79.99,
+   "style_tags": [
+    "classic",
+    "tech"
+   ],
+   "description": "A classic, tech sandal from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p033",
+   "class": "sandal",
+   "name": "Ardent Co. Essential Sandal",
+   "brand": "Ardent Co.",
+   "price": 84.99,
+   "style_tags": [
+    "minimal",
+    "luxe"
+   ],
+   "description": "A minimal, luxe sandal from Ardent Co..",
+   "fictional": true
+  },
+  {
+   "product_id": "p040",
+   "class": "Loafer",
+   "name": "Northloop Heritage Loafer",
+   "brand": "Northloop",
+   "price": 59.99,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "A classic, budget loafer from Northloop.",
+   "fictional": true
+  },
+  {
+   "product_id": "p041",
+   "class": "Loafer",
+   "name": "Marlowe & Pine Smart Loafer",
+   "brand": "Marlowe & Pine",
+   "price": 84.99,
+   "style_tags": [
+    "tech",
+    "budget"
+   ],
+   "description": "A tech, budget loafer from Marlowe & Pine.",
+   "fictional": true
+  },
+  {
+   "product_id": "p042",
+   "class": "Loafer",
+   "name": "Lumen Row Hearth Loafer",
+   "brand": "Lumen Row",
+   "price": 159.99,
+   "style_tags": [
+    "cozy",
+    "sporty"
+   ],
+   "description": "A cozy, sporty loafer from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p043",
+   "class": "Loafer",
+   "name": "Northloop Smart Loafer",
+   "brand": "Northloop",
+   "price": 164.99,
+   "style_tags": [
+    "tech",
+    "minimal"
+   ],
+   "description": "A tech, minimal loafer from Northloop.",
+   "fictional": true
+  },
+  {
+   "product_id": "p050",
+   "class": "sweatshirt",
+   "name": "Brisk Harbor Hearth Sweatshirt",
+   "brand": "Brisk Harbor",
+   "price": 29.99,
+   "style_tags": [
+    "cozy",
+    "budget"
+   ],
+   "description": "A cozy, budget sweatshirt from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p051",
+   "class": "sweatshirt",
+   "name": "Oakvale Hearth Sweatshirt",
+   "brand": "Oakvale",
+   "price": 39.99,
+   "style_tags": [
+    "cozy",
+    "budget"
+   ],
+   "description": "A cozy, budget sweatshirt from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p052",
+   "class": "sweatshirt",
+   "name": "Northloop Trail Sweatshirt",
+   "brand": "Northloop",
+   "price": 49.99,
+   "style_tags": [
+    "outdoor",
+    "classic"
+   ],
+   "description": "A outdoor, classic sweatshirt from Northloop.",
+   "fictional": true
+  },
+  {
+   "product_id": "p053",
+   "class": "sweatshirt",
+   "name": "Oakvale Tempo Sweatshirt",
+   "brand": "Oakvale",
+   "price": 64.99,
+   "style_tags": [
+    "sporty",
+    "tech"
+   ],
+   "description": "A sporty, tech sweatshirt from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p060",
+   "class": "jean",
+   "name": "Oakvale Smart Jeans",
+   "brand": "Oakvale",
+   "price": 69.99,
+   "style_tags": [
+    "tech",
+    "cozy"
+   ],
+   "description": "A tech, cozy jeans from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p061",
+   "class": "jean",
+   "name": "Tessary Signature Jeans",
+   "brand": "Tessary",
+   "price": 69.99,
+   "style_tags": [
+    "luxe",
+    "sporty"
+   ],
+   "description": "A luxe, sporty jeans from Tessary.",
+   "fictional": true
+  },
+  {
+   "product_id": "p062",
+   "class": "jean",
+   "name": "Tessary Signature Jeans",
+   "brand": "Tessary",
+   "price": 74.99,
+   "style_tags": [
+    "luxe",
+    "cozy"
+   ],
+   "description": "A luxe, cozy jeans from Tessary.",
+   "fictional": true
+  },
+  {
+   "product_id": "p063",
+   "class": "jean",
+   "name": "Lumen Row Tempo Jeans",
+   "brand": "Lumen Row",
+   "price": 114.99,
+   "style_tags": [
+    "sporty",
+    "classic"
+   ],
+   "description": "A sporty, classic jeans from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p070",
+   "class": "cardigan",
+   "name": "Brisk Harbor Trail Cardigan",
+   "brand": "Brisk Harbor",
+   "price": 69.99,
+   "style_tags": [
+    "outdoor",
+    "minimal"
+   ],
+   "description": "A outdoor, minimal cardigan from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p071",
+   "class": "cardigan",
+   "name": "Oakvale Hearth Cardigan",
+   "brand": "Oakvale",
+   "price": 99.99,
+   "style_tags": [
+    "cozy",
+    "luxe"
+   ],
+   "description": "A cozy, luxe cardigan from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p072",
+   "class": "cardigan",
+   "name": "Lumen Row Trail Cardigan",
+   "brand": "Lumen Row",
+   "price": 104.99,
+   "style_tags": [
+    "outdoor",
+    "cozy"
+   ],
+   "description": "A outdoor, cozy cardigan from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p073",
+   "class": "cardigan",
+   "name": "Oakvale Trail Cardigan",
+   "brand": "Oakvale",
+   "price": 124.99,
+   "style_tags": [
+    "outdoor",
+    "luxe"
+   ],
+   "description": "A outdoor, luxe cardigan from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p080",
+   "class": "sock",
+   "name": "Marlowe & Pine Tempo Sock",
+   "brand": "Marlowe & Pine",
+   "price": 9.99,
+   "style_tags": [
+    "sporty",
+    "budget"
+   ],
+   "description": "A sporty, budget sock from Marlowe & Pine.",
+   "fictional": true
+  },
+  {
+   "product_id": "p081",
+   "class": "sock",
+   "name": "Oakvale Signature Sock",
+   "brand": "Oakvale",
+   "price": 19.99,
+   "style_tags": [
+    "luxe",
+    "cozy"
+   ],
+   "description": "A luxe, cozy sock from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p082",
+   "class": "sock",
+   "name": "Ardent Co. Essential Sock",
+   "brand": "Ardent Co.",
+   "price": 24.99,
+   "style_tags": [
+    "minimal",
+    "cozy"
+   ],
+   "description": "A minimal, cozy sock from Ardent Co..",
+   "fictional": true
+  },
+  {
+   "product_id": "p083",
+   "class": "sock",
+   "name": "Oakvale Signature Sock",
+   "brand": "Oakvale",
+   "price": 24.99,
+   "style_tags": [
+    "luxe",
+    "sporty"
+   ],
+   "description": "A luxe, sporty sock from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p090",
+   "class": "wallet",
+   "name": "Northloop Heritage Wallet",
+   "brand": "Northloop",
+   "price": 19.99,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "A classic, budget wallet from Northloop.",
+   "fictional": true
+  },
+  {
+   "product_id": "p091",
+   "class": "wallet",
+   "name": "Ardent Co. Hearth Wallet",
+   "brand": "Ardent Co.",
+   "price": 19.99,
+   "style_tags": [
+    "cozy",
+    "budget"
+   ],
+   "description": "A cozy, budget wallet from Ardent Co..",
+   "fictional": true
+  },
+  {
+   "product_id": "p092",
+   "class": "wallet",
+   "name": "Northloop Signature Wallet",
+   "brand": "Northloop",
+   "price": 74.99,
+   "style_tags": [
+    "luxe",
+    "cozy"
+   ],
+   "description": "A luxe, cozy wallet from Northloop.",
+   "fictional": true
+  },
+  {
+   "product_id": "p093",
+   "class": "wallet",
+   "name": "Northloop Heritage Wallet",
+   "brand": "Northloop",
+   "price": 84.99,
+   "style_tags": [
+    "classic",
+    "cozy"
+   ],
+   "description": "A classic, cozy wallet from Northloop.",
+   "fictional": true
+  },
+  {
+   "product_id": "p100",
+   "class": "purse",
+   "name": "Marlowe & Pine Essential Purse",
+   "brand": "Marlowe & Pine",
+   "price": 99.99,
+   "style_tags": [
+    "minimal",
+    "tech"
+   ],
+   "description": "A minimal, tech purse from Marlowe & Pine.",
+   "fictional": true
+  },
+  {
+   "product_id": "p101",
+   "class": "purse",
+   "name": "Marlowe & Pine Signature Purse",
+   "brand": "Marlowe & Pine",
+   "price": 119.99,
+   "style_tags": [
+    "luxe",
+    "minimal"
+   ],
+   "description": "A luxe, minimal purse from Marlowe & Pine.",
+   "fictional": true
+  },
+  {
+   "product_id": "p102",
+   "class": "purse",
+   "name": "Quillfield Trail Purse",
+   "brand": "Quillfield",
+   "price": 149.99,
+   "style_tags": [
+    "outdoor",
+    "luxe"
+   ],
+   "description": "A outdoor, luxe purse from Quillfield.",
+   "fictional": true
+  },
+  {
+   "product_id": "p103",
+   "class": "purse",
+   "name": "Ardent Co. Smart Purse",
+   "brand": "Ardent Co.",
+   "price": 234.99,
+   "style_tags": [
+    "tech",
+    "luxe"
+   ],
+   "description": "A tech, luxe purse from Ardent Co..",
+   "fictional": true
+  },
+  {
+   "product_id": "p110",
+   "class": "digital watch",
+   "name": "Brisk Harbor Heritage Digital Watch",
+   "brand": "Brisk Harbor",
+   "price": 79.99,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "A classic, budget digital watch from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p111",
+   "class": "digital watch",
+   "name": "Quillfield Smart Digital Watch",
+   "brand": "Quillfield",
+   "price": 104.99,
+   "style_tags": [
+    "tech",
+    "luxe"
+   ],
+   "description": "A tech, luxe digital watch from Quillfield.",
+   "fictional": true
+  },
+  {
+   "product_id": "p112",
+   "class": "digital watch",
+   "name": "Ardent Co. Tempo Digital Watch",
+   "brand": "Ardent Co.",
+   "price": 134.99,
+   "style_tags": [
+    "sporty",
+    "outdoor"
+   ],
+   "description": "A sporty, outdoor digital watch from Ardent Co..",
+   "fictional": true
+  },
+  {
+   "product_id": "p113",
+   "class": "digital watch",
+   "name": "Marlowe & Pine Trail Digital Watch",
+   "brand": "Marlowe & Pine",
+   "price": 184.99,
+   "style_tags": [
+    "outdoor",
+    "cozy"
+   ],
+   "description": "A outdoor, cozy digital watch from Marlowe & Pine.",
+   "fictional": true
+  },
+  {
+   "product_id": "p120",
+   "class": "coffee mug",
+   "name": "Lumen Row Smart Coffee Mug",
+   "brand": "Lumen Row",
+   "price": 9.99,
+   "style_tags": [
+    "tech",
+    "budget"
+   ],
+   "description": "A tech, budget coffee mug from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p121",
+   "class": "coffee mug",
+   "name": "Quillfield Signature Coffee Mug",
+   "brand": "Quillfield",
+   "price": 19.99,
+   "style_tags": [
+    "luxe",
+    "outdoor"
+   ],
+   "description": "A luxe, outdoor coffee mug from Quillfield.",
+   "fictional": true
+  },
+  {
+   "product_id": "p122",
+   "class": "coffee mug",
+   "name": "Brisk Harbor Signature Coffee Mug",
+   "brand": "Brisk Harbor",
+   "price": 29.99,
+   "style_tags": [
+    "luxe",
+    "outdoor"
+   ],
+   "description": "A luxe, outdoor coffee mug from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p123",
+   "class": "coffee mug",
+   "name": "Brisk Harbor Tempo Coffee Mug",
+   "brand": "Brisk Harbor",
+   "price": 34.99,
+   "style_tags": [
+    "sporty",
+    "minimal"
+   ],
+   "description": "A sporty, minimal coffee mug from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p130",
+   "class": "water bottle",
+   "name": "Tessary Heritage Water Bottle",
+   "brand": "Tessary",
+   "price": 9.99,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "A classic, budget water bottle from Tessary.",
+   "fictional": true
+  },
+  {
+   "product_id": "p131",
+   "class": "water bottle",
+   "name": "Oakvale Tempo Water Bottle",
+   "brand": "Oakvale",
+   "price": 14.99,
+   "style_tags": [
+    "sporty",
+    "budget"
+   ],
+   "description": "A sporty, budget water bottle from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p132",
+   "class": "water bottle",
+   "name": "Quillfield Hearth Water Bottle",
+   "brand": "Quillfield",
+   "price": 39.99,
+   "style_tags": [
+    "cozy",
+    "tech"
+   ],
+   "description": "A cozy, tech water bottle from Quillfield.",
+   "fictional": true
+  },
+  {
+   "product_id": "p133",
+   "class": "water bottle",
+   "name": "Lumen Row Hearth Water Bottle",
+   "brand": "Lumen Row",
+   "price": 44.99,
+   "style_tags": [
+    "cozy",
+    "minimal"
+   ],
+   "description": "A cozy, minimal water bottle from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p140",
+   "class": "teapot",
+   "name": "Marlowe & Pine Heritage Teapot",
+   "brand": "Marlowe & Pine",
+   "price": 34.99,
+   "style_tags": [
+    "classic",
+    "tech"
+   ],
+   "description": "A classic, tech teapot from Marlowe & Pine.",
+   "fictional": true
+  },
+  {
+   "product_id": "p141",
+   "class": "teapot",
+   "name": "Lumen Row Signature Teapot",
+   "brand": "Lumen Row",
+   "price": 49.99,
+   "style_tags": [
+    "luxe",
+    "minimal"
+   ],
+   "description": "A luxe, minimal teapot from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p142",
+   "class": "teapot",
+   "name": "Oakvale Essential Teapot",
+   "brand": "Oakvale",
+   "price": 69.99,
+   "style_tags": [
+    "minimal",
+    "tech"
+   ],
+   "description": "A minimal, tech teapot from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p143",
+   "class": "teapot",
+   "name": "Brisk Harbor Tempo Teapot",
+   "brand": "Brisk Harbor",
+   "price": 79.99,
+   "style_tags": [
+    "sporty",
+    "luxe"
+   ],
+   "description": "A sporty, luxe teapot from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p150",
+   "class": "frying pan",
+   "name": "Marlowe & Pine Trail Frying Pan",
+   "brand": "Marlowe & Pine",
+   "price": 34.99,
+   "style_tags": [
+    "outdoor",
+    "budget"
+   ],
+   "description": "A outdoor, budget frying pan from Marlowe & Pine.",
+   "fictional": true
+  },
+  {
+   "product_id": "p151",
+   "class": "frying pan",
+   "name": "Oakvale Smart Frying Pan",
+   "brand": "Oakvale",
+   "price": 49.99,
+   "style_tags": [
+    "tech",
+    "budget"
+   ],
+   "description": "A tech, budget frying pan from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p152",
+   "class": "frying pan",
+   "name": "Ardent Co. Tempo Frying Pan",
+   "brand": "Ardent Co.",
+   "price": 99.99,
+   "style_tags": [
+    "sporty",
+    "luxe"
+   ],
+   "description": "A sporty, luxe frying pan from Ardent Co..",
+   "fictional": true
+  },
+  {
+   "product_id": "p153",
+   "class": "frying pan",
+   "name": "Ardent Co. Smart Frying Pan",
+   "brand": "Ardent Co.",
+   "price": 124.99,
+   "style_tags": [
+    "tech",
+    "minimal"
+   ],
+   "description": "A tech, minimal frying pan from Ardent Co..",
+   "fictional": true
+  },
+  {
+   "product_id": "p160",
+   "class": "toaster",
+   "name": "Lumen Row Heritage Toaster",
+   "brand": "Lumen Row",
+   "price": 34.99,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "A classic, budget toaster from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p161",
+   "class": "toaster",
+   "name": "Ardent Co. Smart Toaster",
+   "brand": "Ardent Co.",
+   "price": 74.99,
+   "style_tags": [
+    "tech",
+    "luxe"
+   ],
+   "description": "A tech, luxe toaster from Ardent Co..",
+   "fictional": true
+  },
+  {
+   "product_id": "p162",
+   "class": "toaster",
+   "name": "Marlowe & Pine Hearth Toaster",
+   "brand": "Marlowe & Pine",
+   "price": 79.99,
+   "style_tags": [
+    "cozy",
+    "classic"
+   ],
+   "description": "A cozy, classic toaster from Marlowe & Pine.",
+   "fictional": true
+  },
+  {
+   "product_id": "p163",
+   "class": "toaster",
+   "name": "Marlowe & Pine Heritage Toaster",
+   "brand": "Marlowe & Pine",
+   "price": 119.99,
+   "style_tags": [
+    "classic",
+    "tech"
+   ],
+   "description": "A classic, tech toaster from Marlowe & Pine.",
+   "fictional": true
+  },
+  {
+   "product_id": "p170",
+   "class": "espresso maker",
+   "name": "Brisk Harbor Tempo Espresso Maker",
+   "brand": "Brisk Harbor",
+   "price": 89.99,
+   "style_tags": [
+    "sporty",
+    "budget"
+   ],
+   "description": "A sporty, budget espresso maker from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p171",
+   "class": "espresso maker",
+   "name": "Tessary Essential Espresso Maker",
+   "brand": "Tessary",
+   "price": 284.99,
+   "style_tags": [
+    "minimal",
+    "luxe"
+   ],
+   "description": "A minimal, luxe espresso maker from Tessary.",
+   "fictional": true
+  },
+  {
+   "product_id": "p172",
+   "class": "espresso maker",
+   "name": "Brisk Harbor Hearth Espresso Maker",
+   "brand": "Brisk Harbor",
+   "price": 294.99,
+   "style_tags": [
+    "cozy",
+    "outdoor"
+   ],
+   "description": "A cozy, outdoor espresso maker from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p173",
+   "class": "espresso maker",
+   "name": "Tessary Trail Espresso Maker",
+   "brand": "Tessary",
+   "price": 434.99,
+   "style_tags": [
+    "outdoor",
+    "minimal"
+   ],
+   "description": "A outdoor, minimal espresso maker from Tessary.",
+   "fictional": true
+  },
+  {
+   "product_id": "p180",
+   "class": "laptop",
+   "name": "Marlowe & Pine Signature Laptop",
+   "brand": "Marlowe & Pine",
+   "price": 1049.99,
+   "style_tags": [
+    "luxe",
+    "cozy"
+   ],
+   "description": "A luxe, cozy laptop from Marlowe & Pine.",
+   "fictional": true
+  },
+  {
+   "product_id": "p181",
+   "class": "laptop",
+   "name": "Northloop Trail Laptop",
+   "brand": "Northloop",
+   "price": 1469.99,
+   "style_tags": [
+    "outdoor",
+    "sporty"
+   ],
+   "description": "A outdoor, sporty laptop from Northloop.",
+   "fictional": true
+  },
+  {
+   "product_id": "p182",
+   "class": "laptop",
+   "name": "Brisk Harbor Essential Laptop",
+   "brand": "Brisk Harbor",
+   "price": 1619.99,
+   "style_tags": [
+    "minimal",
+    "luxe"
+   ],
+   "description": "A minimal, luxe laptop from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p183",
+   "class": "laptop",
+   "name": "Marlowe & Pine Tempo Laptop",
+   "brand": "Marlowe & Pine",
+   "price": 1674.99,
+   "style_tags": [
+    "sporty",
+    "cozy"
+   ],
+   "description": "A sporty, cozy laptop from Marlowe & Pine.",
+   "fictional": true
+  },
+  {
+   "product_id": "p190",
+   "class": "computer keyboard",
+   "name": "Lumen Row Smart Computer Keyboard",
+   "brand": "Lumen Row",
+   "price": 69.99,
+   "style_tags": [
+    "tech",
+    "sporty"
+   ],
+   "description": "A tech, sporty computer keyboard from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p191",
+   "class": "computer keyboard",
+   "name": "Ardent Co. Trail Computer Keyboard",
+   "brand": "Ardent Co.",
+   "price": 94.99,
+   "style_tags": [
+    "outdoor",
+    "minimal"
+   ],
+   "description": "A outdoor, minimal computer keyboard from Ardent Co..",
+   "fictional": true
+  },
+  {
+   "product_id": "p192",
+   "class": "computer keyboard",
+   "name": "Lumen Row Essential Computer Keyboard",
+   "brand": "Lumen Row",
+   "price": 129.99,
+   "style_tags": [
+    "minimal",
+    "luxe"
+   ],
+   "description": "A minimal, luxe computer keyboard from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p193",
+   "class": "computer keyboard",
+   "name": "Oakvale Hearth Computer Keyboard",
+   "brand": "Oakvale",
+   "price": 134.99,
+   "style_tags": [
+    "cozy",
+    "sporty"
+   ],
+   "description": "A cozy, sporty computer keyboard from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p200",
+   "class": "mouse",
+   "name": "Ardent Co. Heritage Mouse",
+   "brand": "Ardent Co.",
+   "price": 24.99,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "A classic, budget mouse from Ardent Co..",
+   "fictional": true
+  },
+  {
+   "product_id": "p201",
+   "class": "mouse",
+   "name": "Oakvale Signature Mouse",
+   "brand": "Oakvale",
+   "price": 49.99,
+   "style_tags": [
+    "luxe",
+    "tech"
+   ],
+   "description": "A luxe, tech mouse from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p202",
+   "class": "mouse",
+   "name": "Lumen Row Hearth Mouse",
+   "brand": "Lumen Row",
+   "price": 74.99,
+   "style_tags": [
+    "cozy",
+    "outdoor"
+   ],
+   "description": "A cozy, outdoor mouse from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p203",
+   "class": "mouse",
+   "name": "Quillfield Trail Mouse",
+   "brand": "Quillfield",
+   "price": 84.99,
+   "style_tags": [
+    "outdoor",
+    "classic"
+   ],
+   "description": "A outdoor, classic mouse from Quillfield.",
+   "fictional": true
+  },
+  {
+   "product_id": "p210",
+   "class": "cellular telephone",
+   "name": "Northloop Trail Phone",
+   "brand": "Northloop",
+   "price": 549.99,
+   "style_tags": [
+    "outdoor",
+    "luxe"
+   ],
+   "description": "A outdoor, luxe phone from Northloop.",
+   "fictional": true
+  },
+  {
+   "product_id": "p211",
+   "class": "cellular telephone",
+   "name": "Lumen Row Signature Phone",
+   "brand": "Lumen Row",
+   "price": 609.99,
+   "style_tags": [
+    "luxe",
+    "tech"
+   ],
+   "description": "A luxe, tech phone from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p212",
+   "class": "cellular telephone",
+   "name": "Quillfield Hearth Phone",
+   "brand": "Quillfield",
+   "price": 889.99,
+   "style_tags": [
+    "cozy",
+    "luxe"
+   ],
+   "description": "A cozy, luxe phone from Quillfield.",
+   "fictional": true
+  },
+  {
+   "product_id": "p213",
+   "class": "cellular telephone",
+   "name": "Marlowe & Pine Tempo Phone",
+   "brand": "Marlowe & Pine",
+   "price": 1094.99,
+   "style_tags": [
+    "sporty",
+    "cozy"
+   ],
+   "description": "A sporty, cozy phone from Marlowe & Pine.",
+   "fictional": true
+  },
+  {
+   "product_id": "p220",
+   "class": "iPod",
+   "name": "Northloop Heritage Music Player",
+   "brand": "Northloop",
+   "price": 79.99,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "A classic, budget music player from Northloop.",
+   "fictional": true
+  },
+  {
+   "product_id": "p221",
+   "class": "iPod",
+   "name": "Lumen Row Hearth Music Player",
+   "brand": "Lumen Row",
+   "price": 129.99,
+   "style_tags": [
+    "cozy",
+    "classic"
+   ],
+   "description": "A cozy, classic music player from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p222",
+   "class": "iPod",
+   "name": "Brisk Harbor Trail Music Player",
+   "brand": "Brisk Harbor",
+   "price": 139.99,
+   "style_tags": [
+    "outdoor",
+    "minimal"
+   ],
+   "description": "A outdoor, minimal music player from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p223",
+   "class": "iPod",
+   "name": "Oakvale Hearth Music Player",
+   "brand": "Oakvale",
+   "price": 164.99,
+   "style_tags": [
+    "cozy",
+    "minimal"
+   ],
+   "description": "A cozy, minimal music player from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p230",
+   "class": "binoculars",
+   "name": "Lumen Row Heritage Binoculars",
+   "brand": "Lumen Row",
+   "price": 149.99,
+   "style_tags": [
+    "classic",
+    "sporty"
+   ],
+   "description": "A classic, sporty binoculars from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p231",
+   "class": "binoculars",
+   "name": "Tessary Signature Binoculars",
+   "brand": "Tessary",
+   "price": 259.99,
+   "style_tags": [
+    "luxe",
+    "sporty"
+   ],
+   "description": "A luxe, sporty binoculars from Tessary.",
+   "fictional": true
+  },
+  {
+   "product_id": "p232",
+   "class": "binoculars",
+   "name": "Brisk Harbor Signature Binoculars",
+   "brand": "Brisk Harbor",
+   "price": 294.99,
+   "style_tags": [
+    "luxe",
+    "minimal"
+   ],
+   "description": "A luxe, minimal binoculars from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p233",
+   "class": "binoculars",
+   "name": "Lumen Row Heritage Binoculars",
+   "brand": "Lumen Row",
+   "price": 294.99,
+   "style_tags": [
+    "classic",
+    "cozy"
+   ],
+   "description": "A classic, cozy binoculars from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p240",
+   "class": "acoustic guitar",
+   "name": "Tessary Tempo Acoustic Guitar",
+   "brand": "Tessary",
+   "price": 179.99,
+   "style_tags": [
+    "sporty",
+    "budget"
+   ],
+   "description": "A sporty, budget acoustic guitar from Tessary.",
+   "fictional": true
+  },
+  {
+   "product_id": "p241",
+   "class": "acoustic guitar",
+   "name": "Ardent Co. Heritage Acoustic Guitar",
+   "brand": "Ardent Co.",
+   "price": 194.99,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "A classic, budget acoustic guitar from Ardent Co..",
+   "fictional": true
+  },
+  {
+   "product_id": "p242",
+   "class": "acoustic guitar",
+   "name": "Oakvale Trail Acoustic Guitar",
+   "brand": "Oakvale",
+   "price": 424.99,
+   "style_tags": [
+    "outdoor",
+    "cozy"
+   ],
+   "description": "A outdoor, cozy acoustic guitar from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p243",
+   "class": "acoustic guitar",
+   "name": "Lumen Row Smart Acoustic Guitar",
+   "brand": "Lumen Row",
+   "price": 564.99,
+   "style_tags": [
+    "tech",
+    "minimal"
+   ],
+   "description": "A tech, minimal acoustic guitar from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p250",
+   "class": "electric guitar",
+   "name": "Lumen Row Heritage Electric Guitar",
+   "brand": "Lumen Row",
+   "price": 219.99,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "A classic, budget electric guitar from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p251",
+   "class": "electric guitar",
+   "name": "Lumen Row Tempo Electric Guitar",
+   "brand": "Lumen Row",
+   "price": 774.99,
+   "style_tags": [
+    "sporty",
+    "tech"
+   ],
+   "description": "A sporty, tech electric guitar from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p252",
+   "class": "electric guitar",
+   "name": "Quillfield Signature Electric Guitar",
+   "brand": "Quillfield",
+   "price": 904.99,
+   "style_tags": [
+    "luxe",
+    "sporty"
+   ],
+   "description": "A luxe, sporty electric guitar from Quillfield.",
+   "fictional": true
+  },
+  {
+   "product_id": "p253",
+   "class": "electric guitar",
+   "name": "Tessary Essential Electric Guitar",
+   "brand": "Tessary",
+   "price": 1094.99,
+   "style_tags": [
+    "minimal",
+    "tech"
+   ],
+   "description": "A minimal, tech electric guitar from Tessary.",
+   "fictional": true
+  },
+  {
+   "product_id": "p260",
+   "class": "umbrella",
+   "name": "Quillfield Hearth Umbrella",
+   "brand": "Quillfield",
+   "price": 19.99,
+   "style_tags": [
+    "cozy",
+    "budget"
+   ],
+   "description": "A cozy, budget umbrella from Quillfield.",
+   "fictional": true
+  },
+  {
+   "product_id": "p261",
+   "class": "umbrella",
+   "name": "Lumen Row Hearth Umbrella",
+   "brand": "Lumen Row",
+   "price": 34.99,
+   "style_tags": [
+    "cozy",
+    "minimal"
+   ],
+   "description": "A cozy, minimal umbrella from Lumen Row.",
+   "fictional": true
+  },
+  {
+   "product_id": "p262",
+   "class": "umbrella",
+   "name": "Tessary Tempo Umbrella",
+   "brand": "Tessary",
+   "price": 39.99,
+   "style_tags": [
+    "sporty",
+    "outdoor"
+   ],
+   "description": "A sporty, outdoor umbrella from Tessary.",
+   "fictional": true
+  },
+  {
+   "product_id": "p263",
+   "class": "umbrella",
+   "name": "Northloop Tempo Umbrella",
+   "brand": "Northloop",
+   "price": 49.99,
+   "style_tags": [
+    "sporty",
+    "luxe"
+   ],
+   "description": "A sporty, luxe umbrella from Northloop.",
+   "fictional": true
+  },
+  {
+   "product_id": "p270",
+   "class": "sleeping bag",
+   "name": "Quillfield Essential Sleeping Bag",
+   "brand": "Quillfield",
+   "price": 69.99,
+   "style_tags": [
+    "minimal",
+    "budget"
+   ],
+   "description": "A minimal, budget sleeping bag from Quillfield.",
+   "fictional": true
+  },
+  {
+   "product_id": "p271",
+   "class": "sleeping bag",
+   "name": "Marlowe & Pine Signature Sleeping Bag",
+   "brand": "Marlowe & Pine",
+   "price": 99.99,
+   "style_tags": [
+    "luxe",
+    "sporty"
+   ],
+   "description": "A luxe, sporty sleeping bag from Marlowe & Pine.",
+   "fictional": true
+  },
+  {
+   "product_id": "p272",
+   "class": "sleeping bag",
+   "name": "Northloop Essential Sleeping Bag",
+   "brand": "Northloop",
+   "price": 159.99,
+   "style_tags": [
+    "minimal",
+    "sporty"
+   ],
+   "description": "A minimal, sporty sleeping bag from Northloop.",
+   "fictional": true
+  },
+  {
+   "product_id": "p273",
+   "class": "sleeping bag",
+   "name": "Oakvale Tempo Sleeping Bag",
+   "brand": "Oakvale",
+   "price": 164.99,
+   "style_tags": [
+    "sporty",
+    "minimal"
+   ],
+   "description": "A sporty, minimal sleeping bag from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p280",
+   "class": "lipstick",
+   "name": "Brisk Harbor Trail Lipstick",
+   "brand": "Brisk Harbor",
+   "price": 14.99,
+   "style_tags": [
+    "outdoor",
+    "budget"
+   ],
+   "description": "A outdoor, budget lipstick from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p281",
+   "class": "lipstick",
+   "name": "Brisk Harbor Heritage Lipstick",
+   "brand": "Brisk Harbor",
+   "price": 24.99,
+   "style_tags": [
+    "classic",
+    "cozy"
+   ],
+   "description": "A classic, cozy lipstick from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p282",
+   "class": "lipstick",
+   "name": "Northloop Signature Lipstick",
+   "brand": "Northloop",
+   "price": 24.99,
+   "style_tags": [
+    "luxe",
+    "tech"
+   ],
+   "description": "A luxe, tech lipstick from Northloop.",
+   "fictional": true
+  },
+  {
+   "product_id": "p283",
+   "class": "lipstick",
+   "name": "Ardent Co. Essential Lipstick",
+   "brand": "Ardent Co.",
+   "price": 34.99,
+   "style_tags": [
+    "minimal",
+    "sporty"
+   ],
+   "description": "A minimal, sporty lipstick from Ardent Co..",
+   "fictional": true
+  },
+  {
+   "product_id": "p290",
+   "class": "perfume",
+   "name": "Brisk Harbor Heritage Perfume",
+   "brand": "Brisk Harbor",
+   "price": 44.99,
+   "style_tags": [
+    "classic",
+    "budget"
+   ],
+   "description": "A classic, budget perfume from Brisk Harbor.",
+   "fictional": true
+  },
+  {
+   "product_id": "p291",
+   "class": "perfume",
+   "name": "Quillfield Trail Perfume",
+   "brand": "Quillfield",
+   "price": 79.99,
+   "style_tags": [
+    "outdoor",
+    "cozy"
+   ],
+   "description": "A outdoor, cozy perfume from Quillfield.",
+   "fictional": true
+  },
+  {
+   "product_id": "p292",
+   "class": "perfume",
+   "name": "Oakvale Hearth Perfume",
+   "brand": "Oakvale",
+   "price": 149.99,
+   "style_tags": [
+    "cozy",
+    "minimal"
+   ],
+   "description": "A cozy, minimal perfume from Oakvale.",
+   "fictional": true
+  },
+  {
+   "product_id": "p293",
+   "class": "perfume",
+   "name": "Marlowe & Pine Heritage Perfume",
+   "brand": "Marlowe & Pine",
+   "price": 159.99,
+   "style_tags": [
+    "classic",
+    "minimal"
+   ],
+   "description": "A classic, minimal perfume from Marlowe & Pine.",
+   "fictional": true
+  }
+ ]
+}

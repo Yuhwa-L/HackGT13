@@ -25,3 +25,9 @@ scipy>=1.10            # temperature scaling optimizer
 
 # --- D: demo + backend ---
 # (none: backend/main.py and the page use only the standard library; build_demo_cache uses numpy/pandas/pyarrow above)
+
+# --- Visa wrapper (shop/, optional) ---
+imagecorruptions>=1.1  # corruptions on product photos
+setuptools<81          # imagecorruptions imports pkg_resources
+openai>=1.40           # shopping assistant (Structured Outputs)
+certifi                # CA bundle for python.org Python on macOS
