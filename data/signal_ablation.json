@@ -1,0 +1,237 @@
+{
+ "note": "held-out family test rows; auroc/aurc from trust.evaluate; score = P(correct), higher = trust more",
+ "auroc": {
+  "all 8 (committed model)": {
+   "noise": 0.7782,
+   "blur": 0.8839,
+   "weather": 0.9168,
+   "digital": 0.8768
+  },
+  "all 8 + trust_score": {
+   "noise": 0.7766,
+   "blur": 0.8835,
+   "weather": 0.9169,
+   "digital": 0.8762
+  },
+  "confidence only": {
+   "noise": 0.7678,
+   "blur": 0.8649,
+   "weather": 0.9004,
+   "digital": 0.8669
+  },
+  "confidence + stability": {
+   "noise": 0.7785,
+   "blur": 0.8809,
+   "weather": 0.9147,
+   "digital": 0.8768
+  },
+  "confidence + familiarity": {
+   "noise": 0.7675,
+   "blur": 0.8693,
+   "weather": 0.9047,
+   "digital": 0.8671
+  },
+  "drop confidence": {
+   "noise": 0.7761,
+   "blur": 0.8828,
+   "weather": 0.9168,
+   "digital": 0.8762
+  },
+  "single: raw_confidence": {
+   "noise": 0.7624,
+   "blur": 0.8629,
+   "weather": 0.8998,
+   "digital": 0.8624
+  },
+  "single: entropy": {
+   "noise": 0.7662,
+   "blur": 0.8644,
+   "weather": 0.8998,
+   "digital": 0.8646
+  },
+  "single: margin": {
+   "noise": 0.7593,
+   "blur": 0.8618,
+   "weather": 0.8998,
+   "digital": 0.8605
+  },
+  "single: tta_agree": {
+   "noise": 0.6338,
+   "blur": 0.7121,
+   "weather": 0.7382,
+   "digital": 0.6946
+  },
+  "single: tta_pconf": {
+   "noise": 0.7683,
+   "blur": 0.879,
+   "weather": 0.9119,
+   "digital": 0.8676
+  },
+  "single: tta_std": {
+   "noise": 0.7402,
+   "blur": 0.8675,
+   "weather": 0.9074,
+   "digital": 0.8463
+  },
+  "single: knn_dist": {
+   "noise": 0.7527,
+   "blur": 0.8638,
+   "weather": 0.899,
+   "digital": 0.865
+  },
+  "single: maha_pred": {
+   "noise": 0.7245,
+   "blur": 0.8196,
+   "weather": 0.8606,
+   "digital": 0.8193
+  },
+  "single: trust_score": {
+   "noise": 0.7496,
+   "blur": 0.8647,
+   "weather": 0.9013,
+   "digital": 0.8635
+  }
+ },
+ "aurc": {
+  "all 8 (committed model)": {
+   "noise": 0.2698,
+   "blur": 0.0486,
+   "weather": 0.014,
+   "digital": 0.0589
+  },
+  "all 8 + trust_score": {
+   "noise": 0.2708,
+   "blur": 0.0487,
+   "weather": 0.014,
+   "digital": 0.059
+  },
+  "confidence only": {
+   "noise": 0.2793,
+   "blur": 0.0552,
+   "weather": 0.0166,
+   "digital": 0.062
+  },
+  "confidence + stability": {
+   "noise": 0.2711,
+   "blur": 0.0503,
+   "weather": 0.0145,
+   "digital": 0.0591
+  },
+  "confidence + familiarity": {
+   "noise": 0.2771,
+   "blur": 0.0524,
+   "weather": 0.0154,
+   "digital": 0.0619
+  },
+  "drop confidence": {
+   "noise": 0.2708,
+   "blur": 0.0489,
+   "weather": 0.014,
+   "digital": 0.059
+  },
+  "single: raw_confidence": {
+   "noise": 0.2812,
+   "blur": 0.0557,
+   "weather": 0.0167,
+   "digital": 0.0631
+  },
+  "single: entropy": {
+   "noise": 0.2799,
+   "blur": 0.0556,
+   "weather": 0.0167,
+   "digital": 0.0627
+  },
+  "single: margin": {
+   "noise": 0.2825,
+   "blur": 0.0558,
+   "weather": 0.0165,
+   "digital": 0.0634
+  },
+  "single: tta_agree": {
+   "noise": 0.4293,
+   "blur": 0.1314,
+   "weather": 0.0541,
+   "digital": 0.1539
+  },
+  "single: tta_pconf": {
+   "noise": 0.2756,
+   "blur": 0.0507,
+   "weather": 0.0151,
+   "digital": 0.0611
+  },
+  "single: tta_std": {
+   "noise": 0.2872,
+   "blur": 0.0528,
+   "weather": 0.0152,
+   "digital": 0.0658
+  },
+  "single: knn_dist": {
+   "noise": 0.2856,
+   "blur": 0.054,
+   "weather": 0.0161,
+   "digital": 0.0624
+  },
+  "single: maha_pred": {
+   "noise": 0.3004,
+   "blur": 0.0647,
+   "weather": 0.0205,
+   "digital": 0.0752
+  },
+  "single: trust_score": {
+   "noise": 0.2881,
+   "blur": 0.0535,
+   "weather": 0.0158,
+   "digital": 0.0629
+  }
+ },
+ "trust_score_minus_committed_bootstrap": {
+  "noise": {
+   "aurc_diff": 0.0010798466748607183,
+   "aurc_diff_ci": [
+    0.0007330080893555871,
+    0.0014484561940544636
+   ],
+   "auroc_diff": -0.0015366003176113807,
+   "auroc_diff_ci": [
+    -0.002068067044043223,
+    -0.0010304992753866315
+   ]
+  },
+  "blur": {
+   "aurc_diff": 6.797734069728667e-05,
+   "aurc_diff_ci": [
+    -8.24882070137041e-05,
+    0.00021465319315103844
+   ],
+   "auroc_diff": -0.0004260234632468274,
+   "auroc_diff_ci": [
+    -0.000937868985053128,
+    7.90433738559886e-05
+   ]
+  },
+  "weather": {
+   "aurc_diff": -1.3845151030009856e-05,
+   "aurc_diff_ci": [
+    -9.589859732928012e-05,
+    6.723961623378925e-05
+   ],
+   "auroc_diff": 9.965756949337212e-05,
+   "auroc_diff_ci": [
+    -0.00035824120960082083,
+    0.0005682953390319212
+   ]
+  },
+  "digital": {
+   "aurc_diff": 0.00010825517237097321,
+   "aurc_diff_ci": [
+    -3.0140299521507795e-05,
+    0.0002529889836852192
+   ],
+   "auroc_diff": -0.0005816087015770854,
+   "auroc_diff_ci": [
+    -0.0010696156260909888,
+    -9.805979359372164e-05
+   ]
+  }
+ }
+}
