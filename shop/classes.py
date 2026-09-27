@@ -1,8 +1,11 @@
-"""Resolve PRODUCT_CLASSES to ImageNet indices. Fails loudly with close matches; never guesses an index."""
+"""Resolve PRODUCT_CLASSES to ImageNet indices. Fails loudly with close matches; never guesses an index.
+The result is cached in data/shop/product_indices.json so torch-free processes (the trust stage, the server) never
+need torchvision."""
 import difflib
+import json
 from functools import lru_cache
 
-from shop.config import PRODUCT_CLASSES
+from shop.config import PRODUCT_CLASSES, shop_path
 
 
 @lru_cache(maxsize=None)
@@ -14,6 +17,18 @@ def imagenet_categories():
 @lru_cache(maxsize=None)
 def product_indices():
     """ImageNet class index for each product class, in PRODUCT_CLASSES order."""
+    cache = shop_path("product_indices.json")
+    if cache.exists():
+        saved = json.loads(cache.read_text())
+        if saved["classes"] == PRODUCT_CLASSES:
+            return tuple(saved["indices"])
+    idx = _resolve()
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    cache.write_text(json.dumps({"classes": PRODUCT_CLASSES, "indices": list(idx)}, indent=1))
+    return idx
+
+
+def _resolve():
     cats = imagenet_categories()
     out, bad = [], []
     for name in PRODUCT_CLASSES:

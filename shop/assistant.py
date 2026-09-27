@@ -12,7 +12,7 @@ import os
 import re
 
 from shop.checkout_policy import checkout_requirements
-from shop.config import CHECKOUT_POLICY, ROOT
+from shop.config import CHECKOUT_POLICY, ROOT, a_product
 from shop.explain import explain
 from shop.gate import ALLOWED, DEFAULT_ACTION, allowed_actions, cart_allowed, effective_decision, shoppable_classes
 
@@ -99,15 +99,15 @@ def offline_text(eff, item, profile, ranked, user_message=""):
     if eff == "caution":
         names = [c["class"] for c in cands]
         picks = {c: next((p for p in ranked if p["class"] == c), None) for c in names}
-        comp = " ".join(f"If it's a {c}, the {p['name']} (${p['price']:.2f}) suits you: {p['why_for_you'][:1].lower() + p['why_for_you'][1:]}"
+        comp = " ".join(f"If it's {a_product(c)}, the {p['name']} (${p['price']:.2f}) suits you: {p['why_for_you'][:1].lower() + p['why_for_you'][1:]}"
                         for c, p in picks.items() if p)
         lead = "I can't check out until we know which item this is. " if refused else ""
         if len(names) == 1:
-            return (lead + f"This is probably a {names[0]}, but I'm not sure enough to go ahead. Is that right?", comp)
-        return (lead + f"I'm not sure whether this is a {' or a '.join(names)}. Which one did you mean?", comp)
+            return (lead + f"This is probably {a_product(names[0])}, but I'm not sure enough to go ahead. Is that right?", comp)
+        return (lead + f"I'm not sure whether this is {' or '.join(a_product(n) for n in names)}. Which one did you mean?", comp)
     top = ranked[0] if ranked else None
     what = item["pred_class"] if eff == "trust" else item["confirmed_class"]
-    msg = f"This looks like a {what}." + (f" For you, {name}, I'd start with the {top['name']} (${top['price']:.2f})."
+    msg = f"This looks like {a_product(what)}." + (f" For you, {name}, I'd start with the {top['name']} (${top['price']:.2f})."
                                           if top else "")
     return (msg, "")
 

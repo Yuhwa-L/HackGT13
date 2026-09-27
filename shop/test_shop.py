@@ -87,6 +87,9 @@ def test_explanations():
     base = {"pred_class": "backpack", "raw_confidence": 0.9, "candidates": CANDS, "reasons": []}
     assert "99%+" in explain({**base, "decision": "trust", "p_correct": 1.0})             # never shows 100%
     assert "backpack or a purse" in explain({**base, "decision": "caution", "p_correct": 0.6})
+    from shop.config import a_product
+    assert [a_product(c) for c in ("sunglasses", "iPod", "espresso maker", "jean", "backpack")] == [
+        "a pair of sunglasses", "an iPod", "an espresso maker", "a pair of jeans", "a backpack"]
     r = explain({**base, "decision": "reject", "p_correct": 0.2,
                  "reasons": [{"signal": "stability"}], "quality": {"label": "blurry"}})
     assert "blurry" in r and "nudged" in r and "claims 90%" in r

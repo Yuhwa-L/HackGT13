@@ -1,6 +1,7 @@
 """One plain-English sentence on why the trust layer decided what it did. Built from the decision, the candidates
 and the SHAP reason groups (stability / familiarity / confidence), plus the photo-quality issue when known.
 Deterministic, no LLM, so it always matches what the trust layer actually used."""
+from shop.config import a_product
 
 SIGNAL_PHRASE = {
     "stability": "its answer changes when the photo is nudged slightly",
@@ -28,9 +29,9 @@ def explain(item):
         cands = item.get("candidates") or []
         if len(cands) >= 2:
             tail = f": {why[0]}" if why else ""
-            return (f"It could be a {cands[0]['class']} or a {cands[1]['class']}{tail}. p_correct {_pct(p)}"
+            return (f"It could be {a_product(cands[0]['class'])} or {a_product(cands[1]['class'])}{tail}. p_correct {_pct(p)}"
                     + (f" (the model alone claims {_pct(raw)})." if overconfident else "."))
-        return (f"Probably a {item['pred_class']} (p_correct {_pct(p)}), but just below the bar for acting on it "
+        return (f"Probably {a_product(item['pred_class'])} (p_correct {_pct(p)}), but just below the bar for acting on it "
                 "without asking you" + (f": {why[0]}." if why else "."))
     if not why:
         return (f"Too risky to act on: the combined signals put its chance of being right at only {_pct(p)}"

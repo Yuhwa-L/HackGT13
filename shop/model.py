@@ -7,11 +7,11 @@ len(PRODUCT_CLASSES)-way logits. Embeddings are the 512-d penultimate features.
 import numpy as np
 import torch
 import torch.nn.functional as F
-from PIL import Image
 from torchvision.models import resnet18
 
 from shop.classes import product_indices
-from shop.config import IMAGE_SIZE, RAW, TTA_SHIFT
+from shop.config import RAW, TTA_SHIFT
+from shop.images import load_photo, prepare  # noqa: F401  (re-exported)
 
 MEAN = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
 STD = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
@@ -26,17 +26,6 @@ def load_model(dev):
     model = resnet18()
     model.load_state_dict(torch.load(WEIGHTS, map_location="cpu", weights_only=True))
     return model.eval().requires_grad_(False).to(dev)
-
-
-def load_photo(path):
-    """Resize the short side to 256 and center-crop 224 (standard ImageNet eval), as (224, 224, 3) uint8."""
-    im = Image.open(path).convert("RGB")
-    w, h = im.size
-    s = 256 / min(w, h)
-    im = im.resize((max(IMAGE_SIZE, round(w * s)), max(IMAGE_SIZE, round(h * s))), Image.BILINEAR)
-    w, h = im.size
-    left, top = (w - IMAGE_SIZE) // 2, (h - IMAGE_SIZE) // 2
-    return np.asarray(im.crop((left, top, left + IMAGE_SIZE, top + IMAGE_SIZE)), dtype=np.uint8)
 
 
 def _to_tensor(imgs, dev):

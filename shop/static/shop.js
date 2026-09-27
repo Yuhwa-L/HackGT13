@@ -63,7 +63,8 @@
   `;
 
   const S = { samples: null, meta: null, me: null, mode: "me", editing: false, base: null, photo: null, confirmed: null,
-              cart: {}, confirmations: 0, assist: null, chat: [], busy: false };
+              cart: {}, confirmations: 0, assist: null, chat: [], busy: false, uploads: [], uploadStatus: "loading",
+              uploading: false, uploadError: null };
   const RISK_TEXT = { relaxed: "Relaxed: one-tap up to $300", normal: "Normal: one-tap up to $150",
                       strict: "Strict: confirm every purchase" };
   const store = { get: () => { try { return JSON.parse(localStorage.getItem("shop.profile")); } catch (e) { return null; } },
@@ -73,7 +74,40 @@
   const whoName = () => S.mode === "me" ? (S.me.name || "You") : S.meta.examples.find(p => p.profile_id === S.mode).name;
   let root;
 
-  function versionsOf(base) { return S.samples.photos.find(p => p.base_image_id === base).versions; }
+  function versionsOf(base) { return [...S.uploads, ...S.samples.photos].find(p => p.base_image_id === base).versions; }
+
+  // ---- live upload: downscale in the browser (max 800 px), then the server runs the model + trust layer ----
+  async function toDataURL(file) {
+    try {
+      const bmp = await createImageBitmap(file, { imageOrientation: "from-image" });
+      const k = Math.min(1, 800 / Math.max(bmp.width, bmp.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+      c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+      return c.toDataURL("image/jpeg", 0.9);
+    } catch (e) {  // browsers that can't decode it (e.g. HEIC outside Safari): let the server try
+      return await new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = bad; r.readAsDataURL(file); });
+    }
+  }
+  async function upload(file) {
+    if (!file) return;
+    S.uploading = true; S.uploadError = null; render();
+    const r = await api("/api/shop/upload", { image: await toDataURL(file) }).catch(e => ({ ok: false, j: { error: String(e) } }));
+    S.uploading = false;
+    if (!r.ok) { S.uploadError = r.j.error || `Upload failed (HTTP ${r.status})`; return render(); }
+    const it = r.j;
+    S.uploads = [{ base_image_id: it.base_image_id, true_class: null, versions: [it] }, ...S.uploads.filter(u => u.base_image_id !== it.base_image_id)].slice(0, 6);
+    S.chat.push({ who: "u", text: "(uploaded a photo)" });
+    select(it.base_image_id, it.photo_id, { keepChat: true });
+  }
+  function uploadButton(label = "Upload or snap a photo") {
+    const input = el("input", { type: "file", accept: "image/*", hidden: "", onchange: e => upload(e.target.files[0]) });
+    const ready = S.uploadStatus === "ready";
+    return el("span", {}, input, el("button", { class: "btn primary", type: "button", disabled: !ready || S.uploading ? "" : null,
+      title: S.uploadStatus === "error" ? S.uploadErrorDetail : null,
+      text: S.uploading ? "Analyzing…" : ready ? label : S.uploadStatus === "loading" ? "Model loading…" : "Upload unavailable",
+      onclick: () => input.click() }));
+  }
   function item() { return versionsOf(S.base).find(v => v.photo_id === S.photo); }
 
   async function runAssist(userMessage) {
@@ -123,9 +157,10 @@
   }
 
   function renderPicker() {
-    const photos = S.samples.photos;
+    const photos = [...S.uploads, ...S.samples.photos];
     const vers = versionsOf(S.base);
     const cur = item();
+    const isUpload = cur.corruption === "upload";
     const corrs = [...new Set(vers.map(v => v.corruption))];
     const sevs = vers.filter(v => v.corruption === (cur.corruption === "clean" ? corrs.find(c => c !== "clean") : cur.corruption) || v.corruption === "clean");
     const pick = (c, s) => { const v = vers.find(x => x.corruption === c && x.severity === s) || vers.find(x => x.corruption === "clean"); select(S.base, v.photo_id); };
@@ -136,12 +171,16 @@
         text: s === 0 ? "clean" : `sev ${s}`, onclick: () => pick(s === 0 ? "clean" : (cur.corruption === "clean" ? corrs.find(c => c !== "clean") : cur.corruption), s) })));
     return el("section", { class: "card" },
       el("h2", { text: "1 · Snap a photo" }),
-      el("div", { class: "thumbs" }, photos.map(p => el("button", { type: "button", "aria-pressed": String(p.base_image_id === S.base), title: p.true_class,
-        onclick: () => select(p.base_image_id, p.versions.find(v => v.corruption === "clean").photo_id) },
-        el("img", { src: p.versions.find(v => v.corruption === "clean").image, alt: p.true_class })))),
-      el("img", { class: "photo", src: cur.image, alt: `${cur.true_class}, ${nice(cur.corruption)}`, style: "image-rendering:auto" }),
-      el("div", { class: "row" }, corrSel, sevSeg),
-      el("p", { class: "small", text: "Corrupted versions simulate a bad phone photo: noise, blur, fog, low contrast, compression." }));
+      el("div", { class: "row" }, uploadButton(), el("span", { class: "small", text: "or pick a sample:" })),
+      S.uploadError ? el("p", { class: "err", text: S.uploadError }) : null,
+      el("div", { class: "thumbs" }, photos.map(p => { const v0 = p.versions.find(v => ["clean", "upload"].includes(v.corruption));
+        return el("button", { type: "button", "aria-pressed": String(p.base_image_id === S.base), title: p.true_class || "your photo",
+          onclick: () => select(p.base_image_id, v0.photo_id) },
+          el("img", { src: v0.image, alt: p.true_class || "your photo" })); })),
+      el("img", { class: "photo", src: cur.image, alt: isUpload ? "your photo" : `${cur.true_class}, ${nice(cur.corruption)}`, style: "image-rendering:auto" }),
+      isUpload ? el("p", { class: "small", text: "Your photo, scored live by the model and the trust layer (30 product types; anything else should come back CAUTION or REJECT)." })
+        : el("div", { class: "row" }, corrSel, sevSeg),
+      isUpload ? null : el("p", { class: "small", text: "Corrupted versions simulate a bad phone photo: noise, blur, fog, low contrast, compression." }));
   }
 
   function renderTrust() {
@@ -161,6 +200,7 @@
   function clearerVersion(cur) {
     // Same product, gentler corruption: the lowest-severity version that the trust layer doesn't REJECT.
     const vers = versionsOf(S.base).filter(v => v.corruption === cur.corruption && v.severity < cur.severity && v.decision !== "reject");
+    if (cur.corruption === "upload") return null;
     const clean = versionsOf(S.base).find(v => v.corruption === "clean");
     return vers.sort((a, b) => b.severity - a.severity)[0] || (clean && clean.photo_id !== cur.photo_id ? clean : null);
   }
@@ -175,6 +215,7 @@
       el("h2", { text: "Retake coach" }),
       el("p", { text: q.issue ? `This photo looks ${q.label}. ${q.tip}` : q.tip || "Try a clearer photo of just the item." }),
       el("p", { class: "small", text: "Detected from the pixels (sharpness, noise, brightness, contrast vs clean product photos)." }),
+      cur.corruption === "upload" ? el("div", { class: "row" }, uploadButton("Upload a new photo")) : null,
       better ? el("div", { class: "row" }, el("button", { class: "btn", type: "button", text: "Try a clearer shot",
         onclick: () => { S.chat.push({ who: "u", text: "Here's a clearer photo." }); select(S.base, better.photo_id, { keepChat: true }); } }),
         el("span", { class: "small", text: better.corruption === "clean" ? "(the original photo)" : `(same item, ${nice(better.corruption)} severity ${better.severity})` })) : null);
@@ -345,6 +386,12 @@
     if (!s.ok || !p.ok) return;   // shop not installed: leave the page untouched
     S.samples = s.j; S.meta = p.j; S.me = store.get();
     install();
+    (async function poll() {   // the live model loads in the background after the server starts
+      const r = await api("/api/shop/status").catch(() => ({ ok: false, j: {} }));
+      S.uploadStatus = r.ok ? r.j.upload : "error"; S.uploadErrorDetail = r.j.upload_error;
+      render();
+      if (S.uploadStatus === "loading") setTimeout(poll, 1500);
+    })();
     const first = S.samples.story && S.samples.story.trust ? S.samples.story.trust : S.samples.photos[0].versions[0];
     S.base = first.base_image_id; S.photo = first.photo_id;
     if (S.me) select(first.base_image_id, first.photo_id); else render();

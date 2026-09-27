@@ -3,6 +3,8 @@
 GET  /api/shop/samples    curated photos (with images) + the demo story
 GET  /api/shop/profiles   example (fictional) shoppers, style tags, risk levels, catalog names for "things I own"
 POST /api/shop/identify   {photo_id} -> cached prediction, trust decision, candidates, reasons
+POST /api/shop/upload     {image: "data:image/jpeg;base64,..."} -> live prediction + trust decision (a new photo_id)
+GET  /api/shop/status     {"upload": "loading" | "ready" | "error", "upload_error"?}
 POST /api/shop/assist     {photo_id, profile | profile_id, user_message?, confirmed_class?} -> assistant response
                           (profile = the shopper's own {name, budget_per_item, style_tags, risk, owned}; the default)
 POST /api/shop/quote      {photo_id, confirmed_class?, cart} -> checkout tier for this cart; places nothing
@@ -14,6 +16,7 @@ Mock checkout only: no payment data is ever collected.
 """
 import hashlib
 import json
+from collections import OrderedDict
 from pathlib import Path
 
 from shop.assistant import assist
@@ -21,13 +24,18 @@ from shop.checkout_policy import checkout_requirements
 from shop.catalog import STYLES
 from shop.config import DATA, RISK_LEVELS
 from shop.gate import effective_decision, is_allowed, shoppable_classes
+from shop.live import LiveScorer
 from shop.profiles import normalize_profile
 
 STATIC = Path(__file__).resolve().parent / "static"
 MAX_QTY = 20
+MAX_UPLOAD = 4_000_000   # bytes of JSON; the browser downsizes photos to ~800 px first
+MAX_UPLOADS_KEPT = 100
 
 
 class ShopAPI:
+    MAX_UPLOAD = MAX_UPLOAD
+
     def __init__(self, data=DATA):
         cache = json.loads((data / "shop_cache.json").read_text())
         self.samples = {"meta": cache["meta"], "story": cache["story"], "photos": cache["photos"]}
@@ -35,12 +43,16 @@ class ShopAPI:
         self.catalog = json.loads((data / "catalog.json").read_text())["products"]
         self.by_id = {p["product_id"]: p for p in self.catalog}
         self.profiles = {p["profile_id"]: p for p in json.loads((data / "profiles.json").read_text())["profiles"]}
+        self.uploads = OrderedDict()   # photo_id -> live-scored item, most recent last
+        self.live = LiveScorer()
 
     @classmethod
     def load(cls):
         """None (and a note) when the shop artifacts aren't built; the core demo keeps working."""
         try:
-            return cls()
+            api = cls()
+            api.live.warm_up()   # loads torch + the model in the background; uploads say "loading" until ready
+            return api
         except (OSError, KeyError, ValueError) as e:
             print(f"Snap-to-Shop tab disabled: {type(e).__name__}: {e}")
             return None
@@ -57,6 +69,19 @@ class ShopAPI:
             req = json.loads(body or b"{}") if method == "POST" else {}
             if not isinstance(req, dict):
                 raise ValueError("body must be a JSON object")
+            if route == ("GET", "status"):
+                st = self.live.status()
+                return self._ok({"upload": st, **({"upload_error": self.live.error} if st == "error" else {})})
+            if route == ("POST", "upload"):
+                try:
+                    item = self.live.score(req.get("image"))
+                except RuntimeError as e:
+                    return self._json(503, {"error": f"Live upload is unavailable: {e}"})
+                self.uploads[item["photo_id"]] = item
+                self.uploads.move_to_end(item["photo_id"])
+                while len(self.uploads) > MAX_UPLOADS_KEPT:
+                    self.uploads.popitem(last=False)
+                return self._ok(item)
             if route == ("GET", "samples"):
                 return self._ok(self.samples)
             if route == ("GET", "profiles"):
@@ -87,7 +112,8 @@ class ShopAPI:
 
     # ---- helpers ----
     def _item(self, req):
-        item = self.items.get(str(req.get("photo_id")))
+        pid = str(req.get("photo_id"))
+        item = self.items.get(pid) or self.uploads.get(pid)
         if item is None:
             raise LookupError("unknown photo_id")
         return item

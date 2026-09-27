@@ -16,9 +16,9 @@ from PIL import Image
 
 from shop.config import PRODUCT_CLASSES, shop_path
 from shop.corrupt import corrupt
-from shop.model import load_photo
+from shop.images import load_photo
 from shop.photo_quality import assess, reference
-from shop.run_pipeline import list_photos
+from shop.benchmark_data import list_photos
 
 N_PHOTOS = 18
 STORY_PREF = ["backpack", "running shoe", "sunglasses", "coffee mug", "water bottle", "digital watch", "laptop"]

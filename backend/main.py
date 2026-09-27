@@ -75,7 +75,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path.startswith("/api/shop/"):
             size = int(self.headers.get("Content-Length", 0))
-            if size > MAX_BODY:
+            limit = self.shop.MAX_UPLOAD if self.shop and self.path == "/api/shop/upload" else MAX_BODY
+            if size > limit:
                 return self._json(413, {"error": "request too large"})
             if self._shop("POST", self.rfile.read(size)):
                 return
@@ -101,8 +102,10 @@ class Handler(BaseHTTPRequestHandler):
 def make_server(port=8000, root=ROOT):
     cache = root / "data" / "demo_cache.json"
     index = load_index(cache) if cache.exists() else None
-    shop = ShopAPI.load() if ShopAPI else None
-    return ThreadingHTTPServer(("127.0.0.1", port), partial(Handler, root=root, index=index, shop=shop))
+    server = ThreadingHTTPServer(("127.0.0.1", port), partial(Handler, root=root, index=index))
+    if ShopAPI:  # only after the port is bound, so a second copy on a busy port exits before starting anything
+        server.RequestHandlerClass = partial(Handler, root=root, index=index, shop=ShopAPI.load())
+    return server
 
 
 def main():

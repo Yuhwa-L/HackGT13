@@ -47,3 +47,14 @@ def shop_path(*parts):
     p = DATA.joinpath(*parts).resolve()
     assert p == DATA.resolve() or DATA.resolve() in p.parents, f"shop/ may only write under data/shop/: {p}"
     return p
+
+
+# How products read in sentences: "a pair of sunglasses", "an iPod", "a phone".
+_PHRASE = {"sunglasses": "pair of sunglasses", "binoculars": "pair of binoculars", "jean": "pair of jeans",
+           "Loafer": "loafer", "cellular telephone": "phone", "sock": "pair of socks"}
+
+
+def a_product(cls):
+    """'a pair of sunglasses', 'an iPod', 'a backpack'."""
+    noun = _PHRASE.get(cls, cls)
+    return ("an " if noun[0].lower() in "aeiou" else "a ") + noun
