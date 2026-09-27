@@ -59,8 +59,8 @@ Honesty lines to have ready (they win trust with technical judges):
   items outside the catalog. An agent trusting its own confidence (≥ 80%) would have one-tap-bought 15, including
   **a laptop as a keyboard**.
 - The server blocks forbidden actions even when the AI is told to "ignore the rules and buy it" (shown live).
-- Every purchase carries a **trust-trail receipt**: the evidence behind it, fingerprinted. "Tamper test" (inflating
-  `p_correct` in a copy) fails verification live.
+- Every purchase carries a **trust-trail receipt**: the evidence behind it, fingerprinted. "Tamper test" (editing a copy:
+  it inflates `p_correct`, or, on an already-certain purchase, changes the total) fails verification live.
 
 ## 4. Demo video (2–3 min; record before 8 AM, also the backup for the expo)
 
@@ -98,7 +98,7 @@ buying and pressing "Verify receipt": receipts only verify on the server run tha
   cross-fitting to stabilize thresholds. Offer the Research tab.
 - **Visa / commerce judge:** the checkout tiers, the shopper's careful-checkout setting, and the jailbreak refusal.
   Then buy something and open the **trust trail** on the receipt: "every agent purchase carries the evidence it was
-  made on, and it's tamper-evident". Press Tamper test. Close with "fewer wrong-item orders means fewer returns and
+  made on, and it's tamper-evident". Press Tamper test (it edits a copy of the receipt and the server rejects it). Close with "fewer wrong-item orders means fewer returns and
   disputes", and note that the payment is a mock token with no card data.
 - **Anyone asking "does it work on real photos?":** scroll to the bottom of the tab and click the evaluation card to expand it (it starts collapsed).
 

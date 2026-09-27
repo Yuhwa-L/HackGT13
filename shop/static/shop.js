@@ -406,9 +406,19 @@
   // ---- trust-trail receipt: the evidence each agent purchase was made on, fingerprinted and verifiable ----
   async function verifyReceipt(receipt, tamper) {
     const r = tamper ? JSON.parse(JSON.stringify(receipt)) : receipt;
-    if (tamper) r.evidence.p_correct = Math.min(1, r.evidence.p_correct + 0.2);   // pretend someone inflated the score
+    let change = null;
+    if (tamper) {   // always make a real edit: a near-certain p_correct can't be inflated, so forge the total instead
+      const e = r.evidence;
+      if (e.p_correct < 0.9) {
+        const was = e.p_correct; e.p_correct = Math.min(0.99, was + 0.25);
+        change = `p_correct raised from ${pct(was)} to ${pct(e.p_correct)}`;
+      } else {
+        const was = e.total; e.total = Math.round((was + 100) * 100) / 100;
+        change = `order total changed from ${money(was)} to ${money(e.total)}`;
+      }
+    }
     const res = await api("/api/shop/verify", { receipt: r });
-    S.verify = { tamper, valid: res.ok && res.j.valid };
+    S.verify = { tamper, change, valid: res.ok && res.j.valid };
     render();
   }
   function renderReceipt(o) {
@@ -433,7 +443,7 @@
         el("button", { class: "btn", type: "button", text: "Tamper test", title: "Inflate p_correct in a copy and ask the server to verify it",
           onclick: () => verifyReceipt(o, true) })),
       v ? el("p", { class: v.valid ? "ok-line" : "err", text: v.valid ? "✓ Verified: this is exactly the evidence the server signed."
-        : v.tamper ? "✗ Rejected: the evidence was altered (p_correct inflated), so the fingerprint no longer matches."
+        : v.tamper ? `✗ Rejected: someone altered the evidence (${v.change}), so the fingerprint no longer matches.`
         : "✗ Not verified." }) : null);
   }
 
